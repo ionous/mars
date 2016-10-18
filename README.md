@@ -1,9 +1,33 @@
+
 # Mars
 a sashimi dl/dsl research project.
 
 ideas based on [scripting with data](http://dev.ionous.net/2013/03/scripting-with-data.html), literate programming ( [inform7](http://inform7.com), [WEB](https://en.wikipedia.org/wiki/WEB) ), text templating (esp. [handlebars](http://handlebarsjs.com)), [inkle](https://github.com/inkle/ink), ...
 
 trying the experiment of making all notes public, updated over time.
+
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Mars](#)
+- [Tasks](#)
+    - [Future](#)
+- [Parsing](#)
+- [Scripting](#)
+    - [Scripting rules](#)
+    - [Collapsing the wall between script and code](#)
+    - [Relations](#)
+- [Events](#)
+    - [some thoughts](#)
+    - [Calling actions from actions:](#)
+    - [Parameter Naming](#)
+    - [Actions structures](#)
+    - [raising and stopping events](#)
+    - [Issues:](#)
+- [Backend phrases](#)
+- [Scanning](#)
+- [Verification](#)
+    - [text templating](#)
+- [Value packing](#)
 
 # Tasks
 
