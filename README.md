@@ -10,6 +10,7 @@ Table of Contents
 =================
 
   * [Mars](#mars)
+  * [Table of Contents](#table-of-contents)
   * [Tasks](#tasks)
     * [Future](#future)
   * [Parsing](#parsing)
@@ -17,6 +18,8 @@ Table of Contents
     * [Scripting rules](#scripting-rules)
     * [Collapsing the wall between script and code](#collapsing-the-wall-between-script-and-code)
     * [Relations](#relations)
+  * [Model Changes](#model-changes)
+    * [the model:](#the-model)
   * [Events](#events)
     * [some thoughts](#some-thoughts)
     * [Calling actions from actions:](#calling-actions-from-actions)
