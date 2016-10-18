@@ -6,32 +6,35 @@ ideas based on [scripting with data](http://dev.ionous.net/2013/03/scripting-wit
 
 trying the experiment of making all notes public, updated over time.
 
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+Table of Contents
+=================
 
-- [Mars](#)
-- [Tasks](#)
-    - [Future](#)
-- [Parsing](#)
-- [Scripting](#)
-    - [Scripting rules](#)
-    - [Collapsing the wall between script and code](#)
-    - [Relations](#)
-- [Events](#)
-    - [some thoughts](#)
-    - [Calling actions from actions:](#)
-    - [Parameter Naming](#)
-    - [Actions structures](#)
-    - [raising and stopping events](#)
-    - [Issues:](#)
-- [Backend phrases](#)
-- [Scanning](#)
-- [Verification](#)
-    - [text templating](#)
-- [Value packing](#)
+  * [Mars](#mars)
+  * [Tasks](#tasks)
+    * [Future](#future)
+  * [Parsing](#parsing)
+  * [Scripting](#scripting)
+    * [Scripting rules](#scripting-rules)
+    * [Collapsing the wall between script and code](#collapsing-the-wall-between-script-and-code)
+    * [Relations](#relations)
+  * [Events](#events)
+    * [some thoughts](#some-thoughts)
+    * [Calling actions from actions:](#calling-actions-from-actions)
+    * [Parameter Naming](#parameter-naming)
+    * [Actions structures](#actions-structures)
+    * [raising and stopping events](#raising-and-stopping-events)
+    * [Issues:](#issues)
+  * [Backend phrases](#backend-phrases)
+  * [Scanning](#scanning)
+  * [Verification](#verification)
+    * [text templating](#text-templating)
+  * [Value packing](#value-packing)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
 # Tasks
 
-* move “text” and “num” to “eval” -- possibly disable relations for now.
+* move “text” and “num” to “eval” -- possibly disable relations for now. ( see model changes below )
 * goal: get to the point where we can run an action and listen to an event.
    * work more on translating the standard lib and test scripts
 * compute a sequence list
@@ -81,10 +84,60 @@ currently the script keeps “text” and “number”, “pointer” ( object r
 
 once we have “text eval” -- if we can store that instead -- then we can use “text templates” right at hand. i’m vaguely curious how inform does this -- oh, i can guess ( i think ) -- it probably stores the string and parses the string at run-time ( plus or minus caching. ) some of the basics, now, could be pulled in and verified just like the rest. 
 
+( see model changes, below. )
+
 ## Relations
 
 * HaveOne -> ObjectEval backed by a Query [ FirstObjectQuery ]
 * HaveMany -> ObjectListEval backed by a Query [ ObjectListQuery ]
+
+# Model Changes
+things to look at: the compiler (pending class), the model ( and xmodel ), the runtime.
+
+## the model: 
+the instance is currently holding name -> `Value`, where `Value` is `interface{}`. sashimi likely use the property type to interpret that in a switch ( ex. in panic value. )
+
+so the options are:
+
+* variant: text eval, num eval, obj eval, lists, 
+    its the list that make me think these should be evals and not executes ( ie. concat result, not ambient accumulaton )
+    the variant is giving me pause though, why.
+    well in the other bits, we have type safety uberalles --
+    we dont have a variant "Eval" that returns just any old thing.
+
+options here include: 
+
+* a structure with pointers to the various evals ( mos ) 
+* and maps of each eval type ( som )
+
+concerns:    
+
+* i worry about "forgetting" to add something
+* i worry about the difficulty of expanding things
+* i worry it will look ugly.
+
+
+```json
+"tunnels-1": {
+   "id": "tunnels-1",
+   "type": "rooms",
+   "name": "tunnels-1",
+   "values": {
+    "kinds-name": "Maintenance Tunnels",
+    "kinds-printed-name": "Maintenance Tunnels",
+    "rooms-description": "Cobwebs and roots dangle from the ceiling.\nFrom here it looks like you can go west, east, or south ( back the way you came ).",
+    "rooms-east-via": "branch-one-1",
+    "rooms-maze-num": 0,
+    "rooms-maze-suffix": "1",
+    "rooms-north-via": "tunnels-1-arrival-south",
+    "rooms-scent": "It's obvious whichever bot was supposed to clean these tunnels hasn't been through here recently.",
+    "rooms-sound": "Here, more than anywhere, the ship sounds like a living breathing beast.",
+    "rooms-west-via": "branch-two-1"
+   }
+  }
+```
+
+
 
 # Events
 so something strange is starting to happen -- things which might be scripted actions, are becoming dl machines. and when i look at events -- which are they? they are right on the boundary -- 
@@ -209,15 +262,10 @@ the slot would have to have the parameters set as part of the execution definiti
 
 **we don't have defaults right now, and you would need them**
 
-```diff
-+
-- actors have action photograph with “photography data”. “photography data” is action data with a photographer actor, a subject actor, and camera prop. actors have default photograph with 
-```
+>actors have action photograph with “photography data”. “photography data” is action data with a photographer actor, a subject actor, and camera prop. actors have default photograph with 
 
-```diff
-+  actors can photograph and photographing requires photography data. photography data is action data with an actor “the photographer”, an actor “the subject”, and a prop “the camera”. to photograph, go say “maybe some day”.
--
-```
+
+> actors can photograph and photographing requires photography data. photography data is action data with an actor “the photographer”, an actor “the subject”, and a prop “the camera”. to photograph, go say “maybe some day”.
 
 ## raising and stopping events
 
