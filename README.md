@@ -6,6 +6,7 @@ ideas based on [scripting with data](http://dev.ionous.net/2013/03/scripting-wit
 
 trying the experiment of making all notes public, updated over time.
 
+
 Table of Contents
 =================
 
@@ -98,28 +99,25 @@ once we have “text eval” -- if we can store that instead -- then we can use 
 things to look at: the compiler (pending class), the model ( and xmodel ), the runtime.
 
 ## the model: 
-the instance is currently holding name -> `Value`, where `Value` is `interface{}`. sashimi likely use the property type to interpret that in a switch ( ex. in panic value. )
+the instance is currently holding  a map `Name -> Value`, where `Value` is `interface{}`. sashimi likely use the property type to interpret that in a switch ( ex. in panic value. )
 
-so the options are:
+so the options for variant are:
 
-* variant: text eval, num eval, obj eval, lists, 
-    its the list that make me think these should be evals and not executes ( ie. concat result, not ambient accumulaton )
-    the variant is giving me pause though, why.
-    well in the other bits, we have type safety uberalles --
-    we dont have a variant "Eval" that returns just any old thing.
+* variant as an interface{}.  text eval, num eval, obj eval, lists. its the list that make me think these should be evals and not executes ( ie. concatenate result, not ambient accumulation ) the variant is giving me pause though. well in the other bits, we have type safety uberalles -- we dont have a variant "Eval" that returns just any old thing.
 
-options here include: 
+* map-of-structures: variant as a structure containing points to the possible types (like the protocol buffer serialization method)
 
-* a structure with pointers to the various evals ( mos ) 
-* and maps of each eval type ( som )
+* structure-of-maps: each eval type has a map of value->concrete type.
 
-concerns:    
+* ....?
+
+structure-of-maps seems the most promising right now; with the following concerns:    
 
 * i worry about "forgetting" to add something
 * i worry about the difficulty of expanding things
 * i worry it will look ugly.
 
-
+for reference, here's a model entry containing the current values map:
 ```json
 "tunnels-1": {
    "id": "tunnels-1",
@@ -139,8 +137,6 @@ concerns:
    }
   }
 ```
-
-
 
 # Events
 so something strange is starting to happen -- things which might be scripted actions, are becoming dl machines. and when i look at events -- which are they? they are right on the boundary -- 
