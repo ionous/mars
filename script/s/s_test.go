@@ -1,7 +1,6 @@
 package s
 
 import (
-	"encoding/xml"
 	"github.com/ionous/mars/script"
 	"github.com/ionous/sashimi/source"
 	"github.com/stretchr/testify/assert"
@@ -15,10 +14,6 @@ func TestSimpleRoom(t *testing.T) {
 			Have("greeting", "text"),
 		),
 		The("room", Called("world"), Has("greeting", "hello")),
-	}
-
-	if xml, e := xml.MarshalIndent(s, "", " "); assert.NoError(t, e, "serialized") {
-		t.Log(string(xml))
 	}
 
 	b := source.BuildingBlocks{}

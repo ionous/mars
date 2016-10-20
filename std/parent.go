@@ -1,10 +1,8 @@
 package std
 
 import (
-	"github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/util/errutil"
-	"github.com/ionous/sashimi/util/ident"
 )
 
 // FIX - i think this will eventually be a machine that is passed in, and we will replace LookupParent entirely
@@ -19,15 +17,16 @@ func (a ChangeParent) Execute(r rt.Runtime) (err error) {
 	// would relation by value remove the need for transaction?
 	if ref, e := a.Src.GetReference(r); e != nil {
 		err = e
-	} else if src, e := core.MakeObject(r, ref); e != nil {
+	} else if src, e := r.GetObject(ref); e != nil {
 		err = e
 	} else if dst, e := a.Dst.GetReference(r); e != nil {
 		err = e
 	} else {
-		if _, old, ok := r.LookupParent(src); ok {
-			// note: objects which start out of world, dont have an owner to clear.
-			old.GetValue().SetObject(ident.Empty())
-		}
+		panic("!!!")
+		// if _, old, ok := r.LookupParent(src); ok {
+		// 	// note: objects which start out of world, dont have an owner to clear.
+		// 	old.GetValue().SetObject(ident.Empty())
+		// }
 		if next, ok := src.FindProperty(a.Rel); !ok {
 			err = errutil.New("ChangeParent:", src.GetId(), "does not have property", a.Rel)
 		} else {

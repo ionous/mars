@@ -67,7 +67,7 @@ func (t ALower) GetText(r rt.Runtime) (ret rt.Text, err error) {
 func articleNamed(r rt.Runtime, noun rt.RefEval, article string) (ret string, err error) {
 	if ref, e := noun.GetReference(r); e != nil {
 		err = e
-	} else if n, e := MakeObject(r, ref); e != nil {
+	} else if n, e := r.GetObject(ref); e != nil {
 		err = e
 	} else if printed, ok := n.FindProperty("printed name"); !ok {
 		err = errutil.New("object doesnt have printed names?")

@@ -5,6 +5,24 @@ import (
 	"strconv"
 )
 
+// Bool provides a dl boolean primitive.
+type Bool bool
+
+// GetBool implements BoolEval; providing the dl with a literal boolean type.
+func (b Bool) GetBool(Runtime) (Bool, error) {
+	return b, nil
+}
+
+// String returns a nicely formatted float, with no decimal point when possible.
+func (b Bool) String() (ret string) {
+	if b {
+		ret = "true"
+	} else {
+		ret = "false"
+	}
+	return
+}
+
 // Number provides a dl float primitive.
 type Number float64
 

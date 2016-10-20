@@ -33,10 +33,8 @@ func Change(tgt rt.RefEval) ChangeState {
 func (x SetNum) Execute(r rt.Runtime) (err error) {
 	if n, e := x.Num.GetNumber(r); e != nil {
 		err = e
-	} else if v, e := x.Tgt.value(r); e != nil {
+	} else if e := x.Tgt.SetGeneric(r, n); e != nil {
 		err = e
-	} else {
-		err = v.SetNum(n.Float())
 	}
 	return
 }
@@ -44,10 +42,8 @@ func (x SetNum) Execute(r rt.Runtime) (err error) {
 func (x SetTxt) Execute(r rt.Runtime) (err error) {
 	if t, e := x.Txt.GetText(r); e != nil {
 		err = e
-	} else if v, e := x.Tgt.value(r); e != nil {
+	} else if e := x.Tgt.SetGeneric(r, t); e != nil {
 		err = e
-	} else {
-		err = v.SetText(t.String())
 	}
 	return
 }
@@ -55,10 +51,8 @@ func (x SetTxt) Execute(r rt.Runtime) (err error) {
 func (x SetRef) Execute(r rt.Runtime) (err error) {
 	if ref, e := x.Ref.GetReference(r); e != nil {
 		err = e
-	} else if v, e := x.Tgt.value(r); e != nil {
+	} else if e := x.Tgt.SetGeneric(r, ref); e != nil {
 		err = e
-	} else {
-		err = v.SetObject(ref.Id())
 	}
 	return
 }
@@ -76,14 +70,14 @@ func (p ChangeState) And(state string) ChangeState {
 func (x ChangeState) Execute(r rt.Runtime) (err error) {
 	if ref, e := x.Ref.GetReference(r); e != nil {
 		err = e
-	} else if o, e := MakeObject(r, ref); e != nil {
+	} else if o, e := r.GetObject(ref); e != nil {
 		err = e
 	} else {
 		for _, choice := range x.States {
 			if prop, ok := o.GetPropertyByChoice(choice); !ok {
 				err = errutil.New(o, "does not have choice", choice)
 				break
-			} else if e := prop.GetValue().SetState(choice); e != nil {
+			} else if e := prop.SetGeneric(choice); e != nil {
 				err = e
 				break
 			}

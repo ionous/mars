@@ -1,5 +1,8 @@
 package rt
 
+type Execute interface {
+	Execute(Runtime) error
+}
 type BoolEval interface {
 	GetBool(Runtime) (bool, error)
 }

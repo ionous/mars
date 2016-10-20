@@ -16,7 +16,7 @@ type PointsTo struct {
 func (xr PointsTo) GetReference(r rt.Runtime) (ret rt.Reference, err error) {
 	if ref, e := xr.Ref.GetReference(r); e != nil {
 		err = e
-	} else if obj, e := MakeObject(r, ref); e != nil {
+	} else if obj, e := r.GetObject(ref); e != nil {
 		err = e
 	} else {
 		ret = rt.Reference(obj.GetId())

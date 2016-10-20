@@ -12,11 +12,11 @@ import (
 type ActionScope struct {
 	model  meta.Model
 	nouns  meta.Nouns
-	values []rt.Value
+	values []meta.Generic
 	chain  rt.Scope
 }
 
-func (act ActionScope) FindValue(name string) (ret rt.Value, err error) {
+func (act ActionScope) FindValue(name string) (ret meta.Generic, err error) {
 	// FIX FIX FIX FIX: the hint happens from listenr
 	if i, ok := act.findByName(act.model, name, ident.Empty()); !ok {
 		ret, err = act.chain.FindValue(name)
@@ -24,7 +24,7 @@ func (act ActionScope) FindValue(name string) (ret rt.Value, err error) {
 		if i < len(act.values) {
 			ret = act.values[i]
 		} else {
-			err = errutil.New(name, "out of range")
+			err = errutil.New("out of range", name, i, len(act.values))
 		}
 	}
 	return

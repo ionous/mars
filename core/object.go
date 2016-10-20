@@ -7,38 +7,29 @@ import (
 )
 
 // has to be a struct because instance is interface.
-type Object struct {
+// as an internal object it cant be serialized accidentally.
+type ObjectScope struct {
 	meta.Instance
 }
 
-// FIX: maybe runtime will return this? ie. rt.GetObject(ref) instead of exposing the model
-func MakeObject(r rt.Runtime, xr rt.Reference) (ret Object, err error) {
-	if inst, ok := r.Model().GetInstance(xr.Id()); !ok {
-		err = errutil.New("instance not found", xr.Id)
-	} else {
-		ret = Object{inst}
-	}
-	return
-}
-
-func (obj Object) String() string {
+func (obj ObjectScope) String() string {
 	return obj.GetId().String()
 }
 
 // FindValue implements Scope
-func (obj Object) FindValue(name string) (ret rt.Value, err error) {
+func (obj ObjectScope) FindValue(name string) (ret meta.Generic, err error) {
 	if prop, ok := obj.FindProperty(name); !ok {
-		err = errutil.New(obj.GetId(), "has no property", name)
+		err = errutil.New("object property unknown", obj, name)
 	} else {
 		switch prop.GetType() {
 		case meta.NumProperty:
-			ret = rt.Number(prop.GetValue().GetNum())
+			ret = prop.GetGeneric().(rt.NumEval)
 		case meta.TextProperty:
-			ret = rt.Text(prop.GetValue().GetText())
+			ret = prop.GetGeneric().(rt.TextEval)
 		case meta.ObjectProperty:
-			ret = rt.Reference(prop.GetValue().GetObject())
+			ret = prop.GetGeneric().(rt.RefEval)
 		default:
-			err = errutil.New(obj.GetId(), "unknown property type", name)
+			err = errutil.New("object property type unknown", obj, name)
 		}
 	}
 	return

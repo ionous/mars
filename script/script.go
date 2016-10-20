@@ -16,6 +16,16 @@ type BackendPhrase interface {
 
 const Unknown = source.Code("unknown")
 
+func (s Script) BuildStatements() (ret source.Statements, err error) {
+	b := source.BuildingBlocks{}
+	if e := s.Build(Source{&b}); e != nil {
+		err = e
+	} else {
+		ret = b.Statements()
+	}
+	return
+}
+
 func (s Script) Build(src Source) (err error) {
 	for _, b := range s {
 		if e := b.Build(src); e != nil {

@@ -28,10 +28,10 @@ func (c Context) Execute(r rt.Runtime) (err error) {
 }
 func (c Context) push(r rt.Runtime, ref rt.Reference) (pushed bool, err error) {
 	if !ref.Id().Empty() {
-		if o, e := MakeObject(r, ref); e != nil {
+		if o, e := r.GetObject(ref); e != nil {
 			err = e
 		} else {
-			r.PushScope(o, nil)
+			r.PushScope(ObjectScope{o}, nil)
 			pushed = true
 		}
 	}
@@ -44,12 +44,16 @@ type GetNum struct {
 
 func (c GetNum) GetNumber(r rt.Runtime) (ret rt.Number, err error) {
 	scope, _ := r.GetScope()
-	if v, e := scope.FindValue(c.Name); e != nil {
+	if eval, e := scope.FindValue(c.Name); e != nil {
 		err = e
-	} else if n, ok := v.(rt.Number); ok {
-		ret = n
+	} else if neval, ok := eval.(rt.NumEval); ok {
+		if v, e := neval.GetNumber(r); e != nil {
+			ret = v
+		} else {
+			err = e
+		}
 	} else {
-		err = errutil.New("value", c.Name, "is not a number", reflect.TypeOf(v))
+		err = errutil.New("value", c.Name, "is not a number eval", reflect.TypeOf(eval))
 	}
 	return
 }
@@ -61,12 +65,16 @@ type GetText struct {
 
 func (c GetText) GetText(r rt.Runtime) (ret rt.Text, err error) {
 	scope, _ := r.GetScope()
-	if v, e := scope.FindValue(c.Name); e != nil {
+	if eval, e := scope.FindValue(c.Name); e != nil {
 		err = e
-	} else if n, ok := v.(rt.Text); ok {
-		ret = n
+	} else if teval, ok := eval.(rt.TextEval); ok {
+		if v, e := teval.GetText(r); e != nil {
+			ret = v
+		} else {
+			err = e
+		}
 	} else {
-		err = errutil.New("value", c.Name, "is not text", reflect.TypeOf(v))
+		err = errutil.New("value", c.Name, "is not text eval", reflect.TypeOf(eval))
 	}
 	return
 }

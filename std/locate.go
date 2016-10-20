@@ -10,12 +10,12 @@ type Location struct {
 	ref rt.RefEval
 }
 
-func (l Location) GetReference(r rt.Runtime) (ret rt.Reference, err error) {
-	if ref, e := l.ref.GetReference(r); e != nil {
+func (l Location) GetReference(run rt.Runtime) (ret rt.Reference, err error) {
+	if ref, e := l.ref.GetReference(run); e != nil {
 		err = e
-	} else if obj, e := core.MakeObject(r, ref); e != nil {
+	} else if obj, e := run.GetObject(ref); e != nil {
 		err = e
-	} else if p, ok := (Locator{r}._location(obj)); !ok {
+	} else if p, ok := (Locator{run}._location(obj)); !ok {
 		ret = core.NullRef()
 	} else {
 		ret = rt.Reference(p.GetId())
@@ -46,7 +46,7 @@ func (loc Locator) get(obj meta.Instance, where string) (ret meta.Instance, okay
 	// fix: use faster lookup?
 	if w, ok := obj.FindProperty(where); ok {
 		if id := w.GetValue().GetObject(); !id.Empty() {
-			if inst, ok := loc.Model().GetInstance(id); ok {
+			if inst, e := loc.GetObject(rt.Reference(id)); e == nil {
 				ret, okay = inst, true
 			}
 		}

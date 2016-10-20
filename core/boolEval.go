@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/util/errutil"
+	"github.com/ionous/sashimi/util/ident"
 )
 
 type CompareType int
@@ -32,7 +33,7 @@ type Not struct {
 }
 
 //
-type Empty struct {
+type IsEmpty struct {
 	Text rt.TextEval
 }
 
@@ -47,7 +48,7 @@ type Exists struct {
 	Ref rt.RefEval
 }
 
-func (empty Empty) GetBool(r rt.Runtime) (ret bool, err error) {
+func (empty IsEmpty) GetBool(r rt.Runtime) (ret bool, err error) {
 	if t, e := empty.Text.GetText(r); e != nil {
 		err = e
 	} else {
@@ -68,7 +69,7 @@ func (neg Not) GetBool(r rt.Runtime) (ret bool, err error) {
 func (exists Exists) GetBool(r rt.Runtime) (ret bool, err error) {
 	if ref, e := exists.Ref.GetReference(r); e != nil {
 		err = e
-	} else if _, e := MakeObject(r, ref); e == nil {
+	} else if _, e := r.GetObject(ref); e == nil {
 		ret = true
 	}
 	return
@@ -108,14 +109,15 @@ func (req Equals) GetBool(r rt.Runtime) (ret bool, err error) {
 func (oi Is) GetBool(r rt.Runtime) (ret bool, err error) {
 	if ref, e := oi.Ref.GetReference(r); e != nil {
 		err = e
-	} else if o, e := MakeObject(r, ref); e != nil {
+	} else if o, e := r.GetObject(ref); e != nil {
 		err = e
 	} else {
 		choice := MakeStringId(oi.State)
 		if prop, ok := o.GetPropertyByChoice(choice); !ok {
-			err = errutil.New(o, "does not have property", choice)
+			err = errutil.New("object choice does not exist", o, choice)
+		} else if currChoice, ok := prop.GetGeneric().(ident.Id); !ok {
+			err = errutil.New("object property of unexpected type", o, choice)
 		} else {
-			currChoice := prop.GetValue().GetState()
 			ret = currChoice == choice
 		}
 	}

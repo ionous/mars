@@ -27,17 +27,13 @@ func NewRtm(data meta.Model, code Callbacks) *Rtm {
 	return &Rtm{model: data, callbacks: code}
 }
 
-func (r *Rtm) Model() meta.Model {
-	return r.model
-}
-
 func (r *Rtm) StopHere() {
 	panic("not implemented")
 }
 
 // from NewRuntimeAction
-func (r *Rtm) RunAction(act ident.Id, scope rt.Scope, parms rt.Parameters) (err error) {
-	if act, ok := r.model.GetAction(act); !ok {
+func (r *Rtm) RunAction(act string, scope rt.Scope, parms rt.Parameters) (err error) {
+	if act, ok := r.model.GetAction(ident.MakeId(act)); !ok {
 		err = errutil.New("unknown action", act)
 	} else {
 		types := act.GetNouns()
@@ -117,11 +113,21 @@ func (r *Rtm) GetScope() (scope rt.Scope, info *rt.IndexInfo) {
 	return
 }
 
+// FIX: maybe runtime will return this? ie. rt.GetObject(ref) instead of exposing the model
+func (r *Rtm) GetObject(xr rt.Reference) (ret meta.Instance, err error) {
+	if inst, ok := r.model.GetInstance(xr.Id()); !ok {
+		err = errutil.New("instance not found", xr.Id)
+	} else {
+		ret = inst
+	}
+	return
+}
+
 // xEmptyScope provides a default implementation for Scope
 type xEmptyScope struct {
 }
 
-func (xEmptyScope) FindValue(string) (ret rt.Value, err error) {
+func (xEmptyScope) FindValue(string) (ret meta.Generic, err error) {
 	err = errutil.New("no scope is set")
 	return
 }

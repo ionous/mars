@@ -12,12 +12,12 @@ type GoCall struct {
 func (gc GoCall) Execute(r rt.Runtime) (err error) {
 	if ref, e := gc.Action.Ref.GetReference(r); e != nil {
 		err = e
-	} else if obj, e := MakeObject(r, ref); e != nil {
+	} else if obj, e := r.GetObject(ref); e != nil {
 		err = e
 	} else {
 		// FIX: how much of looping, etc. do you want to leak in?
 		// maybe none; except for a very special "partials"?
-		if e := r.RunAction(gc.Action.Field.Id(), obj, gc.Parameters); e != nil {
+		if e := r.RunAction(string(gc.Action.Field), ObjectScope{obj}, gc.Parameters); e != nil {
 			err = e
 		}
 	}

@@ -9,7 +9,7 @@ type Core struct {
 	*Compare
 	*Is
 	*Not
-	*Empty
+	*IsEmpty
 	*Equals
 	*Exists
 	// call:

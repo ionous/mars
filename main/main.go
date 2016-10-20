@@ -134,9 +134,9 @@ func main() {
 	// you could put it in a "compat" "g" pkg
 	// and then the conversion becomes more and more simple, commas instead of newlines
 
-	var network bytes.Buffer
-	enc := gob.NewEncoder(&network)
-	dec := gob.NewDecoder(&network)
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	dec := gob.NewDecoder(&buf)
 
 	// Create an encoder and send some values.
 	err := enc.Encode(a)
