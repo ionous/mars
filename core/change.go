@@ -7,17 +7,17 @@ import (
 )
 
 type SetNum struct {
-	Tgt Property
+	Tgt NumProperty
 	Num rt.NumEval
 }
 
 type SetTxt struct {
-	Tgt Property
+	Tgt TextProperty
 	Txt rt.TextEval
 }
 
 type SetRef struct {
-	Tgt Property
+	Tgt RefProperty
 	Ref rt.RefEval
 }
 
@@ -33,7 +33,7 @@ func Change(tgt rt.RefEval) ChangeState {
 func (x SetNum) Execute(r rt.Runtime) (err error) {
 	if n, e := x.Num.GetNumber(r); e != nil {
 		err = e
-	} else if e := x.Tgt.SetGeneric(r, n); e != nil {
+	} else if e := Property(x.Tgt).SetGeneric(r, n); e != nil {
 		err = e
 	}
 	return
@@ -42,7 +42,7 @@ func (x SetNum) Execute(r rt.Runtime) (err error) {
 func (x SetTxt) Execute(r rt.Runtime) (err error) {
 	if t, e := x.Txt.GetText(r); e != nil {
 		err = e
-	} else if e := x.Tgt.SetGeneric(r, t); e != nil {
+	} else if e := Property(x.Tgt).SetGeneric(r, t); e != nil {
 		err = e
 	}
 	return
@@ -51,7 +51,7 @@ func (x SetTxt) Execute(r rt.Runtime) (err error) {
 func (x SetRef) Execute(r rt.Runtime) (err error) {
 	if ref, e := x.Ref.GetReference(r); e != nil {
 		err = e
-	} else if e := x.Tgt.SetGeneric(r, ref); e != nil {
+	} else if e := Property(x.Tgt).SetGeneric(r, ref); e != nil {
 		err = e
 	}
 	return

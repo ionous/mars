@@ -77,9 +77,9 @@ func (exists Exists) GetBool(r rt.Runtime) (ret bool, err error) {
 
 func (comp Compare) GetBool(r rt.Runtime) (ret bool, err error) {
 	if a, e := comp.A.GetNumber(r); e != nil {
-		err = e
+		err = errutil.New("compare a", e)
 	} else if b, e := comp.B.GetNumber(r); e != nil {
-		err = e
+		err = errutil.New("compare b", e)
 	} else {
 		d := a.Float() - b.Float()
 		switch {

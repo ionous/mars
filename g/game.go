@@ -5,21 +5,42 @@ import (
 	rt "github.com/ionous/mars/rt"
 )
 
-type With struct {
+type ScriptRef struct {
 	Ref rt.RefEval
 }
 
-func The(s string) With {
-	return With{R(s)}
+func The(s string) ScriptRef {
+	return ScriptRef{R(s)}
 }
 
-func (h With) Go(run string, all ...interface{}) rt.Execute {
+// ex. g.Say(g.The("player").Text("greeting"))
+func (h ScriptRef) Text(name PropertyName) rt.TextEval {
+	return TextProperty{h.Ref, name}
+}
+
+func (h ScriptRef) Num(name PropertyName) rt.NumEval {
+	return NumProperty{h.Ref, name}
+}
+
+func (h ScriptRef) Object(name PropertyName) rt.RefEval {
+	return RefProperty{h.Ref, name}
+}
+
+// 	// Get returns the named property.
+// 	Get(string) IValue -> Num(), Text(), etc. might just return property, and have the caller use the appropriate field.
+
+// 	ObjectList(string) []IObject
+// 	Set(string, IObject)
+// 	SetNum(string, float64)
+// 	SetText(string, string)
+
+func (h ScriptRef) Go(run string, all ...interface{}) rt.Execute {
 	parms := rt.Parameters{}
 	for _, a := range all {
 		var ps rt.ParameterSource
 		switch val := a.(type) {
 		// in case of g.The()
-		case With:
+		case ScriptRef:
 			ps = CallWithRef{val.Ref}
 		// note, rt.Number implements rt.NumEval. no need for a separate switch
 		case rt.NumEval:
@@ -42,7 +63,7 @@ func (h With) Go(run string, all ...interface{}) rt.Execute {
 		parms = append(parms, ps)
 	}
 	return GoCall{
-		Action:     P(h.Ref, run),
+		//Action:     P(h.Ref, run),
 		Parameters: parms,
 	}
 }

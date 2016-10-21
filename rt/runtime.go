@@ -25,6 +25,7 @@ type Runtime interface {
 	Print(...interface{}) error
 	Println(...interface{}) error
 	PopOutput()
+	Execute(meta.Callback) error
 	// push -- this shouldnt be an object, it should be an interface
 	// actions should, for instance, allow tripart objects
 	PushScope(Scope, *IndexInfo)

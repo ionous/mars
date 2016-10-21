@@ -5,35 +5,42 @@ import (
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/ident"
+	"github.com/ionous/sashimi/util/sbuf"
 	"io"
+	"reflect"
 )
 
 type Rtm struct {
-	model     meta.Model
-	output    []*PrintMachine
-	scope     []ScopeInfo
-	callbacks Callbacks
+	model  meta.Model
+	output []*PrintMachine
+	scope  []ScopeInfo
 }
-
-// we really want more, source line, etc.
-type Callbacks map[ident.Id]rt.Execute
 
 type ScopeInfo struct {
 	rt.Scope
 	info *rt.IndexInfo
 }
 
-func NewRtm(data meta.Model, code Callbacks) *Rtm {
-	return &Rtm{model: data, callbacks: code}
+func NewRtm(data meta.Model) *Rtm {
+	return &Rtm{model: data}
 }
 
-func (r *Rtm) StopHere() {
+func (run *Rtm) StopHere() {
 	panic("not implemented")
 }
 
+func (run *Rtm) Execute(cb meta.Callback) (err error) {
+	if exec, ok := cb.(rt.Execute); !ok {
+		err = errutil.New("callback not of execute type", sbuf.Type{cb})
+	} else {
+		err = exec.Execute(run)
+	}
+	return
+}
+
 // from NewRuntimeAction
-func (r *Rtm) RunAction(act string, scope rt.Scope, parms rt.Parameters) (err error) {
-	if act, ok := r.model.GetAction(ident.MakeId(act)); !ok {
+func (run *Rtm) RunAction(act string, scope rt.Scope, parms rt.Parameters) (err error) {
+	if act, ok := run.model.GetAction(ident.MakeId(act)); !ok {
 		err = errutil.New("unknown action", act)
 	} else {
 		types := act.GetNouns()
@@ -43,18 +50,21 @@ func (r *Rtm) RunAction(act string, scope rt.Scope, parms rt.Parameters) (err er
 		case diff > 0:
 			err = errutil.New("too many nouns specified for", act)
 		default:
-			if values, e := parms.Resolve(r); e != nil {
+			if values, e := parms.Resolve(run); e != nil {
 				err = e
 			} else if cbs, ok := act.GetCallbacks(); ok {
 				// FIX: how much of looping, etc. do you want to leak in?
 				// maybe none; except for a very special "partials"?
-				r.PushScope(ActionScope{r.model, types, values, scope}, nil)
-				defer r.PopScope()
+				run.PushScope(ActionScope{run.model, types, values, scope}, nil)
+				defer run.PopScope()
 
 				for i := 0; i < cbs.NumCallback(); i++ {
 					cb := cbs.CallbackNum(i)
-					if cb, ok := r.callbacks[cb]; !ok {
-						err = errutil.New("unknown action", cb)
+					if exec, ok := cb.(rt.Execute); !ok {
+						err = errutil.New("callback not of execute type", reflect.TypeOf(cb))
+						break
+					} else if e := exec.Execute(run); e != nil {
+						err = e
 						break
 					}
 				}
@@ -64,48 +74,53 @@ func (r *Rtm) RunAction(act string, scope rt.Scope, parms rt.Parameters) (err er
 	return
 }
 
-func (r *Rtm) LookupParent(inst meta.Instance) (meta.Instance, meta.Property, bool) {
+func (run *Rtm) LookupParent(inst meta.Instance) (meta.Instance, meta.Property, bool) {
 	panic("not implemented")
 	return nil, nil, false
 }
 
-func (r *Rtm) Print(args ...interface{}) (err error) {
+func (run *Rtm) Print(args ...interface{}) (err error) {
 	// get the top output, the one we want to write to
-	out := r.output[len(r.output)-1]
-	return out.Print(args...)
+	if cnt := len(run.output); cnt > 0 {
+		out := run.output[len(run.output)-1]
+		err = out.Print(args...)
+	} else {
+		err = errutil.New("runtime lacks an output stream")
+	}
+	return
 }
 
-func (r *Rtm) Println(args ...interface{}) (err error) {
-	out := r.output[len(r.output)-1]
+func (run *Rtm) Println(args ...interface{}) (err error) {
+	out := run.output[len(run.output)-1]
 	return out.Println(args...)
 }
 
-func (r *Rtm) PushOutput(out io.Writer) {
-	r.output = append(r.output, &PrintMachine{flush: out})
+func (run *Rtm) PushOutput(out io.Writer) {
+	run.output = append(run.output, &PrintMachine{flush: out})
 }
-func (r *Rtm) PopOutput() {
-	r.output = r.output[:len(r.output)-1]
+func (run *Rtm) PopOutput() {
+	run.output = run.output[:len(run.output)-1]
 }
-func (r *Rtm) Flush() error {
-	out := r.output[len(r.output)-1]
+func (run *Rtm) Flush() error {
+	out := run.output[len(run.output)-1]
 	return out.Flush()
 }
 
-func (r *Rtm) PushScope(scope rt.Scope, info *rt.IndexInfo) {
+func (run *Rtm) PushScope(scope rt.Scope, info *rt.IndexInfo) {
 	var cp *rt.IndexInfo
 	if info != nil {
 		idx := rt.IndexInfo(*info)
 		cp = &idx
 	}
-	r.scope = append(r.scope, ScopeInfo{scope, cp})
+	run.scope = append(run.scope, ScopeInfo{scope, cp})
 }
-func (r *Rtm) PopScope() {
-	r.scope = r.scope[:len(r.scope)-1]
+func (run *Rtm) PopScope() {
+	run.scope = run.scope[:len(run.scope)-1]
 }
 
-func (r *Rtm) GetScope() (scope rt.Scope, info *rt.IndexInfo) {
-	if len(r.scope) > 0 {
-		s := r.scope[len(r.scope)-1]
+func (run *Rtm) GetScope() (scope rt.Scope, info *rt.IndexInfo) {
+	if len(run.scope) > 0 {
+		s := run.scope[len(run.scope)-1]
 		scope, info = s.Scope, s.info
 	} else {
 		scope, info = xEmptyScope{}, nil
@@ -114,8 +129,8 @@ func (r *Rtm) GetScope() (scope rt.Scope, info *rt.IndexInfo) {
 }
 
 // FIX: maybe runtime will return this? ie. rt.GetObject(ref) instead of exposing the model
-func (r *Rtm) GetObject(xr rt.Reference) (ret meta.Instance, err error) {
-	if inst, ok := r.model.GetInstance(xr.Id()); !ok {
+func (run *Rtm) GetObject(xr rt.Reference) (ret meta.Instance, err error) {
+	if inst, ok := run.model.GetInstance(xr.Id()); !ok {
 		err = errutil.New("instance not found", xr.Id)
 	} else {
 		ret = inst

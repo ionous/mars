@@ -16,7 +16,7 @@ import (
 func main() {
 	src := make(metal.ObjectValueMap)
 	m := metal.NewMetal(modeltest.NewModel(), src)
-	r := rtm.NewRtm(m, nil)
+	r := rtm.NewRtm(m)
 	r.PushOutput(os.Stdout)
 
 	// rtm.RegisterTypes(func(name string, value interface{}) {
@@ -35,47 +35,50 @@ func main() {
 			Change(R("i")).To("borrigard"),
 			"no such state should exist"},
 		Change(R("i")).To("yes"),
+
 		g.Test(Is{
 			R("i"), "yes",
 		}, "i now yes"),
+
 		g.Test(Compare{
-			P(R("i"), "num"),
+			NumProperty{R("i"), "num"},
 			EqualTo,
 			I(0),
 		}, "initially zero"),
+
 		SetNum{
-			P(R("i"), "num"),
+			NumProperty{R("i"), "num"},
 			I(5),
 		},
 		g.Test(Compare{
-			P(R("i"), "num"),
+			NumProperty{R("i"), "num"},
 			GreaterThan,
 			I(1),
 		}, "now greater than 1"),
 		g.Test(Compare{
-			P(R("i"), "num"),
+			NumProperty{R("i"), "num"},
 			GreaterThan | EqualTo,
 			I(5),
 		}, "now greater than or equal to 5"),
 		g.Say("hello"),
 		PrintLine{Statements{PrintNum{
-			P(R("i"), "num"),
+			NumProperty{R("i"), "num"},
 		}}},
 		g.Test(Not{Compare{
-			P(R("i"), "num"),
+			NumProperty{R("i"), "num"},
 			GreaterThan | LesserThan,
 			I(5),
 		}}, "not greater than or lesser to 5"),
 		SetRef{
-			P(R("i"), "object"),
+			RefProperty{R("i"), "object"},
 			PointsTo{R("i")},
 		},
 		g.Test(Equals{
-			P(R("i"), "object"),
+			RefProperty{R("i"), "object"},
 			PointsTo{R("i")},
 		}, "i should point to i"),
 		SetRef{
-			P(R("i"), "object"),
+			RefProperty{R("i"), "object"},
 			NullRef(),
 		},
 		g.Test(Equals{
@@ -86,7 +89,7 @@ func main() {
 			PointsTo{R("i")},
 		}, "i should choose i"),
 		g.Test(Not{Equals{
-			P(R("i"), "object"),
+			RefProperty{R("i"), "object"},
 			R("i"),
 		}}, "i should not equal i"),
 		// std.Speaker("player").Says("I don't want to think where that came from."),

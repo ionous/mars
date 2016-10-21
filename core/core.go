@@ -51,8 +51,14 @@ type Core struct {
 	*PrintText
 	*PrintLine
 	// property
-	*Property
+	*TextProperty
+	*NumProperty
+	*RefProperty
+	*TextListProperty
+	*NumListProperty
+	*RefListProperty
 	*NumberValueList
+	//
 	*TextValueList
 	*RefValueList
 }

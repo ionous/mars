@@ -13,7 +13,7 @@ func ReflectToTarget(action string) Execute {
 // ReflectToLocation invokes the passed action on the actor's current whereabouts.
 // TODO: will have to become more sophisticated for being inside a box.
 func ReflectToLocation(action string) Execute {
-	return With{P(R("actor"), "whereabouts")}.Go(action, R("actor"))
+	return ScriptRef{RefProperty{R("actor"), "whereabouts"}}.Go(action, R("actor"))
 }
 
 // ReflectWithContext runs the passed action, shifting to target, context, source.

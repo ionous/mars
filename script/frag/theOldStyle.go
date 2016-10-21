@@ -5,16 +5,6 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-type Topic struct {
-	Target, Subject string
-}
-
-type Fragment interface {
-	Build(script.Source, Topic) error
-}
-
-type Fragments []Fragment
-
 type TheOldStyle struct {
 	Target    string
 	Fragments Fragments

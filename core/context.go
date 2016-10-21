@@ -46,14 +46,12 @@ func (c GetNum) GetNumber(r rt.Runtime) (ret rt.Number, err error) {
 	scope, _ := r.GetScope()
 	if eval, e := scope.FindValue(c.Name); e != nil {
 		err = e
-	} else if neval, ok := eval.(rt.NumEval); ok {
-		if v, e := neval.GetNumber(r); e != nil {
-			ret = v
-		} else {
-			err = e
-		}
-	} else {
+	} else if neval, ok := eval.(rt.NumEval); !ok {
 		err = errutil.New("value", c.Name, "is not a number eval", reflect.TypeOf(eval))
+	} else if v, e := neval.GetNumber(r); e != nil {
+		err = e
+	} else {
+		ret = v
 	}
 	return
 }
@@ -67,14 +65,12 @@ func (c GetText) GetText(r rt.Runtime) (ret rt.Text, err error) {
 	scope, _ := r.GetScope()
 	if eval, e := scope.FindValue(c.Name); e != nil {
 		err = e
-	} else if teval, ok := eval.(rt.TextEval); ok {
-		if v, e := teval.GetText(r); e != nil {
-			ret = v
-		} else {
-			err = e
-		}
-	} else {
+	} else if teval, ok := eval.(rt.TextEval); !ok {
 		err = errutil.New("value", c.Name, "is not text eval", reflect.TypeOf(eval))
+	} else if v, e := teval.GetText(r); e != nil {
+		err = e
+	} else {
+		ret = v
 	}
 	return
 }

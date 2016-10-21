@@ -10,7 +10,7 @@ type SetKeyValue struct {
 	Value interface{}
 }
 
-func (f SetKeyValue) Build(src script.Source, top Topic) (err error) {
+func (f SetKeyValue) Build(src script.Source, top Topic) error {
 	fields := S.KeyValueFields{top.Subject, f.Key, f.Value}
 	return src.NewKeyValue(fields, script.Unknown)
 }
