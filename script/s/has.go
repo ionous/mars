@@ -9,7 +9,7 @@ import (
 //
 // NOTE: its the compiler checks ( and marshals ) types.
 // this is necessary because we dont know what's valid yet:
-// string is used, for instance, for both text, ref, and relation.
+// string is used, for instance, for both text, obj, and relation.
 //
 // under the current compiler, each property type has its own "Builder". they are:
 // enumBuilder, numBuilder, textBuilder, pointerBuilder, and relativeBuilder.
@@ -30,10 +30,10 @@ func Has(property string, values ...interface{}) (ret frag.Fragment) {
 }
 
 // return one of the valid model storage types:
-// NumEval, TextEval, RefEval,...
+// NumEval, TextEval, ObjEval,...
 // func marshal(value interface{}) (ret interface{}) {
 // 	switch val := value.(type) {
-// 	case Execute, BoolEval, NumEval, TextEval, RefEval, NumListEval, TextListEval, RefListEval:
+// 	case Execute, BoolEval, NumEval, TextEval, ObjEval, NumListEval, TextListEval, ObjListEval:
 // 		ret = value
 // 	case bool:
 // 		ret = rt.Bool(val)

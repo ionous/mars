@@ -23,8 +23,8 @@ func (p *PrintMachine) Print(args ...interface{}) (err error) {
 		// printed something before?
 		if p.buf.Len() != 0 {
 			// before writing this new thing, possibly put a space.
-			r := []rune(s)[0]
-			if !unicode.IsPunct(r) && !unicode.IsSpace(r) {
+			run := []rune(s)[0]
+			if !unicode.IsPunct(run) && !unicode.IsSpace(run) {
 				p.buf.WriteString(" ")
 			}
 		}

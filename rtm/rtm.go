@@ -55,7 +55,7 @@ func (run *Rtm) RunAction(act string, scope rt.Scope, parms rt.Parameters) (err 
 			} else if cbs, ok := act.GetCallbacks(); ok {
 				// FIX: how much of looping, etc. do you want to leak in?
 				// maybe none; except for a very special "partials"?
-				run.PushScope(ActionScope{run.model, types, values, scope}, nil)
+				run.PushScope(NewActionScope(run.model, types, values, ident.Empty()), nil)
 				defer run.PopScope()
 
 				for i := 0; i < cbs.NumCallback(); i++ {
@@ -128,12 +128,13 @@ func (run *Rtm) GetScope() (scope rt.Scope, info *rt.IndexInfo) {
 	return
 }
 
-// FIX: maybe runtime will return this? ie. rt.GetObject(ref) instead of exposing the model
-func (run *Rtm) GetObject(xr rt.Reference) (ret meta.Instance, err error) {
-	if inst, ok := run.model.GetInstance(xr.Id()); !ok {
-		err = errutil.New("instance not found", xr.Id)
+func (run *Rtm) GetObject(id ident.Id) (ret rt.Object, err error) {
+	if id.Empty() {
+		err = errutil.New("rtm.GetObject(id) is nil")
+	} else if inst, ok := run.model.GetInstance(id); !ok {
+		err = errutil.New("rtm.GetObject(id) not found", id)
 	} else {
-		ret = inst
+		ret = rt.Object{inst}
 	}
 	return
 }

@@ -9,26 +9,26 @@ import (
 
 // TheUpper is equivalent to Inform7's [The]
 type TheUpper struct {
-	Noun rt.RefEval
+	Noun rt.ObjEval
 }
 
 // TheLower is equivalent to Inform7's [the]
 type TheLower struct {
-	Noun rt.RefEval
+	Noun rt.ObjEval
 }
 
 // AnUpper is equivalent to Inform7's [A/An]
 type AnUpper struct {
-	Noun rt.RefEval
+	Noun rt.ObjEval
 }
 
 // TheUpper is equivalent to Inform7's [a/an]
 type ALower struct {
-	Noun rt.RefEval
+	Noun rt.ObjEval
 }
 
-func (t TheUpper) GetText(r rt.Runtime) (ret rt.Text, err error) {
-	if s, e := articleNamed(r, t.Noun, "the"); e != nil {
+func (t TheUpper) GetText(run rt.Runtime) (ret rt.Text, err error) {
+	if s, e := articleNamed(run, t.Noun, "the"); e != nil {
 		err = e
 	} else {
 		ret = rt.Text(s)
@@ -36,8 +36,8 @@ func (t TheUpper) GetText(r rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-func (t TheLower) GetText(r rt.Runtime) (ret rt.Text, err error) {
-	if s, e := articleNamed(r, t.Noun, "The"); e != nil {
+func (t TheLower) GetText(run rt.Runtime) (ret rt.Text, err error) {
+	if s, e := articleNamed(run, t.Noun, "The"); e != nil {
 		err = e
 	} else {
 		ret = rt.Text(s)
@@ -45,8 +45,8 @@ func (t TheLower) GetText(r rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-func (t AnUpper) GetText(r rt.Runtime) (ret rt.Text, err error) {
-	if s, e := articleNamed(r, t.Noun, ""); e != nil {
+func (t AnUpper) GetText(run rt.Runtime) (ret rt.Text, err error) {
+	if s, e := articleNamed(run, t.Noun, ""); e != nil {
 		err = e
 	} else {
 		ret = rt.Text(lang.Capitalize(s))
@@ -54,8 +54,8 @@ func (t AnUpper) GetText(r rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-func (t ALower) GetText(r rt.Runtime) (ret rt.Text, err error) {
-	if s, e := articleNamed(r, t.Noun, ""); e != nil {
+func (t ALower) GetText(run rt.Runtime) (ret rt.Text, err error) {
+	if s, e := articleNamed(run, t.Noun, ""); e != nil {
 		err = e
 	} else {
 		ret = rt.Text(s)
@@ -64,16 +64,14 @@ func (t ALower) GetText(r rt.Runtime) (ret rt.Text, err error) {
 }
 
 // You can only just make out the lamp-post.", or "You can only just make out _ Trevor.", or "You can only just make out the soldiers."
-func articleNamed(r rt.Runtime, noun rt.RefEval, article string) (ret string, err error) {
-	if ref, e := noun.GetReference(r); e != nil {
+func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, err error) {
+	if obj, e := noun.GetObject(run); e != nil {
 		err = e
-	} else if n, e := r.GetObject(ref); e != nil {
-		err = e
-	} else if printed, ok := n.FindProperty("printed name"); !ok {
+	} else if printed, ok := obj.FindProperty("printed name"); !ok {
 		err = errutil.New("object doesnt have printed names?")
 	} else {
 		choice := MakeStringId("proper-named")
-		if proper, ok := n.GetPropertyByChoice(choice); !ok {
+		if proper, ok := obj.GetPropertyByChoice(choice); !ok {
 			err = errutil.New("object doesnt have proper names?")
 		} else {
 			name := printed.GetValue().GetText()
@@ -81,13 +79,13 @@ func articleNamed(r rt.Runtime, noun rt.RefEval, article string) (ret string, er
 				ret = lang.Titleize(name)
 			} else {
 				if len(article) == 0 {
-					if p, ok := n.FindProperty("indefinite article"); !ok {
+					if p, ok := obj.FindProperty("indefinite article"); !ok {
 						err = errutil.New("object doesnt have indefinite articles?")
 					} else {
 						article = p.GetValue().GetText()
 						if len(article) == 0 {
 							choice := MakeStringId("plural-named")
-							if plural, ok := n.GetPropertyByChoice(choice); !ok {
+							if plural, ok := obj.GetPropertyByChoice(choice); !ok {
 								err = errutil.New("object doesnt have plural named?")
 							} else {
 								if choice == plural.GetValue().GetState() {

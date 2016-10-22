@@ -8,7 +8,7 @@ import (
 // these are the same:
 // fact.Is("recollected")
 // if facts.PlayerRecollects(g, "exeunt") {
-// Is{R("exenut"), "recollected"}
+// Is{Id("exeunt"), "recollected"}
 
 // 		if facts.PlayerLearns(g, "everyone-is") {
 // functions are "shortcuts" which use existing dl structs to "encapsulate" ( combine ) behavior
@@ -16,11 +16,11 @@ import (
 // ultimatey, both are okay.
 
 func PlayerLearns(fact string) rt.BoolEval {
-	return Choose{If: Not{Is{R(fact), "recollected"}},
-		True: Change(R(fact)).To("recollected"),
+	return Choose{If: Not{Is{Id(fact), "recollected"}},
+		True: Change(Id(fact)).To("recollected"),
 	}
 }
 
 func PlayerRecollects(fact string) rt.BoolEval {
-	return Is{R(fact), "recollected"}
+	return Is{Id(fact), "recollected"}
 }

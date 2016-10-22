@@ -20,6 +20,7 @@ type Core struct {
 	*SetNum
 	*SetTxt
 	*SetRef
+	*ClearRef
 	*ChangeState
 	// Choose
 	*Choose
@@ -44,8 +45,6 @@ type Core struct {
 	*GoCall
 	// numEval
 	*AddNum
-	// pointsTo
-	*PointsTo
 	// print
 	*PrintNum
 	*PrintText

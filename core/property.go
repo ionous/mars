@@ -15,7 +15,7 @@ func (p PropertyName) String() string {
 
 // Property refers to a field within an object.
 type Property struct {
-	Ref   rt.RefEval
+	Ref   rt.ObjEval
 	Field PropertyName
 }
 
@@ -26,78 +26,76 @@ type NumListProperty Property
 type TextListProperty Property
 type RefListProperty Property
 
-func (p NumProperty) GetNumber(r rt.Runtime) (ret rt.Number, err error) {
-	if p, g, e := Property(p).GetGeneric(r); e != nil {
+func (p NumProperty) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.NumEval); !ok {
 		err = errutil.New("property not a number", p, sbuf.Type{v})
 	} else {
-		ret, err = v.GetNumber(r)
+		ret, err = v.GetNumber(run)
 	}
 	return
 }
 
-func (p TextProperty) GetText(r rt.Runtime) (ret rt.Text, err error) {
-	if p, g, e := Property(p).GetGeneric(r); e != nil {
+func (p TextProperty) GetText(run rt.Runtime) (ret rt.Text, err error) {
+	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.TextEval); !ok {
 		err = errutil.New("property not text", p, sbuf.Type{v})
 	} else {
-		ret, err = v.GetText(r)
+		ret, err = v.GetText(run)
 	}
 	return
 }
 
-func (p RefProperty) GetReference(r rt.Runtime) (ret rt.Reference, err error) {
-	if p, g, e := Property(p).GetGeneric(r); e != nil {
+func (p RefProperty) GetObject(run rt.Runtime) (ret rt.Object, err error) {
+	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
-	} else if v, ok := g.(rt.RefEval); !ok {
+	} else if v, ok := g.(rt.ObjEval); !ok {
 		err = errutil.New("property not a reference", p, sbuf.Type{v})
 	} else {
-		ret, err = v.GetReference(r)
+		ret, err = v.GetObject(run)
 	}
 	return
 }
 
-func (p NumListProperty) GetNumberIdx(r rt.Runtime, i int) (ret rt.Number, err error) {
-	if p, g, e := Property(p).GetGeneric(r); e != nil {
+func (p NumListProperty) GetNumberIdx(run rt.Runtime, i int) (ret rt.Number, err error) {
+	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.NumListEval); !ok {
 		err = errutil.New("property not a number list", p, sbuf.Type{v})
 	} else {
-		ret, err = v.GetNumberIdx(r, i)
+		ret, err = v.GetNumberIdx(run, i)
 	}
 	return
 }
 
-func (p TextListProperty) GetTextIdx(r rt.Runtime, i int) (ret rt.Text, err error) {
-	if p, g, e := Property(p).GetGeneric(r); e != nil {
+func (p TextListProperty) GetTextIdx(run rt.Runtime, i int) (ret rt.Text, err error) {
+	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.TextListEval); !ok {
 		err = errutil.New("property not a text list", p, sbuf.Type{v})
 	} else {
-		ret, err = v.GetTextIdx(r, i)
+		ret, err = v.GetTextIdx(run, i)
 	}
 	return
 }
 
-func (p RefListProperty) GetReferenceIdx(r rt.Runtime, i int) (ret rt.Reference, err error) {
-	if p, g, e := Property(p).GetGeneric(r); e != nil {
+func (p RefListProperty) GetReferenceIdx(run rt.Runtime, i int) (ret rt.Reference, err error) {
+	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
-	} else if v, ok := g.(rt.RefListEval); !ok {
+	} else if v, ok := g.(rt.ObjListEval); !ok {
 		err = errutil.New("property not a reference list", p, sbuf.Type{v})
 	} else {
-		ret, err = v.GetReferenceIdx(r, i)
+		ret, err = v.GetReferenceIdx(run, i)
 	}
 	return
 }
 
-func (p Property) GetGeneric(r rt.Runtime) (retprop meta.Property, retvalue meta.Generic, err error) {
-	if ref, e := Property(p).Ref.GetReference(r); e != nil {
+func (p Property) GetGeneric(run rt.Runtime) (retprop meta.Property, retvalue meta.Generic, err error) {
+	if obj, e := p.Ref.GetObject(run); e != nil {
 		err = e
-	} else if obj, e := r.GetObject(ref); e != nil {
-		err = e
-	} else if prop, ok := obj.FindProperty(Property(p).Field.String()); !ok {
+	} else if prop, ok := obj.FindProperty(p.Field.String()); !ok {
 		err = errutil.New("object property not found", obj, p)
 	} else {
 		retprop, retvalue = prop, prop.GetGeneric()
@@ -105,12 +103,10 @@ func (p Property) GetGeneric(r rt.Runtime) (retprop meta.Property, retvalue meta
 	return
 }
 
-func (p Property) SetGeneric(r rt.Runtime, g meta.Generic) (err error) {
-	if ref, e := Property(p).Ref.GetReference(r); e != nil {
+func (p Property) SetGeneric(run rt.Runtime, g meta.Generic) (err error) {
+	if obj, e := p.Ref.GetObject(run); e != nil {
 		err = e
-	} else if obj, e := r.GetObject(ref); e != nil {
-		err = e
-	} else if prop, ok := obj.FindProperty(Property(p).Field.String()); !ok {
+	} else if prop, ok := obj.FindProperty(p.Field.String()); !ok {
 		err = errutil.New("object property not found", obj, Property(p).Field)
 	} else {
 		err = prop.SetGeneric(g)

@@ -10,11 +10,11 @@ func Move(obj string) MoveToPhrase {
 }
 
 func (move MoveToPhrase) To(dest string) rt.Execute {
-	return ChangeParent{core.R(move.obj), "whereabouts", core.R(dest)}
+	return ChangeParent{core.Id(move.obj), "whereabouts", core.Id(dest)}
 }
 
 func (move MoveToPhrase) OutOfWorld() rt.Execute {
-	return ChangeParent{core.R(move.obj), "whereabouts", core.NullRef()}
+	return ChangeParent{core.Id(move.obj), "whereabouts", core.NullRef()}
 }
 
 type MoveToPhrase struct {

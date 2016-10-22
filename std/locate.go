@@ -1,24 +1,22 @@
 package std
 
 import (
-	"github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
+	"github.com/ionous/sashimi/util/errutil"
 )
 
 type Location struct {
-	ref rt.RefEval
+	obj rt.ObjEval
 }
 
-func (l Location) GetReference(run rt.Runtime) (ret rt.Reference, err error) {
-	if ref, e := l.ref.GetReference(run); e != nil {
-		err = e
-	} else if obj, e := run.GetObject(ref); e != nil {
+func (l Location) GetObject(run rt.Runtime) (ret rt.Object, err error) {
+	if obj, e := l.obj.GetObject(run); e != nil {
 		err = e
 	} else if p, ok := (Locator{run}._location(obj)); !ok {
-		ret = core.NullRef()
+		err = errutil.New("object is nowhere", obj)
 	} else {
-		ret = rt.Reference(p.GetId())
+		ret = rt.Object{p}
 	}
 	return
 }
@@ -46,7 +44,7 @@ func (loc Locator) get(obj meta.Instance, where string) (ret meta.Instance, okay
 	// fix: use faster lookup?
 	if w, ok := obj.FindProperty(where); ok {
 		if id := w.GetValue().GetObject(); !id.Empty() {
-			if inst, e := loc.GetObject(rt.Reference(id)); e == nil {
+			if inst, e := loc.GetObject(id); e == nil {
 				ret, okay = inst, true
 			}
 		}

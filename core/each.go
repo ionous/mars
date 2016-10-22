@@ -17,7 +17,7 @@ type EachText struct {
 }
 
 type EachObj struct {
-	For      rt.RefListEval
+	For      rt.ObjListEval
 	Go, Else rt.Execute
 }
 
@@ -25,8 +25,8 @@ type IfEach struct {
 	IsFirst, IsLast bool
 }
 
-func (t IfEach) GetBool(r rt.Runtime) (ret bool, err error) {
-	if _, p := r.GetScope(); p == nil {
+func (t IfEach) GetBool(run rt.Runtime) (ret bool, err error) {
+	if _, p := run.GetScope(); p == nil {
 		err = errutil.New("IfEach", "not in a loop")
 	} else {
 		ret = (p.IsFirst && t.IsFirst) || (p.IsLast && t.IsLast)
@@ -36,8 +36,8 @@ func (t IfEach) GetBool(r rt.Runtime) (ret bool, err error) {
 
 type EachIndex struct{}
 
-func (t EachIndex) GetNumber(r rt.Runtime) (ret rt.Number, err error) {
-	if _, p := r.GetScope(); p == nil {
+func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+	if _, p := run.GetScope(); p == nil {
 		err = errutil.New("EachIndex", "not in a loop")
 	} else {
 		ret = rt.Number(float64(p.Index + 1))
@@ -45,9 +45,9 @@ func (t EachIndex) GetNumber(r rt.Runtime) (ret rt.Number, err error) {
 	return
 }
 
-func (f EachNum) Execute(r rt.Runtime) error {
-	return eachValue(r, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
-		if v, e := f.For.GetNumberIdx(r, i); e != nil {
+func (f EachNum) Execute(run rt.Runtime) error {
+	return eachValue(run, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
+		if v, e := f.For.GetNumberIdx(run, i); e != nil {
 			err = e
 		} else {
 			ret = rt.NumEval(v)
@@ -56,9 +56,9 @@ func (f EachNum) Execute(r rt.Runtime) error {
 	})
 }
 
-func (f EachText) Execute(r rt.Runtime) error {
-	return eachValue(r, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
-		if v, e := f.For.GetTextIdx(r, i); e != nil {
+func (f EachText) Execute(run rt.Runtime) error {
+	return eachValue(run, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
+		if v, e := f.For.GetTextIdx(run, i); e != nil {
 			err = e
 		} else {
 			ret = rt.TextEval(v)
@@ -67,12 +67,12 @@ func (f EachText) Execute(r rt.Runtime) error {
 	})
 }
 
-func (f EachObj) Execute(r rt.Runtime) error {
-	return eachValue(r, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
-		if v, e := f.For.GetReferenceIdx(r, i); e != nil {
+func (f EachObj) Execute(run rt.Runtime) error {
+	return eachValue(run, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
+		if v, e := f.For.GetReferenceIdx(run, i); e != nil {
 			err = e
 		} else {
-			ret = rt.RefEval(v)
+			ret = rt.ObjEval(v)
 		}
 		return
 	})
@@ -86,6 +86,7 @@ type ValueScope struct {
 
 func (vs ValueScope) FindValue(name string) (ret meta.Generic, err error) {
 	if name != "" {
+		// FIX: what if it is?
 		err = errutil.New("context is not an object")
 	} else {
 		ret = vs.val
@@ -93,22 +94,22 @@ func (vs ValueScope) FindValue(name string) (ret meta.Generic, err error) {
 	return
 }
 
-func eachValue(r rt.Runtime, list rt.ListEval, loop, otherwise rt.Execute, value makeValue) (err error) {
+func eachValue(run rt.Runtime, list rt.ListEval, loop, otherwise rt.Execute, value makeValue) (err error) {
 	if c := list.GetCount(); c == 0 {
-		otherwise.Execute(r)
+		otherwise.Execute(run)
 	} else {
 		for i := 0; i < c; i++ {
 			if v, e := value(i); e != nil {
 				err = e
 				break
 			} else {
-				r.PushScope(ValueScope{v}, &rt.IndexInfo{
+				run.PushScope(ValueScope{v}, &rt.IndexInfo{
 					Index:   i,
 					IsFirst: i == 0,
 					IsLast:  i+1 == c,
 				})
-				e := loop.Execute(r)
-				r.PopScope()
+				e := loop.Execute(run)
+				run.PopScope()
 				if e != nil {
 					err = e
 					break

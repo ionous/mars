@@ -13,10 +13,10 @@ type AnyTrue struct {
 	Test []rt.BoolEval
 }
 
-func (a AnyTrue) GetBool(r rt.Runtime) (okay bool, err error) {
+func (a AnyTrue) GetBool(run rt.Runtime) (okay bool, err error) {
 	prelim := false
 	for _, b := range a.Test {
-		if ok, e := b.GetBool(r); e != nil {
+		if ok, e := b.GetBool(run); e != nil {
 			err = errutil.Append(err, e)
 			// fix: this is a very interesting question
 			// guess it depends on whether you want errors to be continuable or not

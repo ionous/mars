@@ -7,9 +7,9 @@ import (
 
 type Statements []rt.Execute
 
-func (ss Statements) Execute(r rt.Runtime) (err error) {
+func (ss Statements) Execute(run rt.Runtime) (err error) {
 	for _, s := range ss {
-		if e := s.Execute(r); e != nil {
+		if e := s.Execute(run); e != nil {
 			err = e
 			break
 		}
@@ -31,15 +31,15 @@ type Fails struct {
 	Message string
 }
 
-func (x Fails) Execute(r rt.Runtime) (err error) {
-	if e := x.Other.Execute(r); e == nil {
+func (x Fails) Execute(run rt.Runtime) (err error) {
+	if e := x.Other.Execute(run); e == nil {
 		err = errutil.New(x.Message)
 	} else {
-		r.Println("failed okay with", e)
+		run.Println("failed okay with", e)
 	}
 	return
 }
 
-func (x Error) Execute(r rt.Runtime) (err error) {
+func (x Error) Execute(run rt.Runtime) (err error) {
 	return errutil.New(x.Reason)
 }

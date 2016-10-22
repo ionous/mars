@@ -11,7 +11,7 @@ func (l Numbers) GetCount() int {
 	return len(l)
 }
 
-func (l Numbers) GetNumberIdx(r Runtime, i int) (ret Number, err error) {
+func (l Numbers) GetNumberIdx(run Runtime, i int) (ret Number, err error) {
 	if cnt := len(l); i < cnt {
 		ret = Number(l[i])
 	} else {
@@ -28,7 +28,7 @@ func (l Texts) GetCount() int {
 }
 
 // GetTextIdx implements TextListEval.
-func (l Texts) GetTextIdx(r Runtime, i int) (ret Text, err error) {
+func (l Texts) GetTextIdx(run Runtime, i int) (ret Text, err error) {
 	if cnt := len(l); i < cnt {
 		ret = Text(l[i])
 	} else {
@@ -44,8 +44,8 @@ func (l References) GetCount() int {
 	return len(l)
 }
 
-// GetReferenceIdx implements RefListEval
-func (l References) GetReferenceIdx(r Runtime, i int) (ret Reference, err error) {
+// GetReferenceIdx implements ObjListEval
+func (l References) GetReferenceIdx(run Runtime, i int) (ret Reference, err error) {
 	if cnt := len(l); i < cnt {
 		ret = l[i]
 	} else {

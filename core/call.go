@@ -9,8 +9,8 @@ type CallWithNum struct {
 	Num rt.NumEval
 }
 
-func (p CallWithNum) Resolve(r rt.Runtime) (ret meta.Generic, err error) {
-	if v, e := p.Num.GetNumber(r); e != nil {
+func (p CallWithNum) Resolve(run rt.Runtime) (ret meta.Generic, err error) {
+	if v, e := p.Num.GetNumber(run); e != nil {
 		err = e
 	} else {
 		ret = rt.NumEval(v)
@@ -22,8 +22,8 @@ type CallWithText struct {
 	Text rt.TextEval
 }
 
-func (p CallWithText) Resolve(r rt.Runtime) (ret meta.Generic, err error) {
-	if v, e := p.Text.GetText(r); e != nil {
+func (p CallWithText) Resolve(run rt.Runtime) (ret meta.Generic, err error) {
+	if v, e := p.Text.GetText(run); e != nil {
 		err = e
 	} else {
 		ret = rt.TextEval(v)
@@ -32,14 +32,14 @@ func (p CallWithText) Resolve(r rt.Runtime) (ret meta.Generic, err error) {
 }
 
 type CallWithRef struct {
-	Ref rt.RefEval
+	Ref rt.ObjEval
 }
 
-func (p CallWithRef) Resolve(r rt.Runtime) (ret meta.Generic, err error) {
-	if v, e := p.Ref.GetReference(r); e != nil {
+func (p CallWithRef) Resolve(run rt.Runtime) (ret meta.Generic, err error) {
+	if v, e := p.Ref.GetObject(run); e != nil {
 		err = e
 	} else {
-		ret = rt.RefEval(v)
+		ret = rt.ObjEval(v)
 	}
 	return
 }

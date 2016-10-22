@@ -7,4 +7,5 @@ type BuiltIn struct {
 	*Numbers
 	*Texts
 	*References
+	// not: objects cannot be stored.
 }

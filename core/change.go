@@ -18,41 +18,56 @@ type SetTxt struct {
 
 type SetRef struct {
 	Tgt RefProperty
-	Ref rt.RefEval
+	Ref rt.ObjEval
+}
+
+type ClearRef struct {
+	Tgt RefProperty
 }
 
 type ChangeState struct {
-	Ref    rt.RefEval
+	Ref    rt.ObjEval
 	States []ident.Id
 }
 
-func Change(tgt rt.RefEval) ChangeState {
+func Change(tgt rt.ObjEval) ChangeState {
 	return ChangeState{tgt, nil}
 }
 
-func (x SetNum) Execute(r rt.Runtime) (err error) {
-	if n, e := x.Num.GetNumber(r); e != nil {
-		err = e
-	} else if e := Property(x.Tgt).SetGeneric(r, n); e != nil {
-		err = e
+func (x SetNum) Execute(run rt.Runtime) (err error) {
+	if n, e := x.Num.GetNumber(run); e != nil {
+		err = errutil.New("SetNum.Num", e)
+	} else if e := Property(x.Tgt).SetGeneric(run, n); e != nil {
+		err = errutil.New("SetNum.Tgt", e)
 	}
 	return
 }
 
-func (x SetTxt) Execute(r rt.Runtime) (err error) {
-	if t, e := x.Txt.GetText(r); e != nil {
-		err = e
-	} else if e := Property(x.Tgt).SetGeneric(r, t); e != nil {
-		err = e
+func (x SetTxt) Execute(run rt.Runtime) (err error) {
+	if t, e := x.Txt.GetText(run); e != nil {
+		err = errutil.New("SetTxt.Txt", e)
+	} else if e := Property(x.Tgt).SetGeneric(run, t); e != nil {
+		err = errutil.New("SetTxt.Tgt", e)
 	}
 	return
 }
 
-func (x SetRef) Execute(r rt.Runtime) (err error) {
-	if ref, e := x.Ref.GetReference(r); e != nil {
-		err = e
-	} else if e := Property(x.Tgt).SetGeneric(r, ref); e != nil {
-		err = e
+func (x SetRef) Execute(run rt.Runtime) (err error) {
+	if obj, e := x.Ref.GetObject(run); e != nil {
+		err = errutil.New("SetRef.Ref", e)
+	} else {
+		ref := rt.Reference(obj.GetId())
+		if e := Property(x.Tgt).SetGeneric(run, ref); e != nil {
+			err = errutil.New("SetRef.Tgt", e)
+		}
+	}
+	return
+}
+
+func (x ClearRef) Execute(run rt.Runtime) (err error) {
+	var empty rt.Reference
+	if e := Property(x.Tgt).SetGeneric(run, empty); e != nil {
+		err = errutil.New("ClearRef.Tgt", e)
 	}
 	return
 }
@@ -67,18 +82,16 @@ func (p ChangeState) And(state string) ChangeState {
 }
 
 // func (oa *GameObject) IsNow(state string) {
-func (x ChangeState) Execute(r rt.Runtime) (err error) {
-	if ref, e := x.Ref.GetReference(r); e != nil {
-		err = e
-	} else if o, e := r.GetObject(ref); e != nil {
-		err = e
+func (x ChangeState) Execute(run rt.Runtime) (err error) {
+	if obj, e := x.Ref.GetObject(run); e != nil {
+		err = errutil.New("ChangeState.Ref", e)
 	} else {
 		for _, choice := range x.States {
-			if prop, ok := o.GetPropertyByChoice(choice); !ok {
-				err = errutil.New(o, "does not have choice", choice)
+			if prop, ok := obj.GetPropertyByChoice(choice); !ok {
+				err = errutil.New("ChangeState", obj, "does not have choice", choice)
 				break
 			} else if e := prop.SetGeneric(choice); e != nil {
-				err = e
+				err = errutil.New("ChangeState", e)
 				break
 			}
 		}

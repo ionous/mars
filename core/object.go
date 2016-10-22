@@ -27,7 +27,7 @@ func (obj ObjectScope) FindValue(name string) (ret meta.Generic, err error) {
 		case meta.TextProperty:
 			ret = prop.GetGeneric().(rt.TextEval)
 		case meta.ObjectProperty:
-			ret = prop.GetGeneric().(rt.RefEval)
+			ret = prop.GetGeneric().(rt.ObjEval)
 		default:
 			err = errutil.New("object property type unknown", obj, name)
 		}

@@ -2,6 +2,7 @@ package rt
 
 import (
 	"github.com/ionous/sashimi/meta"
+	"github.com/ionous/sashimi/util/ident"
 	"io"
 )
 
@@ -18,7 +19,7 @@ type IndexInfo struct {
 // basically RuntimeCore replacing game.Play
 // with event data and hint of GameEventAdapter
 type Runtime interface {
-	GetObject(Reference) (meta.Instance, error)
+	GetObject(ident.Id) (Object, error)
 	RunAction(string, Scope, Parameters) error
 	// Say: api.Output-> ScriptSays, ActorSays, Log
 	PushOutput(io.Writer)

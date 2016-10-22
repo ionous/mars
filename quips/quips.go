@@ -21,10 +21,10 @@ func (g GreetedPhrase) WithDefault() rt.Execute {
 func (g GreetedPhrase) With(greeting string) rt.Execute {
 	// FIX: with inference compiler, in theory, this check wouldnt be needed.
 	panic("with")
-	// greeter, greeted, greets := R(g.greeter), R(g.greeted), R(greeting)
+	// greeter, greeted, greets := Id(g.greeter), Id(g.greeted), Id(greeting)
 	// return Choose{
 	// 	If: All(
-	// 		Equals{R("player"), greeter},
+	// 		Equals{Id("player"), greeter},
 	// 		Exists{greeted}),
 	// 	True:  GoCall{Who: greeter, Run: "be greeted by", What: greeted, With: greets},
 	// 	False: Error{"invalid greeting " + g.greeter + " " + g.greeted + " " + greeting}}

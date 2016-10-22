@@ -19,11 +19,11 @@ type ChooseText struct {
 
 type ChooseRef struct {
 	If          rt.BoolEval
-	True, False rt.RefEval
+	True, False rt.ObjEval
 }
 
-func (x Choose) GetBool(r rt.Runtime) (ret bool, err error) {
-	if b, e := x.If.GetBool(r); e != nil {
+func (x Choose) GetBool(run rt.Runtime) (ret bool, err error) {
+	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
 		var next rt.Execute
@@ -33,15 +33,15 @@ func (x Choose) GetBool(r rt.Runtime) (ret bool, err error) {
 			next = x.False
 		}
 		if next != nil {
-			err = next.Execute(r)
+			err = next.Execute(run)
 		}
 		ret = b
 	}
 	return
 }
 
-func (x ChooseNum) GetNumber(r rt.Runtime) (ret rt.Number, err error) {
-	if b, e := x.If.GetBool(r); e != nil {
+func (x ChooseNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
 		var next rt.NumEval
@@ -51,14 +51,14 @@ func (x ChooseNum) GetNumber(r rt.Runtime) (ret rt.Number, err error) {
 			next = x.False
 		}
 		if next != nil {
-			ret, err = next.GetNumber(r)
+			ret, err = next.GetNumber(run)
 		}
 	}
 	return
 }
 
-func (x ChooseText) GetText(r rt.Runtime) (ret rt.Text, err error) {
-	if b, e := x.If.GetBool(r); e != nil {
+func (x ChooseText) GetText(run rt.Runtime) (ret rt.Text, err error) {
+	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
 		var next rt.TextEval
@@ -68,31 +68,31 @@ func (x ChooseText) GetText(r rt.Runtime) (ret rt.Text, err error) {
 			next = x.False
 		}
 		if next != nil {
-			ret, err = next.GetText(r)
+			ret, err = next.GetText(run)
 		}
 	}
 	return
 }
 
-func (x ChooseRef) GetReference(r rt.Runtime) (ret rt.Reference, err error) {
-	if b, e := x.If.GetBool(r); e != nil {
+func (x ChooseRef) GetObject(run rt.Runtime) (ret rt.Object, err error) {
+	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
-		var next rt.RefEval
+		var next rt.ObjEval
 		if b {
 			next = x.True
 		} else {
 			next = x.False
 		}
 		if next != nil {
-			ret, err = next.GetReference(r)
+			ret, err = next.GetObject(run)
 		}
 	}
 	return
 }
 
 // Execute evals, eats the returns
-func (x Choose) Execute(r rt.Runtime) error {
-	_, e := x.GetBool(r)
+func (x Choose) Execute(run rt.Runtime) error {
+	_, e := x.GetBool(run)
 	return e
 }

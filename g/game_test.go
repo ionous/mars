@@ -11,12 +11,12 @@ import (
 //
 func TestPrint(t *testing.T) {
 	var buf bytes.Buffer
-	r := rtm.NewRtm(nil)
-	r.PushOutput(&buf)
+	run := rtm.NewRtm(nil)
+	run.PushOutput(&buf)
 	x := Statements{
 		Say("hello", "there.", "world."),
 	}
-	if e := x.Execute(r); assert.NoError(t, e, "execute") {
+	if e := x.Execute(run); assert.NoError(t, e, "execute") {
 		assert.Equal(t, "hello there. world.\n", buf.String(), "result")
 	}
 }
@@ -24,15 +24,15 @@ func TestPrint(t *testing.T) {
 //
 func TestForEach(t *testing.T) {
 	buf := bytes.NewBuffer(nil)
-	r := rtm.NewRtm(nil)
-	r.PushOutput(buf)
+	run := rtm.NewRtm(nil)
+	run.PushOutput(buf)
 	ts := Ts("hello", "there", "world")
 	lines := EachText{
 		Go:   Say(GetText{}),
 		For:  ts,
 		Else: Error{"should have run"},
 	}
-	if e := lines.Execute(r); assert.NoError(t, e, "execute") {
+	if e := lines.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "hello\nthere\nworld\n", buf.String(), "on multiple lines") {
 			t.FailNow()
 		}
@@ -45,7 +45,7 @@ func TestForEach(t *testing.T) {
 		Else: Error{"should have run"},
 	}}}
 
-	if e := x.Execute(r); assert.NoError(t, e, "execute") {
+	if e := x.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "hello there world\n", buf.String(), "one one line") {
 			t.FailNow()
 		}
@@ -57,7 +57,7 @@ func TestForEach(t *testing.T) {
 		For:  ts,
 		Else: Error{"should have run"},
 	}
-	if e := index.Execute(r); assert.NoError(t, e, "execute") {
+	if e := index.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "1\n2\n3\n", buf.String(), "count now") {
 			t.FailNow()
 		}
@@ -77,7 +77,7 @@ func TestForEach(t *testing.T) {
 			Else: Error{"should have run"},
 		}
 	buf.Reset()
-	if e := andAlways.Execute(r); assert.NoError(t, e, "execute") {
+	if e := andAlways.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "first\nthere\nlast\n", buf.String(), "first and last") {
 			t.FailNow()
 		}

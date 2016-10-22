@@ -37,16 +37,16 @@ func Empty() rt.Text {
 	return rt.Text("")
 }
 
-// R creates a new reference via StripStringId.
-func R(s string) rt.Reference {
-	id := StripStringId(s)
+// Id creates a new reference via MakeStringId
+func Id(s string) rt.Reference {
+	id := MakeStringId(s)
 	return rt.Reference(id)
 }
 
 // Nothing return a Ref which evaluates to the "null" object.
-func Nothing() (ret rt.Reference) {
-	return ret
-}
+// func Nothing() (ret rt.Object) {
+// 	return ret
+// }
 
 func Ns(vals ...float64) rt.Numbers {
 	return rt.Numbers(vals)
@@ -56,10 +56,10 @@ func Ts(vals ...string) rt.Texts {
 	return rt.Texts(vals)
 }
 
-func Rs(vals ...string) rt.References {
+func Ids(vals ...string) rt.References {
 	refs := []rt.Reference{}
 	for i := 0; i < len(vals); i++ {
-		refs = append(refs, R(vals[i]))
+		refs = append(refs, Id(vals[i]))
 	}
 	return rt.References(refs)
 }

@@ -3,27 +3,54 @@ package g
 import (
 	. "github.com/ionous/mars/core"
 	rt "github.com/ionous/mars/rt"
+	"github.com/ionous/sashimi/util/errutil"
 )
 
+// ScriptName searches for objects by name, as opposed to core.Id which uses direct lookup.
+type ScriptName struct {
+	Name string
+}
+
+// ScriptRef provides (some) backwards compatibility with the old game interface
 type ScriptRef struct {
-	Ref rt.RefEval
+	rt.ObjEval
 }
 
 func The(s string) ScriptRef {
-	return ScriptRef{R(s)}
+	return ScriptRef{ScriptName{s}}
+}
+
+type Game struct {
+	*ScriptName
+	*ScriptRef
+}
+
+// GetObject searches through the scope for an object matching Name
+func (h ScriptName) GetObject(run rt.Runtime) (ret rt.Object, err error) {
+	s, _ := run.GetScope()
+	if v, e := s.FindValue(h.Name); e != nil {
+		err = errutil.New("ScriptRef.GetObject", e)
+	} else if x, ok := v.(rt.ObjEval); !ok {
+		err = errutil.New("ScriptRef.GetObject", h.Name, "is not an object")
+	} else if r, e := x.GetObject(run); e != nil {
+		err = errutil.New("ScriptRef.GetObject", e)
+	} else {
+		ret = r
+	}
+	return
 }
 
 // ex. g.Say(g.The("player").Text("greeting"))
 func (h ScriptRef) Text(name PropertyName) rt.TextEval {
-	return TextProperty{h.Ref, name}
+	return TextProperty{h, name}
 }
 
 func (h ScriptRef) Num(name PropertyName) rt.NumEval {
-	return NumProperty{h.Ref, name}
+	return NumProperty{h, name}
 }
 
-func (h ScriptRef) Object(name PropertyName) rt.RefEval {
-	return RefProperty{h.Ref, name}
+func (h ScriptRef) Object(name PropertyName) ScriptRef {
+	return ScriptRef{RefProperty{h, name}}
 }
 
 // 	// Get returns the named property.
@@ -39,9 +66,6 @@ func (h ScriptRef) Go(run string, all ...interface{}) rt.Execute {
 	for _, a := range all {
 		var ps rt.ParameterSource
 		switch val := a.(type) {
-		// in case of g.The()
-		case ScriptRef:
-			ps = CallWithRef{val.Ref}
 		// note, rt.Number implements rt.NumEval. no need for a separate switch
 		case rt.NumEval:
 			ps = CallWithNum{val}
@@ -54,39 +78,17 @@ func (h ScriptRef) Go(run string, all ...interface{}) rt.Execute {
 			ps = CallWithText{val}
 		case string:
 			ps = CallWithText{T(val)}
-		// note, rt.Reference implements rt.RefEval
-		case rt.RefEval:
+		// note, rt.Object implements rt.ObjEval
+		case rt.ObjEval:
 			ps = CallWithRef{val}
 		default:
 			panic("go what?")
 		}
 		parms = append(parms, ps)
 	}
+	panic("go call shouldnt push the object into scope, should it?")
 	return GoCall{
 		//Action:     P(h.Ref, run),
 		Parameters: parms,
 	}
-}
-
-// Say shortcut runs a bunch of statements and "collects" them via PrintLine
-func Say(all ...interface{}) rt.Execute {
-	sayWhat := Statements{}
-	for _, a := range all {
-		switch val := a.(type) {
-		case int:
-			sayWhat = append(sayWhat, PrintNum{I(val)})
-		case rt.NumEval:
-			sayWhat = append(sayWhat, PrintNum{val})
-		case string:
-			sayWhat = append(sayWhat, PrintText{T(val)})
-		case rt.TextEval:
-			sayWhat = append(sayWhat, PrintText{val})
-		case rt.Execute:
-			// FIX: could buffer operations have a specialized interface implementation?
-			sayWhat = append(sayWhat, val)
-		default:
-			panic("say what?")
-		}
-	}
-	return PrintLine{sayWhat}
 }

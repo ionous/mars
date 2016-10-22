@@ -1,7 +1,7 @@
 package rt
 
 import (
-	"github.com/ionous/sashimi/util/ident"
+	"github.com/ionous/sashimi/meta"
 	"strconv"
 )
 
@@ -58,18 +58,21 @@ func (s Text) String() string {
 	return string(s)
 }
 
-// Reference provides an object pointer primitive.
-type Reference ident.Id
-
-// GetReference implements RefEval allowing the NullRef, R, The to be used as literals
-func (xr Reference) GetReference(Runtime) (Reference, error) {
-	return xr, nil
+type Object struct {
+	meta.Instance
+	// FIX: Exists?
 }
 
-func (xr Reference) Id() ident.Id {
-	return ident.Id(xr)
+// GetObject implements ObjEval for objects; allowing objects to be returned from evals.
+func (obj Object) GetObject(Runtime) (Object, error) {
+	return obj, nil
 }
 
-func (xr Reference) String() string {
-	return ident.Id(xr).String()
+func (obj Object) String() (ret string) {
+	if obj.Instance == nil {
+		ret = "<nil object>"
+	} else {
+		ret = obj.GetId().String()
+	}
+	return
 }

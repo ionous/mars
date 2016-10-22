@@ -11,7 +11,7 @@ func Speaker(actor string) SpeechPhrase {
 func (s SpeechPhrase) Says(lines string) rt.Execute {
 	panic("not impleented")
 	// return RunWithTex{
-	// 	R(s.actor),
+	// 	Id(s.actor),
 	// 	"says",
 	// 	rt.Text(lines)}
 }

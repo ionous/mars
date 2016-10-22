@@ -12,8 +12,8 @@ type NumEval interface {
 type TextEval interface {
 	GetText(Runtime) (Text, error)
 }
-type RefEval interface {
-	GetReference(Runtime) (Reference, error)
+type ObjEval interface {
+	GetObject(Runtime) (Object, error)
 }
 type ListEval interface {
 	GetCount() int
@@ -26,7 +26,7 @@ type TextListEval interface {
 	ListEval
 	GetTextIdx(Runtime, int) (Text, error)
 }
-type RefListEval interface {
+type ObjListEval interface {
 	ListEval
 	GetReferenceIdx(Runtime, int) (Reference, error)
 }
