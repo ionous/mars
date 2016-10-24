@@ -1,6 +1,7 @@
 package s
 
 import (
+	"github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/frag"
@@ -9,18 +10,27 @@ import (
 	S "github.com/ionous/sashimi/source"
 )
 
+func joinCallbacks(cb rt.Execute, cbs []rt.Execute) (ret rt.Execute) {
+	if len(cbs) == 0 {
+		ret = cb
+	} else {
+		ret = core.Statements(append([]rt.Execute{cb}, cbs...))
+	}
+	return
+}
+
 // statement to declare an default action handler
-func To(action string, cb rt.Execute) frag.Fragment {
-	return DefaultActionFragment{action, cb}
+func To(action string, call rt.Execute, calls ...rt.Execute) frag.Fragment {
+	return DefaultActionFragment{action, joinCallbacks(call, calls)}
 }
 
 type DefaultActionFragment struct {
 	action string
-	cb     rt.Execute
+	call   rt.Execute
 }
 
 func (to DefaultActionFragment) Build(src script.Source, top frag.Topic) error {
-	fields := S.RunFields{top.Subject, to.action, to.cb, E.TargetPhase}
+	fields := S.RunFields{top.Subject, to.action, to.call, E.TargetPhase}
 	return src.NewActionHandler(fields, script.Unknown)
 }
 
@@ -53,12 +63,12 @@ func (p EventPhrase) Or(event string) EventPhrase {
 }
 
 //
-func (p EventPhrase) Always(cb rt.Execute) EventFinalizer {
-	return EventFinalizer{p, cb}
+func (p EventPhrase) Always(cb rt.Execute, cbs ...rt.Execute) EventFinalizer {
+	return EventFinalizer{p, joinCallbacks(cb, cbs)}
 }
 
-func (p EventPhrase) Go(cb G.Callback) EventFinalizer {
-	return EventFinalizer{p, cb}
+func (p EventPhrase) Go(cb rt.Execute, cbs ...rt.Execute) EventFinalizer {
+	return EventFinalizer{p, joinCallbacks(cb, cbs)}
 }
 
 //

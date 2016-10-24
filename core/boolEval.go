@@ -49,7 +49,7 @@ type Exists struct {
 	Ref rt.ObjEval
 }
 
-func (empty IsEmpty) GetBool(run rt.Runtime) (ret bool, err error) {
+func (empty IsEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if t, e := empty.Text.GetText(run); e != nil {
 		err = errutil.New("IsEmpty.Text", e)
 	} else {
@@ -58,22 +58,22 @@ func (empty IsEmpty) GetBool(run rt.Runtime) (ret bool, err error) {
 	return
 }
 
-func (neg Not) GetBool(run rt.Runtime) (ret bool, err error) {
+func (neg Not) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if b, e := neg.Negate.GetBool(run); e != nil {
 		err = e
 	} else {
-		ret = !b
+		ret = rt.Bool(!b)
 	}
 	return
 }
 
 // FIX: what to do with exists?
-func (exists Exists) GetBool(run rt.Runtime) (bool, error) {
+func (exists Exists) GetBool(run rt.Runtime) (rt.Bool, error) {
 	_, e := exists.Ref.GetObject(run)
 	return e == nil, nil
 }
 
-func (comp Compare) GetBool(run rt.Runtime) (ret bool, err error) {
+func (comp Compare) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if a, e := comp.Src.GetNumber(run); e != nil {
 		err = errutil.New("Compare.Src", e)
 	} else if b, e := comp.Tgt.GetNumber(run); e != nil {
@@ -92,19 +92,19 @@ func (comp Compare) GetBool(run rt.Runtime) (ret bool, err error) {
 	return
 }
 
-func (req Equals) GetBool(run rt.Runtime) (ret bool, err error) {
+func (req Equals) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if a, e := req.Src.GetObject(run); e != nil {
 		err = errutil.New("Equals.Src", e)
 	} else if b, e := req.Tgt.GetObject(run); e != nil {
 		err = errutil.New("Equals.Tgt", e)
 	} else {
-		ret = a.GetId().Equals(b.GetId())
+		ret = rt.Bool(a.GetId().Equals(b.GetId()))
 	}
 	return
 }
 
 //func (oa *GameObject) Is(state string)
-func (op Is) GetBool(run rt.Runtime) (ret bool, err error) {
+func (op Is) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if obj, e := op.Ref.GetObject(run); e != nil {
 		err = e
 	} else {
@@ -114,7 +114,7 @@ func (op Is) GetBool(run rt.Runtime) (ret bool, err error) {
 		} else if currChoice, ok := prop.GetGeneric().(ident.Id); !ok {
 			err = errutil.New("Is op", obj, "property", prop, "unexpected type", sbuf.Type{currChoice})
 		} else {
-			ret = currChoice == choice
+			ret = rt.Bool(currChoice == choice)
 		}
 	}
 	return

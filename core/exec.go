@@ -21,8 +21,25 @@ type Error struct {
 	Reason string
 }
 
-func StopHere() Error {
-	return Error{}
+func (x Error) Execute(run rt.Runtime) (err error) {
+	return x
+}
+
+// Error satifies the golang error interface
+func (x Error) Error() string {
+	return x.Reason
+}
+
+type StopNow struct {
+}
+
+// Error satifies the golang error interface
+func (x StopNow) Error() string {
+	return "stop"
+}
+
+func (x StopNow) Execute(run rt.Runtime) error {
+	return x
 }
 
 // Fails expects the executed statement to return an error
@@ -38,8 +55,4 @@ func (x Fails) Execute(run rt.Runtime) (err error) {
 		run.Println("failed okay with", e)
 	}
 	return
-}
-
-func (x Error) Execute(run rt.Runtime) (err error) {
-	return errutil.New(x.Reason)
 }

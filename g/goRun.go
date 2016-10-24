@@ -2,7 +2,7 @@ package g
 
 import (
 	. "github.com/ionous/mars/core"
-	rt "github.com/ionous/mars/rt"
+	"github.com/ionous/mars/rt"
 )
 
 // Goshortcut runs a bunch of statements

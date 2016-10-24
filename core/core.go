@@ -12,10 +12,6 @@ type Core struct {
 	*IsEmpty
 	*Equals
 	*Exists
-	// call:
-	*CallWithNum
-	*CallWithText
-	*CallWithRef
 	// change:
 	*SetNum
 	*SetTxt

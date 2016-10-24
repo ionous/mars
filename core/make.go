@@ -1,6 +1,8 @@
 package core
 
-import "github.com/ionous/mars/rt"
+import (
+	"github.com/ionous/mars/rt"
+)
 
 // False returns a Bool which evaluates to true.
 func True() rt.Bool {
@@ -59,7 +61,8 @@ func Ts(vals ...string) rt.Texts {
 func Ids(vals ...string) rt.References {
 	refs := []rt.Reference{}
 	for i := 0; i < len(vals); i++ {
-		refs = append(refs, Id(vals[i]))
+		ref := Id(vals[i])
+		refs = append(refs, ref)
 	}
 	return rt.References(refs)
 }

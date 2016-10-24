@@ -2,8 +2,10 @@ package core
 
 import (
 	"github.com/ionous/mars/rt"
+	"github.com/ionous/mars/scope"
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
+	"github.com/ionous/sashimi/util/sbuf"
 )
 
 type EachNum struct {
@@ -25,11 +27,22 @@ type IfEach struct {
 	IsFirst, IsLast bool
 }
 
-func (t IfEach) GetBool(run rt.Runtime) (ret bool, err error) {
-	if _, p := run.GetScope(); p == nil {
-		err = errutil.New("IfEach", "not in a loop")
+func (t IfEach) GetBool(run rt.Runtime) (rt.Bool, error) {
+	var err error
+	b := (t.IsFirst && ifEach(run, "@first", &err)) ||
+		(err == nil && t.IsLast && ifEach(run, "@last", &err))
+	return rt.Bool(b), err
+}
+
+func ifEach(run rt.Runtime, name string, err *error) (ret bool) {
+	if v, e := run.FindValue(name); e != nil {
+		*err = errutil.New("ifEach, not in a loop", e)
+	} else if eval, ok := v.(rt.BoolEval); !ok {
+		*err = errutil.New("ifEach, expected bool", sbuf.Type{v})
+	} else if b, e := eval.GetBool(run); e != nil {
+		*err = e
 	} else {
-		ret = (p.IsFirst && t.IsFirst) || (p.IsLast && t.IsLast)
+		ret = bool(b)
 	}
 	return
 }
@@ -37,10 +50,12 @@ func (t IfEach) GetBool(run rt.Runtime) (ret bool, err error) {
 type EachIndex struct{}
 
 func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
-	if _, p := run.GetScope(); p == nil {
-		err = errutil.New("EachIndex", "not in a loop")
+	if v, e := run.FindValue("@index"); e != nil {
+		err = errutil.New("EachIndex", "not in a loop", e)
+	} else if eval, ok := v.(rt.NumEval); !ok {
+		err = errutil.New("ifEach, expected num", sbuf.Type{v})
 	} else {
-		ret = rt.Number(float64(p.Index + 1))
+		ret, err = eval.GetNumber(run)
 	}
 	return
 }
@@ -80,36 +95,17 @@ func (f EachObj) Execute(run rt.Runtime) error {
 
 type makeValue func(i int) (meta.Generic, error)
 
-type ValueScope struct {
-	val meta.Generic
-}
-
-func (vs ValueScope) FindValue(name string) (ret meta.Generic, err error) {
-	if name != "" {
-		// FIX: what if it is?
-		err = errutil.New("context is not an object")
-	} else {
-		ret = vs.val
-	}
-	return
-}
-
 func eachValue(run rt.Runtime, list rt.ListEval, loop, otherwise rt.Execute, value makeValue) (err error) {
 	if c := list.GetCount(); c == 0 {
 		otherwise.Execute(run)
 	} else {
+		it := scope.NewLoopMaker(run)
 		for i := 0; i < c; i++ {
 			if v, e := value(i); e != nil {
 				err = e
 				break
 			} else {
-				run.PushScope(ValueScope{v}, &rt.IndexInfo{
-					Index:   i,
-					IsFirst: i == 0,
-					IsLast:  i+1 == c,
-				})
-				e := loop.Execute(run)
-				run.PopScope()
+				e := loop.Execute(it.Looper(i+1, i == 0, i+1 == c, v))
 				if e != nil {
 					err = e
 					break

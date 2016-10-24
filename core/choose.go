@@ -22,7 +22,7 @@ type ChooseRef struct {
 	True, False rt.ObjEval
 }
 
-func (x Choose) GetBool(run rt.Runtime) (ret bool, err error) {
+func (x Choose) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
@@ -35,7 +35,7 @@ func (x Choose) GetBool(run rt.Runtime) (ret bool, err error) {
 		if next != nil {
 			err = next.Execute(run)
 		}
-		ret = b
+		ret = rt.Bool(b)
 	}
 	return
 }

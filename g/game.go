@@ -2,7 +2,8 @@ package g
 
 import (
 	. "github.com/ionous/mars/core"
-	rt "github.com/ionous/mars/rt"
+	"github.com/ionous/mars/rt"
+	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 )
 
@@ -20,6 +21,10 @@ func The(s string) ScriptRef {
 	return ScriptRef{ScriptName{s}}
 }
 
+func StopHere() rt.Execute {
+	return StopNow{}
+}
+
 type Game struct {
 	*ScriptName
 	*ScriptRef
@@ -27,8 +32,7 @@ type Game struct {
 
 // GetObject searches through the scope for an object matching Name
 func (h ScriptName) GetObject(run rt.Runtime) (ret rt.Object, err error) {
-	s, _ := run.GetScope()
-	if v, e := s.FindValue(h.Name); e != nil {
+	if v, e := run.FindValue(h.Name); e != nil {
 		err = errutil.New("ScriptRef.GetObject", e)
 	} else if x, ok := v.(rt.ObjEval); !ok {
 		err = errutil.New("ScriptRef.GetObject", h.Name, "is not an object")
@@ -61,34 +65,35 @@ func (h ScriptRef) Object(name PropertyName) ScriptRef {
 // 	SetNum(string, float64)
 // 	SetText(string, string)
 
+// g.The("player").Go("test nothing"),
 func (h ScriptRef) Go(run string, all ...interface{}) rt.Execute {
-	parms := rt.Parameters{}
-	for _, a := range all {
-		var ps rt.ParameterSource
+	parms := make([]meta.Generic, len(all)+1)
+	parms[0] = h
+	for i, a := range all {
+		var ps meta.Generic
 		switch val := a.(type) {
+		case int:
+			ps = I(val)
+		case float64:
+			ps = N(val)
 		// note, rt.Number implements rt.NumEval. no need for a separate switch
 		case rt.NumEval:
-			ps = CallWithNum{val}
-		case int:
-			ps = CallWithNum{I(val)}
-		case float64:
-			ps = CallWithNum{N(val)}
-			// note, rt.Number( implements rt.TextEval. no need for a separate switch)
-		case rt.TextEval:
-			ps = CallWithText{val}
+			ps = val
 		case string:
-			ps = CallWithText{T(val)}
-		// note, rt.Object implements rt.ObjEval
+			ps = T(val)
+		// note, rt.Text  implements rt.TextEval. no need for a separate switch
+		case rt.TextEval:
+			ps = val
+		// note, rt.Object implements rt.ObjEval, no need for a separate switch
 		case rt.ObjEval:
-			ps = CallWithRef{val}
+			ps = val
 		default:
 			panic("go what?")
 		}
-		parms = append(parms, ps)
+		parms[i+1] = ps
 	}
-	panic("go call shouldnt push the object into scope, should it?")
 	return GoCall{
-		//Action:     P(h.Ref, run),
+		Action:     MakeStringId(run),
 		Parameters: parms,
 	}
 }

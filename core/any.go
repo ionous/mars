@@ -13,7 +13,7 @@ type AnyTrue struct {
 	Test []rt.BoolEval
 }
 
-func (a AnyTrue) GetBool(run rt.Runtime) (okay bool, err error) {
+func (a AnyTrue) GetBool(run rt.Runtime) (okay rt.Bool, err error) {
 	prelim := false
 	for _, b := range a.Test {
 		if ok, e := b.GetBool(run); e != nil {
@@ -26,6 +26,6 @@ func (a AnyTrue) GetBool(run rt.Runtime) (okay bool, err error) {
 			break
 		}
 	}
-	okay = prelim
+	okay = rt.Bool(prelim)
 	return
 }

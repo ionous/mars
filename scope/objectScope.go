@@ -1,4 +1,4 @@
-package core
+package scope
 
 import (
 	"github.com/ionous/mars/rt"
@@ -33,4 +33,8 @@ func (obj ObjectScope) FindValue(name string) (ret meta.Generic, err error) {
 		}
 	}
 	return
+}
+
+func (obj ObjectScope) ScopePath() []string {
+	return []string{"object", obj.Instance.GetId().String()}
 }

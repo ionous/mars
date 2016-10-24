@@ -4,7 +4,7 @@ type Execute interface {
 	Execute(Runtime) error
 }
 type BoolEval interface {
-	GetBool(Runtime) (bool, error)
+	GetBool(Runtime) (Bool, error)
 }
 type NumEval interface {
 	GetNumber(Runtime) (Number, error)

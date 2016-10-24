@@ -14,13 +14,8 @@ func (b Bool) GetBool(Runtime) (Bool, error) {
 }
 
 // String returns a nicely formatted float, with no decimal point when possible.
-func (b Bool) String() (ret string) {
-	if b {
-		ret = "true"
-	} else {
-		ret = "false"
-	}
-	return
+func (b Bool) String() string {
+	return strconv.FormatBool(bool(b))
 }
 
 // Number provides a dl float primitive.

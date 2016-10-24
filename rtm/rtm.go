@@ -2,72 +2,69 @@ package rtm
 
 import (
 	"github.com/ionous/mars/rt"
+	"github.com/ionous/mars/scope"
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/ident"
 	"github.com/ionous/sashimi/util/sbuf"
 	"io"
-	"reflect"
 )
 
 type Rtm struct {
-	model  meta.Model
+	model meta.Model
+	scope.ModelScope
 	output []*PrintMachine
-	scope  []ScopeInfo
 }
 
-type ScopeInfo struct {
-	rt.Scope
-	info *rt.IndexInfo
+func NewRtm(model meta.Model) *Rtm {
+	ms := scope.NewModelScope(model)
+	return &Rtm{ModelScope: ms, model: model}
 }
 
-func NewRtm(data meta.Model) *Rtm {
-	return &Rtm{model: data}
-}
-
-func (run *Rtm) StopHere() {
-	panic("not implemented")
-}
-
-func (run *Rtm) Execute(cb meta.Callback) (err error) {
-	if exec, ok := cb.(rt.Execute); !ok {
-		err = errutil.New("callback not of execute type", sbuf.Type{cb})
+func (run *Rtm) RunAction(id ident.Id, params []meta.Generic) (err error) {
+	if act, e := run.GetAction(id, params); e != nil {
+		err = e
 	} else {
-		err = exec.Execute(run)
+		err = act.RunDefault()
 	}
 	return
 }
 
-// from NewRuntimeAction
-func (run *Rtm) RunAction(act string, scope rt.Scope, parms rt.Parameters) (err error) {
-	if act, ok := run.model.GetAction(ident.MakeId(act)); !ok {
-		err = errutil.New("unknown action", act)
+func (run *Rtm) GetAction(id ident.Id, params []meta.Generic) (ret ActionProvider, err error) {
+	if act, ok := run.model.GetAction(id); !ok {
+		err = errutil.New("RunAction: unknown action", id)
 	} else {
 		types := act.GetNouns()
-		switch diff := len(parms) + 1 - len(types); {
+		switch diff := len(params) - len(types); {
 		case diff < 0:
-			err = errutil.New("too few nouns specified for", act)
+			err = errutil.New("RunAction: too few nouns specified for", act)
 		case diff > 0:
-			err = errutil.New("too many nouns specified for", act)
+			err = errutil.New("RunAction: too many nouns specified for", act)
 		default:
-			if values, e := parms.Resolve(run); e != nil {
-				err = e
-			} else if cbs, ok := act.GetCallbacks(); ok {
-				// FIX: how much of looping, etc. do you want to leak in?
-				// maybe none; except for a very special "partials"?
-				run.PushScope(NewActionScope(run.model, types, values, ident.Empty()), nil)
-				defer run.PopScope()
-
-				for i := 0; i < cbs.NumCallback(); i++ {
-					cb := cbs.CallbackNum(i)
-					if exec, ok := cb.(rt.Execute); !ok {
-						err = errutil.New("callback not of execute type", reflect.TypeOf(cb))
+			// zip:
+			// in the future, we want to allow any type of value.
+			// its in here we would new our action temporary data and "zip" the parameters into it
+			// verifying as we go --
+			vals := make([]meta.Generic, len(params))
+			for i, p := range params {
+				if eval, ok := p.(rt.ObjEval); !ok {
+					err = errutil.New("RunAction: only objects are supported", eval, i, sbuf.Type{p})
+					break
+				} else if obj, e := eval.GetObject(run); e != nil {
+					err = e
+					break
+				} else {
+					want, have := types[i], obj.GetParentClass()
+					if !run.model.AreCompatible(have, want) {
+						err = errutil.New("RunAction: type mismatch", obj, i, "is", have, ", expected", want)
 						break
-					} else if e := exec.Execute(run); e != nil {
-						err = e
-						break
+					} else {
+						vals[i] = obj
 					}
 				}
+			}
+			if err == nil {
+				ret = MakeProvider(run, act, vals)
 			}
 		}
 	}
@@ -106,28 +103,6 @@ func (run *Rtm) Flush() error {
 	return out.Flush()
 }
 
-func (run *Rtm) PushScope(scope rt.Scope, info *rt.IndexInfo) {
-	var cp *rt.IndexInfo
-	if info != nil {
-		idx := rt.IndexInfo(*info)
-		cp = &idx
-	}
-	run.scope = append(run.scope, ScopeInfo{scope, cp})
-}
-func (run *Rtm) PopScope() {
-	run.scope = run.scope[:len(run.scope)-1]
-}
-
-func (run *Rtm) GetScope() (scope rt.Scope, info *rt.IndexInfo) {
-	if len(run.scope) > 0 {
-		s := run.scope[len(run.scope)-1]
-		scope, info = s.Scope, s.info
-	} else {
-		scope, info = xEmptyScope{}, nil
-	}
-	return
-}
-
 func (run *Rtm) GetObject(id ident.Id) (ret rt.Object, err error) {
 	if id.Empty() {
 		err = errutil.New("rtm.GetObject(id) is nil")
@@ -136,14 +111,5 @@ func (run *Rtm) GetObject(id ident.Id) (ret rt.Object, err error) {
 	} else {
 		ret = rt.Object{inst}
 	}
-	return
-}
-
-// xEmptyScope provides a default implementation for Scope
-type xEmptyScope struct {
-}
-
-func (xEmptyScope) FindValue(string) (ret meta.Generic, err error) {
-	err = errutil.New("no scope is set")
 	return
 }
