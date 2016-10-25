@@ -12,5 +12,6 @@ type Types struct {
 	*DefaultAction
 	*Exists
 	*KeyValue
+	*KnownAs
 	*ScriptSubject
 }

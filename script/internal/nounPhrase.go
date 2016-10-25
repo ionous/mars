@@ -13,9 +13,9 @@ type NounPhrase struct {
 	Fragments Fragments
 }
 
-func (sc NounPhrase) Build(src Source) (err error) {
-	topic := Topic{sc.Target, sc.findSubject()}
-	for _, frag := range sc.Fragments {
+func (p NounPhrase) Build(src Source) (err error) {
+	topic := Topic{p.Target, p.findSubject()}
+	for _, frag := range p.Fragments {
 		if e := frag.BuildFragment(src, topic); e != nil {
 			err = errutil.Append(err, e)
 		}
@@ -23,9 +23,9 @@ func (sc NounPhrase) Build(src Source) (err error) {
 	return err
 }
 
-func (sc NounPhrase) findSubject() string {
-	subject := sc.Target // by default,
-	for _, f := range sc.Fragments {
+func (p NounPhrase) findSubject() string {
+	subject := p.Target // by default,
+	for _, f := range p.Fragments {
 		if called, ok := f.(ScriptSubject); ok {
 			subject = called.Subject
 			break

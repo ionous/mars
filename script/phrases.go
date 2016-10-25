@@ -43,6 +43,12 @@ func Is(choice string, choices ...string) internal.Choices {
 	return internal.SetChoices(append(choices, choice)...)
 }
 
+// IsKnownAs declares an alias for the current subject.
+// ex. The("cabinet", IsKnownAs("armoire").And("..."))
+func IsKnownAs(name string, names ...string) internal.KnownAs {
+	return internal.KnownAs{append(names, name)}
+}
+
 // Have asserts the existance of a property for all instances of a given class.
 // For relations, use HaveOne or HaveMany.
 func Have(name string, class string) internal.Fragment {
