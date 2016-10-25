@@ -1,0 +1,94 @@
+package script
+
+import (
+	"github.com/ionous/mars/rt"
+	"github.com/ionous/mars/script/internal"
+	S "github.com/ionous/sashimi/source"
+)
+
+// The targets a noun for new assertions.
+func The(target string, fragments ...internal.Fragment) internal.BackendPhrase {
+	return internal.NounPhrase{
+		target, fragments,
+	}
+}
+
+// Understand builds statements for parsing player input.
+func Understand(s string) internal.ParserPartial {
+	return internal.ParserPartial([]string{s})
+}
+
+// Our is an alias for The
+var Our = The
+
+// Called asserts the existence of a class or instance.
+// For example, The("room", Called("home"))
+func Called(subject string) internal.Fragment {
+	return internal.SetSubject(subject)
+}
+
+// Exists is an optional fragment for making otherwise empty statements more readable.
+// For example, The("room", Called("parlor of despair"), Exists())
+func Exists() internal.Fragment {
+	return internal.Exists{}
+}
+
+// Exist is an alias of Exists used for classes.
+// For example, The("kinds", Called("rooms"), Exist())
+var Exist = Exists
+
+// Is asserts one or more states of one or more enumerations.
+// The enumerations must (eventually) be declared for the target's class. ( For example, via AreEither, or AreOneOf, )
+func Is(choice string, choices ...string) internal.Choices {
+	return internal.SetChoices(append(choices, choice)...)
+}
+
+// Have asserts the existance of a property for all instances of a given class.
+// For relations, use HaveOne or HaveMany.
+func Have(name string, class string) internal.Fragment {
+	return internal.NewClassProperty(name, class)
+}
+
+// Has asserts the value of an object's property. The property must (eventually) be declared for the class. ( For example, via Have. )
+func Has(property string, values ...interface{}) (ret internal.Fragment) {
+	// we let the compiler checks ( and marshals ) types via a property "Builder".
+	// (ex. enumBuilder, numBuilder, textBuilder, pointerBuilder, and relativeBuilder.)
+	// this is necessary because we use string for both text, obj, and relation values.
+	switch len(values) {
+	case 0:
+		ret = internal.SetChoices(property)
+	case 1:
+		ret = internal.SetKeyValue(property, values[0])
+	default:
+		// used for table, list definitions
+		// MARS: should tables be reworked? even lists should probably use something more like the rt section uses
+		// for example: HasList{} -- dont be afraid to be specific,
+		ret = internal.SetKeyValue(property, values)
+	}
+	return ret
+}
+
+// Can asserts a new verb for the targeted noun.
+func Can(verb string) internal.CanDoPhrase {
+	return internal.NewCanDo(verb)
+}
+
+// To assigns runtime statements to a default action handler.
+func To(action string, call rt.Execute, calls ...rt.Execute) internal.Fragment {
+	return internal.NewDefaultAction(action, internal.JoinCallbacks(call, calls))
+}
+
+// Before actions are implemented as capturing event listeners which allow them to run prior to the default actions of the passed event.
+func Before(event string) internal.EventPartial {
+	return internal.NewEvent(S.ListenTargetOnly|S.ListenCapture, event)
+}
+
+// After actions are queued to run after the default actions for the passed event have completed.
+func After(event string) internal.EventPartial {
+	return internal.NewEvent(S.ListenTargetOnly|S.ListenCapture|S.ListenRunAfter, event)
+}
+
+// When actions are implemented as bubbling event handlers. This allows them to run sandwiched between the "before actions" and the default actions of the passed event.
+func When(event string) internal.EventPartial {
+	return internal.NewEvent(S.ListenTargetOnly, event)
+}

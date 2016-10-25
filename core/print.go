@@ -14,7 +14,7 @@ type PrintText struct {
 
 // PrintLine
 type PrintLine struct {
-	Strings Statements
+	Strings rt.Execute
 }
 
 func (x PrintNum) Execute(run rt.Runtime) (err error) {

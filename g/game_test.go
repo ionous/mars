@@ -13,9 +13,7 @@ func TestPrint(t *testing.T) {
 	var buf bytes.Buffer
 	run := rtm.NewRtm(nil)
 	run.PushOutput(&buf)
-	x := Statements{
-		Say("hello", "there.", "world."),
-	}
+	x := Say("hello", "there.", "world.")
 	if e := x.Execute(run); assert.NoError(t, e, "execute") {
 		assert.Equal(t, "hello there. world.\n", buf.String(), "result")
 	}
@@ -39,11 +37,11 @@ func TestForEach(t *testing.T) {
 	}
 	buf.Reset()
 
-	x := PrintLine{Statements{EachText{
+	x := PrintLine{EachText{
 		Go:   PrintText{GetText{}},
 		For:  ts,
 		Else: Error{"should have run"},
-	}}}
+	}}
 
 	if e := x.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "hello there world\n", buf.String(), "one one line") {

@@ -6,12 +6,13 @@ type Core struct {
 	// any.go
 	*AnyTrue
 	// boolEval.go
-	*Compare
-	*Is
-	*Not
+	*IsNumber
+	*IsText
+	*IsSame
+	*IsObject
+	*IsNot
 	*IsEmpty
-	*Equals
-	*Exists
+	*IsValid
 	// change:
 	*SetNum
 	*SetTxt
@@ -34,7 +35,7 @@ type Core struct {
 	*IfEach
 	*EachIndex
 	// exec
-	*Statements
+	*Executes
 	*Error
 	*Fails
 	// gocall.go

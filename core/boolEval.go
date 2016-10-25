@@ -13,23 +13,42 @@ const (
 	EqualTo CompareType = 1 << iota
 	GreaterThan
 	LesserThan
+	NotEqual = GreaterThan | LesserThan
 )
 
-// Compare two numbers (a rt.BoolEval)
-type Compare struct {
+// IsNumber two numbers (a rt.BoolEval)
+type IsNumber struct {
 	Src rt.NumEval
 	Is  CompareType
 	Tgt rt.NumEval
 }
 
-// Is the object in the named state (a rt.BoolEval)
-type Is struct {
+// IsText
+type IsText struct {
+	Src rt.TextEval
+	Is  CompareType
+	Tgt rt.TextEval
+}
+
+// IsSame evals true when both Src and Tgt match;
+// ( regardless of whether the refs are valid )
+type IsSame struct {
+	Src, Tgt rt.ObjEval
+}
+
+// maybe a regex or glob comparision
+// type Match struct {
+
+// }
+
+// IsObject the object in the named state (a rt.BoolEval)
+type IsObject struct {
 	Ref   rt.ObjEval
 	State string
 }
 
 // Not negates a rt.BoolEval (and is itself a rt.BoolEval)
-type Not struct {
+type IsNot struct {
 	Negate rt.BoolEval
 }
 
@@ -38,14 +57,8 @@ type IsEmpty struct {
 	Text rt.TextEval
 }
 
-// Equals evals true when both Src and Tgt match;
-// ( regardless of whether the refs are valid )
-type Equals struct {
-	Src, Tgt rt.ObjEval
-}
-
 // Exists evals true when this refers to a valid object.
-type Exists struct {
+type IsValid struct {
 	Ref rt.ObjEval
 }
 
@@ -58,28 +71,28 @@ func (empty IsEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
-func (neg Not) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
-	if b, e := neg.Negate.GetBool(run); e != nil {
+func (neg IsNot) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if tgt, e := neg.Negate.GetBool(run); e != nil {
 		err = e
 	} else {
-		ret = rt.Bool(!b)
+		ret = rt.Bool(!tgt)
 	}
 	return
 }
 
 // FIX: what to do with exists?
-func (exists Exists) GetBool(run rt.Runtime) (rt.Bool, error) {
+func (exists IsValid) GetBool(run rt.Runtime) (rt.Bool, error) {
 	_, e := exists.Ref.GetObject(run)
 	return e == nil, nil
 }
 
-func (comp Compare) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
-	if a, e := comp.Src.GetNumber(run); e != nil {
-		err = errutil.New("Compare.Src", e)
-	} else if b, e := comp.Tgt.GetNumber(run); e != nil {
-		err = errutil.New("Compare.Tgt", e)
+func (comp IsNumber) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if src, e := comp.Src.GetNumber(run); e != nil {
+		err = errutil.New("IsNumber.Src", e)
+	} else if tgt, e := comp.Tgt.GetNumber(run); e != nil {
+		err = errutil.New("IsNumber.Tgt", e)
 	} else {
-		d := a.Float() - b.Float()
+		d := src.Float() - tgt.Float()
 		switch {
 		case d == 0:
 			ret = (comp.Is & EqualTo) != 0
@@ -92,19 +105,44 @@ func (comp Compare) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
-func (req Equals) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
-	if a, e := req.Src.GetObject(run); e != nil {
-		err = errutil.New("Equals.Src", e)
-	} else if b, e := req.Tgt.GetObject(run); e != nil {
-		err = errutil.New("Equals.Tgt", e)
+func (comp IsText) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if src, e := comp.Src.GetText(run); e != nil {
+		err = errutil.New("IsText.Src", e)
+	} else if tgt, e := comp.Tgt.GetText(run); e != nil {
+		err = errutil.New("IsText.Tgt", e)
 	} else {
-		ret = rt.Bool(a.GetId().Equals(b.GetId()))
+		switch comp.Is {
+		case EqualTo:
+			ret = src == tgt
+		case NotEqual:
+			ret = src != tgt
+		case LesserThan:
+			ret = src < tgt
+		case GreaterThan:
+			ret = src > tgt
+		case GreaterThan | EqualTo:
+			ret = src >= tgt
+		case LesserThan | EqualTo:
+			ret = src <= tgt
+		default:
+			err = errutil.New("IsText.Is", comp.Is, "unknown operand")
+		}
 	}
 	return
 }
 
-//func (oa *GameObject) Is(state string)
-func (op Is) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (req IsSame) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if a, e := req.Src.GetObject(run); e != nil {
+		err = errutil.New("IsSame.Src", e)
+	} else if tgt, e := req.Tgt.GetObject(run); e != nil {
+		err = errutil.New("IsSame.Tgt", e)
+	} else {
+		ret = rt.Bool(a.GetId().Equals(tgt.GetId()))
+	}
+	return
+}
+
+func (op IsObject) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if obj, e := op.Ref.GetObject(run); e != nil {
 		err = e
 	} else {

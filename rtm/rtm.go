@@ -37,9 +37,9 @@ func (run *Rtm) GetAction(id ident.Id, params []meta.Generic) (ret ActionProvide
 		types := act.GetNouns()
 		switch diff := len(params) - len(types); {
 		case diff < 0:
-			err = errutil.New("RunAction: too few nouns specified for", act)
+			err = errutil.New("RunAction: too few nouns", len(params), "of", len(types), "specified for", act)
 		case diff > 0:
-			err = errutil.New("RunAction: too many nouns specified for", act)
+			err = errutil.New("RunAction: too many nouns", len(params), "of", len(types), "specified for", act)
 		default:
 			// zip:
 			// in the future, we want to allow any type of value.

@@ -1,24 +1,15 @@
 package script
 
 import (
-	"github.com/ionous/sashimi/source"
+	"github.com/ionous/mars/script/internal"
+	S "github.com/ionous/sashimi/source"
 )
 
-type Script []BackendPhrase
+type Script []internal.BackendPhrase
 
-type Source struct {
-	*source.BuildingBlocks
-}
-
-type BackendPhrase interface {
-	Build(Source) error
-}
-
-const Unknown = source.Code("unknown")
-
-func (s Script) BuildStatements() (ret source.Statements, err error) {
-	b := source.BuildingBlocks{}
-	if e := s.Build(Source{&b}); e != nil {
+func (s Script) BuildStatements() (ret S.Statements, err error) {
+	b := S.BuildingBlocks{}
+	if e := s.Build(internal.Source{&b}); e != nil {
 		err = e
 	} else {
 		ret = b.Statements()
@@ -26,7 +17,8 @@ func (s Script) BuildStatements() (ret source.Statements, err error) {
 	return
 }
 
-func (s Script) Build(src Source) (err error) {
+// Build implements BackendPhrase
+func (s Script) Build(src internal.Source) (err error) {
 	for _, b := range s {
 		if e := b.Build(src); e != nil {
 			err = e

@@ -1,7 +1,6 @@
-package frag
+package internal
 
 import (
-	"github.com/ionous/mars/script"
 	S "github.com/ionous/sashimi/source"
 	"strings"
 )
@@ -9,15 +8,19 @@ import (
 // FIX: hacky, maybe should be HaveMany() instead.
 const ListKind = " list"
 
+func NewClassProperty(n, k string) Fragment {
+	return ClassProperty{n, k}
+}
+
 type ClassProperty struct {
 	Name string // property field name
 	Kind string // property kind: primitive or user class
 }
 
-func (c ClassProperty) Build(src script.Source, top Topic) error {
+func (c ClassProperty) BuildFragment(src Source, top Topic) error {
 	isMany, kind := c.listKind()
 	fields := S.PropertyFields{top.Subject, c.Name, kind, isMany}
-	return src.NewProperty(fields, script.Unknown)
+	return src.NewProperty(fields, UnknownLocation)
 }
 
 func (c ClassProperty) listKind() (isMany bool, kind string) {

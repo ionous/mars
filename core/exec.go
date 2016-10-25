@@ -5,10 +5,10 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-type Statements []rt.Execute
+type Executes []rt.Execute
 
-func (ss Statements) Execute(run rt.Runtime) (err error) {
-	for _, s := range ss {
+func (x Executes) Execute(run rt.Runtime) (err error) {
+	for _, s := range x {
 		if e := s.Execute(run); e != nil {
 			err = e
 			break
@@ -17,28 +17,14 @@ func (ss Statements) Execute(run rt.Runtime) (err error) {
 	return err
 }
 
-type Error struct {
-	Reason string
-}
-
-func (x Error) Execute(run rt.Runtime) (err error) {
-	return x
-}
-
-// Error satifies the golang error interface
-func (x Error) Error() string {
-	return x.Reason
-}
-
-type StopNow struct {
-}
+type StopNow struct{}
 
 // Error satifies the golang error interface
 func (x StopNow) Error() string {
 	return "stop"
 }
 
-func (x StopNow) Execute(run rt.Runtime) error {
+func (x StopNow) Execute(rt.Runtime) error {
 	return x
 }
 
@@ -55,4 +41,10 @@ func (x Fails) Execute(run rt.Runtime) (err error) {
 		run.Println("failed okay with", e)
 	}
 	return
+}
+
+type DoNothing struct{}
+
+func (x DoNothing) Execute(rt.Runtime) error {
+	return nil
 }

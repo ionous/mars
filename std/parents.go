@@ -10,10 +10,10 @@ func Carrier(obj string) (ret rt.ObjEval) {
 	wearer := core.RefProperty{our, "wearer"}
 	owner := core.RefProperty{our, "owner"}
 	return core.ChooseRef{
-		If:   core.Exists{wearer},
+		If:   core.IsValid{wearer},
 		True: wearer,
 		False: core.ChooseRef{
-			If:   core.Exists{owner},
+			If:   core.IsValid{owner},
 			True: owner,
 		},
 	}

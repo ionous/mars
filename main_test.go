@@ -18,7 +18,7 @@ import (
 func Try(b rt.BoolEval, message string) rt.Execute {
 	return Choose{If: b,
 		True:  g.Say(message),
-		False: Error{message}}
+		False: Error{T(message)}}
 }
 
 func Run(t *testing.T, a ...rt.Execute) {
@@ -35,7 +35,7 @@ func Run(t *testing.T, a ...rt.Execute) {
 
 	// Create an encoder and send some values.
 	if err := enc.Encode(a); assert.NoError(t, err, "encode") {
-		var x Statements
+		var x Executes
 		if err := dec.Decode(&x); assert.NoError(t, err, "decode") {
 			// Create a decoder and receive some values.
 			if err := x.Execute(run); assert.NoError(t, err, "execute") {
@@ -47,9 +47,9 @@ func Run(t *testing.T, a ...rt.Execute) {
 
 func Test_TooBig(t *testing.T) {
 	Run(t,
-		Try(Exists{Id("i")}, "i exists"),
-		Try(Not{Exists{Id("nope")}}, "nope does not exist"),
-		Try(Is{
+		Try(IsValid{Id("i")}, "i exists"),
+		Try(IsNot{IsValid{Id("nope")}}, "nope does not exist"),
+		Try(IsObject{
 			Id("i"), "no",
 		}, "i defaults no"),
 		Fails{
@@ -57,11 +57,11 @@ func Test_TooBig(t *testing.T) {
 			"no such state should exist"},
 		Change(Id("i")).To("yes"),
 
-		Try(Is{
+		Try(IsObject{
 			Id("i"), "yes",
 		}, "i now yes"),
 
-		Try(Compare{
+		Try(IsNumber{
 			NumProperty{Id("i"), "num"},
 			EqualTo,
 			I(0),
@@ -71,21 +71,21 @@ func Test_TooBig(t *testing.T) {
 			NumProperty{Id("i"), "num"},
 			I(5),
 		},
-		Try(Compare{
+		Try(IsNumber{
 			NumProperty{Id("i"), "num"},
 			GreaterThan,
 			I(1),
 		}, "now greater than 1"),
-		Try(Compare{
+		Try(IsNumber{
 			NumProperty{Id("i"), "num"},
 			GreaterThan | EqualTo,
 			I(5),
 		}, "now greater than or equal to 5"),
 		g.Say("hello"),
-		PrintLine{Statements{PrintNum{
+		PrintLine{PrintNum{
 			NumProperty{Id("i"), "num"},
-		}}},
-		Try(Not{Compare{
+		}},
+		Try(IsNot{IsNumber{
 			NumProperty{Id("i"), "num"},
 			GreaterThan | LesserThan,
 			I(5),
@@ -95,12 +95,12 @@ func Test_TooBig(t *testing.T) {
 			RefProperty{Id("i"), "object"},
 			Id("i"),
 		},
-		Try(Equals{
+		Try(IsSame{
 			RefProperty{Id("i"), "object"},
 			Id("i"),
 		}, "i should point to i"),
 
-		Try(Not{Equals{
+		Try(IsNot{IsSame{
 			RefProperty{Id("i"), "object"},
 			Id("x"),
 		}}, "i should not equal x"),
@@ -109,9 +109,9 @@ func Test_TooBig(t *testing.T) {
 			RefProperty{Id("i"), "object"},
 		},
 
-		Try(Equals{
+		Try(IsSame{
 			ChooseRef{
-				If:   Compare{I(0), EqualTo, I(0)},
+				If:   IsNumber{I(0), EqualTo, I(0)},
 				True: Id("i"),
 			},
 			Id("i"),

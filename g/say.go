@@ -7,7 +7,7 @@ import (
 
 // Say shortcut runs a bunch of statements and "collects" them via PrintLine
 func Say(all ...interface{}) rt.Execute {
-	sayWhat := Statements{}
+	sayWhat := Executes{}
 	for _, a := range all {
 		switch val := a.(type) {
 		case int:
