@@ -3,7 +3,6 @@ package core
 import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/util/errutil"
-	"github.com/ionous/sashimi/util/ident"
 	"github.com/ionous/sashimi/util/sbuf"
 )
 
@@ -148,11 +147,13 @@ func (op IsObject) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	} else {
 		choice := MakeStringId(op.State)
 		if prop, ok := obj.GetPropertyByChoice(choice); !ok {
-			err = errutil.New("Is", obj, "choice does not exist", choice)
-		} else if currChoice, ok := prop.GetGeneric().(ident.Id); !ok {
-			err = errutil.New("Is op", obj, "property", prop, "unexpected type", sbuf.Type{currChoice})
+			err = errutil.New("IsObject", obj, "choice does not exist", op.State)
+		} else if eval, ok := prop.GetGeneric().(rt.StateEval); !ok {
+			err = errutil.New("IsObject", obj, "property", prop, "unexpected type", sbuf.Type{eval})
+		} else if curr, e := eval.GetState(run); e != nil {
+			err = errutil.New("IsObject", obj, "property", prop, "get state", e)
 		} else {
-			ret = rt.Bool(currChoice == choice)
+			ret = rt.Bool(curr.Id() == choice)
 		}
 	}
 	return

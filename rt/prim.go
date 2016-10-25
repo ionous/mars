@@ -2,6 +2,7 @@ package rt
 
 import (
 	"github.com/ionous/sashimi/meta"
+	"github.com/ionous/sashimi/util/ident"
 	"strconv"
 )
 
@@ -13,7 +14,7 @@ func (b Bool) GetBool(Runtime) (Bool, error) {
 	return b, nil
 }
 
-// String returns a nicely formatted float, with no decimal point when possible.
+// String uses strconv.FormatBool.
 func (b Bool) String() string {
 	return strconv.FormatBool(bool(b))
 }
@@ -49,10 +50,12 @@ func (s Text) GetText(Runtime) (Text, error) {
 	return s, nil
 }
 
+// String returns the text.
 func (s Text) String() string {
 	return string(s)
 }
 
+// Object provides a dl instance representation. It is not a literal, and cannot be saved.
 type Object struct {
 	meta.Instance
 	// FIX: Exists?
@@ -63,6 +66,7 @@ func (obj Object) GetObject(Runtime) (Object, error) {
 	return obj, nil
 }
 
+// String returns the object's ident.Id string.
 func (obj Object) String() (ret string) {
 	if obj.Instance == nil {
 		ret = "<nil object>"
@@ -70,4 +74,21 @@ func (obj Object) String() (ret string) {
 		ret = obj.GetId().String()
 	}
 	return
+}
+
+// State provides a dl enumerated value primitive.
+type State ident.Id
+
+// GetState implements StateEval; providing the dl with a literal enum type.
+func (s State) GetState(Runtime) (State, error) {
+	return s, nil
+}
+
+func (s State) Id() ident.Id {
+	return ident.Id(s)
+}
+
+// String returns the underlying ident.Id string.
+func (s State) String() string {
+	return string(s)
 }

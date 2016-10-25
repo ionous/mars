@@ -9,6 +9,7 @@ type Types struct {
 	*ActionAssertion
 	*Choices
 	*ClassProperty
+	*ClassEnum
 	*DefaultAction
 	*Exists
 	*KeyValue

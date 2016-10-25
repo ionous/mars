@@ -12,8 +12,8 @@ type Choices struct {
 	choices []string
 }
 
-func (sel Choices) BuildFragment(src Source, top Topic) (err error) {
-	for _, choice := range sel.choices {
+func (f Choices) BuildFragment(src Source, top Topic) (err error) {
+	for _, choice := range f.choices {
 		fields := S.ChoiceFields{top.Subject, choice}
 		if e := src.NewChoice(fields, UnknownLocation); e != nil {
 			err = e
@@ -23,7 +23,7 @@ func (sel Choices) BuildFragment(src Source, top Topic) (err error) {
 	return err
 }
 
-func (sel Choices) And(choice string) Choices {
-	sel.choices = append(sel.choices, choice)
-	return sel
+func (f Choices) And(choice string) Choices {
+	f.choices = append(f.choices, choice)
+	return f
 }

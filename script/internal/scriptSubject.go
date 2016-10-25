@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func SetSubject(s string) Fragment {
+func SetSubject(s string) ScriptSubject {
 	return ScriptSubject{Subject: s}
 }
 

@@ -15,6 +15,9 @@ type TextEval interface {
 type ObjEval interface {
 	GetObject(Runtime) (Object, error)
 }
+type StateEval interface {
+	GetState(Runtime) (State, error)
+}
 type ListEval interface {
 	GetCount() int
 }

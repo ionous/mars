@@ -23,7 +23,7 @@ var Our = The
 
 // Called asserts the existence of a class or instance.
 // For example, The("room", Called("home"))
-func Called(subject string) internal.Fragment {
+func Called(subject string) internal.ScriptSubject {
 	return internal.SetSubject(subject)
 }
 
@@ -36,6 +36,18 @@ func Exists() internal.Fragment {
 // Exist is an alias of Exists used for classes.
 // For example, The("kinds", Called("rooms"), Exist())
 var Exist = Exists
+
+// AreOneOf defines a enumerated choices for all instances of the class.
+func AreOneOf(name string, rest ...string) internal.ClassEnum {
+	names := append([]string{name}, rest...)
+	return internal.ClassEnum{Choices: names}
+}
+
+// AreEither defines one of two states for all instances of the class.
+// ex. AreEither("this").Or("that")
+func AreEither(firstChoice string) internal.EitherChoice {
+	return internal.EitherChoice(firstChoice)
+}
 
 // Is asserts one or more states of one or more enumerations.
 // The enumerations must (eventually) be declared for the target's class. ( For example, via AreEither, or AreOneOf, )
