@@ -18,18 +18,12 @@ type ObjEval interface {
 type StateEval interface {
 	GetState(Runtime) (State, error)
 }
-type ListEval interface {
-	GetCount() int
-}
 type NumListEval interface {
-	ListEval
-	GetNumberIdx(Runtime, int) (Number, error)
+	GetNumStream(Runtime) (NumberStream, error)
 }
 type TextListEval interface {
-	ListEval
-	GetTextIdx(Runtime, int) (Text, error)
+	GetTextStream(Runtime) (TextStream, error)
 }
 type ObjListEval interface {
-	ListEval
-	GetReferenceIdx(Runtime, int) (Reference, error)
+	GetObjStream(Runtime) (ObjectStream, error)
 }

@@ -7,13 +7,19 @@ import (
 	"strings"
 )
 
-// LoopMaker creates LoopScopes
-type LoopMaker struct {
+// Looper creates LoopScopes
+type Looper struct {
 	run rt.Runtime
+	Stream
+	index int
 }
 
-func NewLoopMaker(run rt.Runtime) *LoopMaker {
-	return &LoopMaker{run: run}
+type Stream interface {
+	HasNext() bool
+}
+
+func NewLooper(run rt.Runtime, stream Stream) *Looper {
+	return &Looper{run, stream, 0}
 }
 
 type LoopScope struct {
@@ -23,31 +29,35 @@ type LoopScope struct {
 	value           meta.Generic
 }
 
-func (sc *LoopMaker) Looper(i int, first, last bool, value meta.Generic) rt.Runtime {
-	return LoopScope{sc.run, i, first, last, value}
+func (l *Looper) NextScope(value meta.Generic) rt.Runtime {
+	first := l.index == 0
+	last := !l.HasNext()
+	run := &LoopScope{l.run, l.index, first, last, value}
+	l.index++
+	return run
 }
 
-func (sc LoopScope) FindValue(name string) (ret meta.Generic, err error) {
+func (l *LoopScope) FindValue(name string) (ret meta.Generic, err error) {
 	if name == "" {
-		ret = sc.value
+		ret = l.value
 	} else if !strings.HasPrefix(name, "@") {
-		ret, err = sc.Runtime.FindValue(name)
+		ret, err = l.Runtime.FindValue(name)
 	} else {
 		switch {
 		case strings.EqualFold(name, "@first"):
-			ret = rt.Bool(sc.isFirst)
+			ret = rt.Bool(l.isFirst)
 		case strings.EqualFold(name, "@last"):
-			ret = rt.Bool(sc.isLast)
+			ret = rt.Bool(l.isLast)
 		case strings.EqualFold(name, "@index"):
-			ret = rt.Number(float64(sc.index))
+			ret = rt.Number(float64(l.index))
 		default:
-			err = errutil.New("LoopMaker, unknown field", name)
+			err = errutil.New("Looper, unknown field", name)
 		}
 	}
 	return
 }
 
-func (sc LoopScope) ScopePath() []string {
-	parts := sc.Runtime.ScopePath()
+func (l *LoopScope) ScopePath() []string {
+	parts := l.Runtime.ScopePath()
 	return append(parts, "loop scope")
 }

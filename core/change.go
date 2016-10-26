@@ -3,35 +3,11 @@ package core
 import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/util/errutil"
-	"github.com/ionous/sashimi/util/ident"
 )
 
 type SetNum struct {
 	Tgt NumProperty
 	Num rt.NumEval
-}
-
-type SetTxt struct {
-	Tgt TextProperty
-	Txt rt.TextEval
-}
-
-type SetRef struct {
-	Tgt RefProperty
-	Ref rt.ObjEval
-}
-
-type ClearRef struct {
-	Tgt RefProperty
-}
-
-type ChangeState struct {
-	Ref    rt.ObjEval
-	States []ident.Id
-}
-
-func Change(tgt rt.ObjEval) ChangeState {
-	return ChangeState{tgt, nil}
 }
 
 func (x SetNum) Execute(run rt.Runtime) (err error) {
@@ -43,6 +19,11 @@ func (x SetNum) Execute(run rt.Runtime) (err error) {
 	return
 }
 
+type SetTxt struct {
+	Tgt TextProperty
+	Txt rt.TextEval
+}
+
 func (x SetTxt) Execute(run rt.Runtime) (err error) {
 	if t, e := x.Txt.GetText(run); e != nil {
 		err = errutil.New("SetTxt.Txt", e)
@@ -52,24 +33,27 @@ func (x SetTxt) Execute(run rt.Runtime) (err error) {
 	return
 }
 
-func (x SetRef) Execute(run rt.Runtime) (err error) {
+type SetObj struct {
+	Tgt RefProperty
+	Ref rt.ObjEval
+}
+
+func (x SetObj) Execute(run rt.Runtime) (err error) {
 	if obj, e := x.Ref.GetObject(run); e != nil {
-		err = errutil.New("SetRef.Ref", e)
-	} else {
-		ref := rt.Reference(obj.GetId())
-		if e := Property(x.Tgt).SetGeneric(run, ref); e != nil {
-			err = errutil.New("SetRef.Tgt", e)
-		}
+		err = errutil.New("SetObj.Ref", e)
+	} else if e := Property(x.Tgt).SetGeneric(run, obj); e != nil {
+		err = errutil.New("SetObj.Tgt", e)
 	}
 	return
 }
 
-func (x ClearRef) Execute(run rt.Runtime) (err error) {
-	var empty rt.Reference
-	if e := Property(x.Tgt).SetGeneric(run, empty); e != nil {
-		err = errutil.New("ClearRef.Tgt", e)
-	}
-	return
+type ChangeState struct {
+	Ref    rt.ObjEval
+	States []rt.State
+}
+
+func Change(tgt rt.ObjEval) ChangeState {
+	return ChangeState{tgt, nil}
 }
 
 func (p ChangeState) To(state string) ChangeState {
@@ -77,7 +61,8 @@ func (p ChangeState) To(state string) ChangeState {
 }
 
 func (p ChangeState) And(state string) ChangeState {
-	p.States = append(p.States, MakeStringId(state))
+	id := MakeStringId(state)
+	p.States = append(p.States, rt.State(id))
 	return p
 }
 
@@ -87,7 +72,7 @@ func (x ChangeState) Execute(run rt.Runtime) (err error) {
 		err = errutil.New("ChangeState.Ref", e)
 	} else {
 		for _, choice := range x.States {
-			if prop, ok := obj.GetPropertyByChoice(choice); !ok {
+			if prop, ok := obj.GetPropertyByChoice(choice.Id()); !ok {
 				err = errutil.New("ChangeState", obj, "does not have choice", choice)
 				break
 			} else if e := prop.SetGeneric(choice); e != nil {

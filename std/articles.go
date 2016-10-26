@@ -3,7 +3,7 @@ package std
 import (
 	. "github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
-	"github.com/ionous/sashimi/util/errutil"
+	"github.com/ionous/mars/scope"
 	"github.com/ionous/sashimi/util/lang"
 )
 
@@ -67,28 +67,27 @@ func (t ALower) GetText(run rt.Runtime) (ret rt.Text, err error) {
 func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, err error) {
 	if obj, e := noun.GetObject(run); e != nil {
 		err = e
-	} else if printed, ok := obj.FindProperty("printed name"); !ok {
-		err = errutil.New("object doesnt have printed names?")
 	} else {
-		choice := MakeStringId("proper-named")
-		if proper, ok := obj.GetPropertyByChoice(choice); !ok {
-			err = errutil.New("object doesnt have proper names?")
+		run := scope.Make(run, scope.ObjectScope{obj})
+		if name, e := (GetText{"printed name"}.GetText(run)); e != nil {
+			err = e
+		} else if proper, e := (IsObject{obj, "proper named"}.GetBool(run)); e != nil {
+			err = e
 		} else {
-			name := printed.GetValue().GetText()
-			if choice == proper.GetValue().GetState() {
+			name := name.String()
+			if proper {
 				ret = lang.Titleize(name)
 			} else {
 				if len(article) == 0 {
-					if p, ok := obj.FindProperty("indefinite article"); !ok {
-						err = errutil.New("object doesnt have indefinite articles?")
+					if indefinite, e := (GetText{"printed name"}.GetText(run)); e != nil {
+						err = e
 					} else {
-						article = p.GetValue().GetText()
+						article = indefinite.String()
 						if len(article) == 0 {
-							choice := MakeStringId("plural-named")
-							if plural, ok := obj.GetPropertyByChoice(choice); !ok {
-								err = errutil.New("object doesnt have plural named?")
+							if plural, e := (IsObject{obj, "plural named"}.GetBool(run)); e != nil {
+								err = e
 							} else {
-								if choice == plural.GetValue().GetState() {
+								if plural {
 									article = "some"
 								} else if lang.StartsWithVowel(name) {
 									article = "an"
@@ -99,6 +98,7 @@ func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, 
 						}
 					}
 				}
+				// if not, its probably an error.
 				if len(article) > 0 {
 					ret = article + " " + name
 				}

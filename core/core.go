@@ -16,8 +16,7 @@ type Core struct {
 	// change:
 	*SetNum
 	*SetTxt
-	*SetRef
-	*ClearRef
+	*SetObj
 	*ChangeState
 	// Choose
 	*Choose
@@ -46,15 +45,11 @@ type Core struct {
 	*PrintNum
 	*PrintText
 	*PrintLine
-	// property
+	// property access
 	*TextProperty
 	*NumProperty
 	*RefProperty
 	*TextListProperty
 	*NumListProperty
 	*RefListProperty
-	*NumberValueList
-	//
-	*TextValueList
-	*RefValueList
 }

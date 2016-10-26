@@ -4,7 +4,7 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/scope"
 	"github.com/ionous/sashimi/util/errutil"
-	"reflect"
+	"github.com/ionous/sashimi/util/sbuf"
 )
 
 type Context struct {
@@ -33,7 +33,7 @@ func (c GetNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if neval, ok := eval.(rt.NumEval); !ok {
-		err = errutil.New("value", c.Name, "is not a number eval", reflect.TypeOf(eval))
+		err = errutil.New("value", c.Name, "is not a number eval", sbuf.Type{eval})
 	} else if v, e := neval.GetNumber(run); e != nil {
 		err = e
 	} else {
@@ -51,8 +51,26 @@ func (c GetText) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if teval, ok := eval.(rt.TextEval); !ok {
-		err = errutil.New("value", c.Name, "is not text eval", reflect.TypeOf(eval))
+		err = errutil.New("value", c.Name, "is not text eval", sbuf.Type{eval})
 	} else if v, e := teval.GetText(run); e != nil {
+		err = e
+	} else {
+		ret = v
+	}
+	return
+}
+
+// GetText returns a text value from the current context.
+type GetObject struct {
+	Name string
+}
+
+func (c GetObject) GetObject(run rt.Runtime) (ret rt.Object, err error) {
+	if eval, e := run.FindValue(c.Name); e != nil {
+		err = e
+	} else if objeval, ok := eval.(rt.ObjEval); !ok {
+		err = errutil.New("value", c.Name, "is not text eval", sbuf.Type{eval})
+	} else if v, e := objeval.GetObject(run); e != nil {
 		err = e
 	} else {
 		ret = v

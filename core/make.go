@@ -46,9 +46,9 @@ func Id(s string) rt.Reference {
 }
 
 // Nothing return a Ref which evaluates to the "null" object.
-// func Nothing() (ret rt.Object) {
-// 	return ret
-// }
+func Nothing() (ret rt.Reference) {
+	return ret
+}
 
 func Ns(vals ...float64) rt.Numbers {
 	return rt.Numbers(vals)

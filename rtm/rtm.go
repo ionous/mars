@@ -103,9 +103,11 @@ func (run *Rtm) Flush() error {
 	return out.Flush()
 }
 
+// MARS: its still an outstanding question whether id.Empty should return error
+// currently, no. originally, yes. hrmmm....
 func (run *Rtm) GetObject(id ident.Id) (ret rt.Object, err error) {
 	if id.Empty() {
-		err = errutil.New("rtm.GetObject(id) is nil")
+		ret = rt.Object{}
 	} else if inst, ok := run.model.GetInstance(id); !ok {
 		err = errutil.New("rtm.GetObject(id) not found", id)
 	} else {

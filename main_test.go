@@ -27,8 +27,6 @@ func Run(t *testing.T, a ...rt.Execute) {
 	run := rtm.NewRtm(m)
 	run.PushOutput(os.Stdout)
 
-	rtm.RegisterTypes(gob.RegisterName, rt.BuiltIn{}, Core{}, std.Std{})
-
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	dec := gob.NewDecoder(&buf)
@@ -46,15 +44,21 @@ func Run(t *testing.T, a ...rt.Execute) {
 }
 
 func Test_TooBig(t *testing.T) {
+	rtm.RegisterTypes(gob.RegisterName, rt.BuiltIn{}, Core{}, std.Std{})
+
 	Run(t,
 		Try(IsValid{Id("i")}, "i exists"),
+
 		Try(IsNot{IsValid{Id("nope")}}, "nope does not exist"),
+
 		Try(IsObject{
 			Id("i"), "no",
 		}, "i defaults no"),
+		//"failed okay with ChangeState I does not have choice Borrigard"
 		Fails{
 			Change(Id("i")).To("borrigard"),
 			"no such state should exist"},
+		//
 		Change(Id("i")).To("yes"),
 
 		Try(IsObject{
@@ -91,10 +95,11 @@ func Test_TooBig(t *testing.T) {
 			I(5),
 		}}, "not greater than or lesser to 5"),
 
-		SetRef{
+		SetObj{
 			RefProperty{Id("i"), "object"},
 			Id("i"),
 		},
+		//
 		Try(IsSame{
 			RefProperty{Id("i"), "object"},
 			Id("i"),
@@ -105,9 +110,15 @@ func Test_TooBig(t *testing.T) {
 			Id("x"),
 		}}, "i should not equal x"),
 
-		ClearRef{
+		SetObj{
 			RefProperty{Id("i"), "object"},
+			Nothing(),
 		},
+
+		Try(IsSame{
+			RefProperty{Id("i"), "object"},
+			Nothing(),
+		}, "i should now be nothing"),
 
 		Try(IsSame{
 			ChooseRef{
@@ -115,7 +126,7 @@ func Test_TooBig(t *testing.T) {
 				True: Id("i"),
 			},
 			Id("i"),
-		}, "i should choose i"),
+		}, "zero test should choose i"),
 
 		Context{Id("i"), g.Say("In that game you scored", GetNum{"num"}, "out of a possible", I(1000), ".")},
 	// not implemented:

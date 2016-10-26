@@ -30,7 +30,7 @@ func (p NumProperty) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.NumEval); !ok {
-		err = errutil.New("property not a number", p, sbuf.Type{v})
+		err = errutil.New("property", p, "is not a number", sbuf.Type{v})
 	} else {
 		ret, err = v.GetNumber(run)
 	}
@@ -41,7 +41,7 @@ func (p TextProperty) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.TextEval); !ok {
-		err = errutil.New("property not text", p, sbuf.Type{v})
+		err = errutil.New("property", p, "is not text", sbuf.Type{v})
 	} else {
 		ret, err = v.GetText(run)
 	}
@@ -52,42 +52,42 @@ func (p RefProperty) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.ObjEval); !ok {
-		err = errutil.New("property not a reference", p, sbuf.Type{v})
+		err = errutil.New("property", p, "is not an object", sbuf.Type{v})
 	} else {
 		ret, err = v.GetObject(run)
 	}
 	return
 }
 
-func (p NumListProperty) GetNumberIdx(run rt.Runtime, i int) (ret rt.Number, err error) {
+func (p NumListProperty) GetNumStream(run rt.Runtime, i int) (ret rt.NumberStream, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.NumListEval); !ok {
-		err = errutil.New("property not a number list", p, sbuf.Type{v})
+		err = errutil.New("property", p, "is not a number list", sbuf.Type{v})
 	} else {
-		ret, err = v.GetNumberIdx(run, i)
+		ret, err = v.GetNumStream(run)
 	}
 	return
 }
 
-func (p TextListProperty) GetTextIdx(run rt.Runtime, i int) (ret rt.Text, err error) {
+func (p TextListProperty) GetTextStream(run rt.Runtime) (ret rt.TextStream, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.TextListEval); !ok {
-		err = errutil.New("property not a text list", p, sbuf.Type{v})
+		err = errutil.New("property", p, "is not a text list", sbuf.Type{v})
 	} else {
-		ret, err = v.GetTextIdx(run, i)
+		ret, err = v.GetTextStream(run)
 	}
 	return
 }
 
-func (p RefListProperty) GetReferenceIdx(run rt.Runtime, i int) (ret rt.Reference, err error) {
+func (p RefListProperty) GetObjStream(run rt.Runtime) (ret rt.ObjectStream, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.ObjListEval); !ok {
-		err = errutil.New("property not a reference list", p, sbuf.Type{v})
+		err = errutil.New("property", p, "is not a reference list", sbuf.Type{v})
 	} else {
-		ret, err = v.GetReferenceIdx(run, i)
+		ret, err = v.GetObjStream(run)
 	}
 	return
 }

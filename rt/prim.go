@@ -1,7 +1,6 @@
 package rt
 
 import (
-	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/ident"
 	"strconv"
 )
@@ -53,27 +52,6 @@ func (s Text) GetText(Runtime) (Text, error) {
 // String returns the text.
 func (s Text) String() string {
 	return string(s)
-}
-
-// Object provides a dl instance representation. It is not a literal, and cannot be saved.
-type Object struct {
-	meta.Instance
-	// FIX: Exists?
-}
-
-// GetObject implements ObjEval for objects; allowing objects to be returned from evals.
-func (obj Object) GetObject(Runtime) (Object, error) {
-	return obj, nil
-}
-
-// String returns the object's ident.Id string.
-func (obj Object) String() (ret string) {
-	if obj.Instance == nil {
-		ret = "<nil object>"
-	} else {
-		ret = obj.GetId().String()
-	}
-	return
 }
 
 // State provides a dl enumerated value primitive.

@@ -7,15 +7,25 @@ import (
 // Numbers provides an array literal for floats.
 type Numbers []float64
 
-func (l Numbers) GetCount() int {
-	return len(l)
+func (l Numbers) GetNumStream(Runtime) (NumberStream, error) {
+	return &NumberIt{list: l}, nil
 }
 
-func (l Numbers) GetNumberIdx(run Runtime, i int) (ret Number, err error) {
-	if cnt := len(l); i < cnt {
-		ret = Number(l[i])
-	} else {
+type NumberIt struct {
+	list Numbers
+	idx  int
+}
+
+func (it *NumberIt) HasNext() bool {
+	return it.idx < len(it.list)
+}
+
+func (it *NumberIt) GetNext() (ret Number, err error) {
+	if !it.HasNext() {
 		err = errutil.New("out of range")
+	} else {
+		ret = Number(it.list[it.idx])
+		it.idx++
 	}
 	return
 }
@@ -23,16 +33,25 @@ func (l Numbers) GetNumberIdx(run Runtime, i int) (ret Number, err error) {
 // Texts provides an array literal for strings.
 type Texts []string
 
-func (l Texts) GetCount() int {
-	return len(l)
+func (l Texts) GetTextStream(Runtime) (TextStream, error) {
+	return &TextIt{list: l}, nil
 }
 
-// GetTextIdx implements TextListEval.
-func (l Texts) GetTextIdx(run Runtime, i int) (ret Text, err error) {
-	if cnt := len(l); i < cnt {
-		ret = Text(l[i])
-	} else {
+type TextIt struct {
+	list Texts
+	idx  int
+}
+
+func (it *TextIt) HasNext() bool {
+	return it.idx < len(it.list)
+}
+
+func (it *TextIt) GetNext() (ret Text, err error) {
+	if !it.HasNext() {
 		err = errutil.New("out of range")
+	} else {
+		ret = Text(it.list[it.idx])
+		it.idx++
 	}
 	return
 }
@@ -40,16 +59,31 @@ func (l Texts) GetTextIdx(run Runtime, i int) (ret Text, err error) {
 // References provides an array literal for object ids.
 type References []Reference
 
-func (l References) GetCount() int {
-	return len(l)
+func (l References) GetObjStream(run Runtime) (ObjectStream, error) {
+	return &RefIt{run: run, list: l}, nil
 }
 
-// GetReferenceIdx implements ObjListEval
-func (l References) GetReferenceIdx(run Runtime, i int) (ret Reference, err error) {
-	if cnt := len(l); i < cnt {
-		ret = l[i]
-	} else {
+type RefIt struct {
+	run  Runtime
+	list References
+	idx  int
+}
+
+func (it *RefIt) HasNext() bool {
+	return it.idx < len(it.list)
+}
+
+func (it *RefIt) GetNext() (ret Object, err error) {
+	if !it.HasNext() {
 		err = errutil.New("out of range")
+	} else {
+		ref := it.list[it.idx]
+		if obj, e := ref.GetObject(it.run); e != nil {
+			err = e
+		} else {
+			ret = obj
+			it.idx++
+		}
 	}
 	return
 }

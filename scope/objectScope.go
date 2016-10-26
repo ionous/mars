@@ -1,7 +1,6 @@
 package scope
 
 import (
-	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 )
@@ -18,21 +17,10 @@ func (obj ObjectScope) String() string {
 
 // FindValue implements Scope
 func (obj ObjectScope) FindValue(name string) (ret meta.Generic, err error) {
-	if prop, ok := obj.FindProperty(name); !ok {
+	if p, ok := obj.FindProperty(name); !ok {
 		err = errutil.New("object property unknown", obj, name)
 	} else {
-		switch prop.GetType() {
-		case meta.NumProperty:
-			ret = prop.GetGeneric().(rt.NumEval)
-		case meta.TextProperty:
-			ret = prop.GetGeneric().(rt.TextEval)
-		case meta.ObjectProperty:
-			ret = prop.GetGeneric().(rt.ObjEval)
-		case meta.StateProperty:
-			ret = prop.GetGeneric().(rt.StateEval)
-		default:
-			err = errutil.New("object property type unknown", obj, name)
-		}
+		ret = p.GetGeneric()
 	}
 	return
 }

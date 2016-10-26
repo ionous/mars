@@ -3,7 +3,6 @@ package core
 import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/scope"
-	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/sbuf"
 )
@@ -36,7 +35,7 @@ func (t IfEach) GetBool(run rt.Runtime) (rt.Bool, error) {
 
 func ifEach(run rt.Runtime, name string, err *error) (ret bool) {
 	if v, e := run.FindValue(name); e != nil {
-		*err = errutil.New("ifEach, not in a loop", e)
+		*err = errutil.New("ifEach, not in a l", e)
 	} else if eval, ok := v.(rt.BoolEval); !ok {
 		*err = errutil.New("ifEach, expected bool", sbuf.Type{v})
 	} else if b, e := eval.GetBool(run); e != nil {
@@ -51,7 +50,7 @@ type EachIndex struct{}
 
 func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if v, e := run.FindValue("@index"); e != nil {
-		err = errutil.New("EachIndex", "not in a loop", e)
+		err = errutil.New("EachIndex", "not in a l", e)
 	} else if eval, ok := v.(rt.NumEval); !ok {
 		err = errutil.New("ifEach, expected num", sbuf.Type{v})
 	} else {
@@ -60,56 +59,57 @@ func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	return
 }
 
-func (f EachNum) Execute(run rt.Runtime) error {
-	return eachValue(run, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
-		if v, e := f.For.GetNumberIdx(run, i); e != nil {
-			err = e
-		} else {
-			ret = rt.NumEval(v)
-		}
-		return
-	})
-}
-
-func (f EachText) Execute(run rt.Runtime) error {
-	return eachValue(run, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
-		if v, e := f.For.GetTextIdx(run, i); e != nil {
-			err = e
-		} else {
-			ret = rt.TextEval(v)
-		}
-		return
-	})
-}
-
-func (f EachObj) Execute(run rt.Runtime) error {
-	return eachValue(run, f.For, f.Go, f.Else, func(i int) (ret meta.Generic, err error) {
-		if v, e := f.For.GetReferenceIdx(run, i); e != nil {
-			err = e
-		} else {
-			ret = rt.ObjEval(v)
-		}
-		return
-	})
-}
-
-type makeValue func(i int) (meta.Generic, error)
-
-func eachValue(run rt.Runtime, list rt.ListEval, loop, otherwise rt.Execute, value makeValue) (err error) {
-	if c := list.GetCount(); c == 0 {
-		otherwise.Execute(run)
+func (f EachNum) Execute(run rt.Runtime) (err error) {
+	if it, e := f.For.GetNumStream(run); e != nil {
+		err = e
+	} else if !it.HasNext() {
+		err = f.Else.Execute(run)
 	} else {
-		it := scope.NewLoopMaker(run)
-		for i := 0; i < c; i++ {
-			if v, e := value(i); e != nil {
+		for l := scope.NewLooper(run, it); l.HasNext(); {
+			if v, e := it.GetNext(); e != nil {
 				err = e
 				break
-			} else {
-				e := loop.Execute(it.Looper(i+1, i == 0, i+1 == c, v))
-				if e != nil {
-					err = e
-					break
-				}
+			} else if e := f.Go.Execute(l.NextScope(v)); e != nil {
+				err = e
+				break
+			}
+		}
+	}
+	return
+}
+
+func (f EachText) Execute(run rt.Runtime) (err error) {
+	if it, e := f.For.GetTextStream(run); e != nil {
+		err = e
+	} else if !it.HasNext() {
+		err = f.Else.Execute(run)
+	} else {
+		for l := scope.NewLooper(run, it); l.HasNext(); {
+			if v, e := it.GetNext(); e != nil {
+				err = e
+				break
+			} else if e := f.Go.Execute(l.NextScope(v)); e != nil {
+				err = e
+				break
+			}
+		}
+	}
+	return
+}
+
+func (f EachObj) Execute(run rt.Runtime) (err error) {
+	if it, e := f.For.GetObjStream(run); e != nil {
+		err = e
+	} else if !it.HasNext() {
+		err = f.Else.Execute(run)
+	} else {
+		for l := scope.NewLooper(run, it); l.HasNext(); {
+			if v, e := it.GetNext(); e != nil {
+				err = e
+				break
+			} else if e := f.Go.Execute(l.NextScope(v)); e != nil {
+				err = e
+				break
 			}
 		}
 	}

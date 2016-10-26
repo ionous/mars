@@ -15,50 +15,13 @@ const (
 	NotEqual = GreaterThan | LesserThan
 )
 
-// IsNumber two numbers (a rt.BoolEval)
-type IsNumber struct {
-	Src rt.NumEval
-	Is  CompareType
-	Tgt rt.NumEval
-}
-
-// IsText
-type IsText struct {
-	Src rt.TextEval
-	Is  CompareType
-	Tgt rt.TextEval
-}
-
-// IsSame evals true when both Src and Tgt match;
-// ( regardless of whether the refs are valid )
-type IsSame struct {
-	Src, Tgt rt.ObjEval
-}
-
 // maybe a regex or glob comparision
 // type Match struct {
-
 // }
-
-// IsObject the object in the named state (a rt.BoolEval)
-type IsObject struct {
-	Ref   rt.ObjEval
-	State string
-}
-
-// Not negates a rt.BoolEval (and is itself a rt.BoolEval)
-type IsNot struct {
-	Negate rt.BoolEval
-}
 
 //
 type IsEmpty struct {
 	Text rt.TextEval
-}
-
-// Exists evals true when this refers to a valid object.
-type IsValid struct {
-	Ref rt.ObjEval
 }
 
 func (empty IsEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
@@ -70,19 +33,39 @@ func (empty IsEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
+// IsNot negates a rt.BoolEval (and is itself a rt.BoolEval)
+type IsNot struct {
+	Negate rt.BoolEval
+}
+
 func (neg IsNot) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if tgt, e := neg.Negate.GetBool(run); e != nil {
-		err = e
+		err = errutil.New("IsNot.Negate", e)
 	} else {
 		ret = rt.Bool(!tgt)
 	}
 	return
 }
 
-// FIX: what to do with exists?
-func (exists IsValid) GetBool(run rt.Runtime) (rt.Bool, error) {
-	_, e := exists.Ref.GetObject(run)
-	return e == nil, nil
+// IsValid evals true when this refers to a valid object.
+type IsValid struct {
+	Ref rt.ObjEval
+}
+
+func (exists IsValid) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if obj, e := exists.Ref.GetObject(run); e != nil {
+		ret = false // if the object doesnt exist, then it's invalid
+	} else {
+		ret = rt.Bool(!obj.Empty()) // if the object is empty, then it's invalid
+	}
+	return
+}
+
+// IsNumber two numbers (a rt.BoolEval)
+type IsNumber struct {
+	Src rt.NumEval
+	Is  CompareType
+	Tgt rt.NumEval
 }
 
 func (comp IsNumber) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
@@ -102,6 +85,13 @@ func (comp IsNumber) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 		}
 	}
 	return
+}
+
+// IsText
+type IsText struct {
+	Src rt.TextEval
+	Is  CompareType
+	Tgt rt.TextEval
 }
 
 func (comp IsText) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
@@ -130,10 +120,16 @@ func (comp IsText) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
-func (req IsSame) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
-	if a, e := req.Src.GetObject(run); e != nil {
+// IsSame evals true when both Src and Tgt match;
+// ( regardless of whether the refs are valid )
+type IsSame struct {
+	Src, Tgt rt.ObjEval
+}
+
+func (op IsSame) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if a, e := op.Src.GetObject(run); e != nil {
 		err = errutil.New("IsSame.Src", e)
-	} else if tgt, e := req.Tgt.GetObject(run); e != nil {
+	} else if tgt, e := op.Tgt.GetObject(run); e != nil {
 		err = errutil.New("IsSame.Tgt", e)
 	} else {
 		ret = rt.Bool(a.GetId().Equals(tgt.GetId()))
@@ -141,9 +137,15 @@ func (req IsSame) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
+// IsObject the object in the named state (a rt.BoolEval)
+type IsObject struct {
+	Ref   rt.ObjEval
+	State string
+}
+
 func (op IsObject) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if obj, e := op.Ref.GetObject(run); e != nil {
-		err = e
+		err = errutil.New("IsObject.Ref", e)
 	} else {
 		choice := MakeStringId(op.State)
 		if prop, ok := obj.GetPropertyByChoice(choice); !ok {

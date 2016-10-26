@@ -33,18 +33,15 @@ func (x Error) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetCount() int {
-	return 0
-}
-func (x Error) GetNumberIdx(run rt.Runtime, _ int) (ret rt.Number, err error) {
+func (x Error) GetNumStream(run rt.Runtime) (ret rt.NumberStream, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetTextIdx(run rt.Runtime, _ int) (ret rt.Text, err error) {
+func (x Error) GetTextStream(run rt.Runtime) (ret rt.TextStream, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetReferenceIdx(run rt.Runtime, _ int) (ret rt.Reference, err error) {
+func (x Error) GetObjStream(run rt.Runtime) (ret rt.ObjectStream, err error) {
 	err = x.Execute(run)
 	return
 }
