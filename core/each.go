@@ -8,17 +8,17 @@ import (
 )
 
 type EachNum struct {
-	For      rt.NumListEval
+	In       rt.NumListEval
 	Go, Else rt.Execute
 }
 
 type EachText struct {
-	For      rt.TextListEval
+	In       rt.TextListEval
 	Go, Else rt.Execute
 }
 
 type EachObj struct {
-	For      rt.ObjListEval
+	In       rt.ObjListEval
 	Go, Else rt.Execute
 }
 
@@ -60,18 +60,21 @@ func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 }
 
 func (f EachNum) Execute(run rt.Runtime) (err error) {
-	if it, e := f.For.GetNumStream(run); e != nil {
+	if it, e := f.In.GetNumStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
 		err = f.Else.Execute(run)
 	} else {
-		for l := scope.NewLooper(run, it); l.HasNext(); {
+		for l := scope.NewLooper(it); l.HasNext(); {
 			if v, e := it.GetNext(); e != nil {
 				err = e
 				break
-			} else if e := f.Go.Execute(l.NextScope(v)); e != nil {
-				err = e
-				break
+			} else {
+				s := scope.MakeChain(run, l.NextScope(v), scope.NewNumScope(v))
+				if e := f.Go.Execute(s); e != nil {
+					err = e
+					break
+				}
 			}
 		}
 	}
@@ -79,18 +82,21 @@ func (f EachNum) Execute(run rt.Runtime) (err error) {
 }
 
 func (f EachText) Execute(run rt.Runtime) (err error) {
-	if it, e := f.For.GetTextStream(run); e != nil {
+	if it, e := f.In.GetTextStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
 		err = f.Else.Execute(run)
 	} else {
-		for l := scope.NewLooper(run, it); l.HasNext(); {
+		for l := scope.NewLooper(it); l.HasNext(); {
 			if v, e := it.GetNext(); e != nil {
 				err = e
 				break
-			} else if e := f.Go.Execute(l.NextScope(v)); e != nil {
-				err = e
-				break
+			} else {
+				s := scope.MakeChain(run, l.NextScope(v), scope.NewTextScope(v))
+				if e := f.Go.Execute(s); e != nil {
+					err = e
+					break
+				}
 			}
 		}
 	}
@@ -98,18 +104,21 @@ func (f EachText) Execute(run rt.Runtime) (err error) {
 }
 
 func (f EachObj) Execute(run rt.Runtime) (err error) {
-	if it, e := f.For.GetObjStream(run); e != nil {
+	if it, e := f.In.GetObjStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
 		err = f.Else.Execute(run)
 	} else {
-		for l := scope.NewLooper(run, it); l.HasNext(); {
-			if v, e := it.GetNext(); e != nil {
+		for l := scope.NewLooper(it); l.HasNext(); {
+			if obj, e := it.GetNext(); e != nil {
 				err = e
 				break
-			} else if e := f.Go.Execute(l.NextScope(v)); e != nil {
-				err = e
-				break
+			} else {
+				s := scope.MakeChain(run, l.NextScope(obj), scope.NewObjectScope(obj))
+				if e := f.Go.Execute(s); e != nil {
+					err = e
+					break
+				}
 			}
 		}
 	}

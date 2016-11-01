@@ -67,6 +67,16 @@ func Have(name string, class string) internal.Fragment {
 	return internal.NewClassProperty(name, class)
 }
 
+// HaveOne establishes a one-to-one, or one-to-many relation.
+func HaveOne(name string, class string) internal.ClassRelation {
+	return internal.ClassRelation{Src: internal.ClassRelative{name, class, S.RelativeOne}}
+}
+
+// HaveMany establishs a many-to-one relation.
+func HaveMany(name string, class string) internal.ClassRelation {
+	return internal.ClassRelation{Src: internal.ClassRelative{name, class, S.RelativeMany}}
+}
+
 // Has asserts the value of an object's property. The property must (eventually) be declared for the class. ( For example, via Have. )
 func Has(property string, values ...interface{}) (ret internal.Fragment) {
 	// we let the compiler checks ( and marshals ) types via a property "Builder".

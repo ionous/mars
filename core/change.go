@@ -6,7 +6,7 @@ import (
 )
 
 type SetNum struct {
-	Tgt NumProperty
+	Tgt PropertyNum
 	Num rt.NumEval
 }
 
@@ -20,7 +20,7 @@ func (x SetNum) Execute(run rt.Runtime) (err error) {
 }
 
 type SetTxt struct {
-	Tgt TextProperty
+	Tgt PropertyText
 	Txt rt.TextEval
 }
 
@@ -34,7 +34,7 @@ func (x SetTxt) Execute(run rt.Runtime) (err error) {
 }
 
 type SetObj struct {
-	Tgt RefProperty
+	Tgt PropertyRef
 	Ref rt.ObjEval
 }
 

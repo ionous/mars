@@ -9,7 +9,6 @@ import (
 
 // Looper creates LoopScopes
 type Looper struct {
-	run rt.Runtime
 	Stream
 	index int
 }
@@ -18,30 +17,27 @@ type Stream interface {
 	HasNext() bool
 }
 
-func NewLooper(run rt.Runtime, stream Stream) *Looper {
-	return &Looper{run, stream, 0}
+func NewLooper(stream Stream) *Looper {
+	return &Looper{stream, 0}
 }
 
 type LoopScope struct {
-	rt.Runtime
 	index           int
 	isFirst, isLast bool
 	value           meta.Generic
 }
 
-func (l *Looper) NextScope(value meta.Generic) rt.Runtime {
+func (l *Looper) NextScope(value meta.Generic) rt.FindValue {
 	first := l.index == 0
 	last := !l.HasNext()
-	run := &LoopScope{l.run, l.index, first, last, value}
+	s := &LoopScope{l.index + 1, first, last, value}
 	l.index++
-	return run
+	return s
 }
 
 func (l *LoopScope) FindValue(name string) (ret meta.Generic, err error) {
-	if name == "" {
-		ret = l.value
-	} else if !strings.HasPrefix(name, "@") {
-		ret, err = l.Runtime.FindValue(name)
+	if !strings.HasPrefix(name, "@") {
+		err = NotFound(l, name)
 	} else {
 		switch {
 		case strings.EqualFold(name, "@first"):
@@ -58,6 +54,5 @@ func (l *LoopScope) FindValue(name string) (ret meta.Generic, err error) {
 }
 
 func (l *LoopScope) ScopePath() []string {
-	parts := l.Runtime.ScopePath()
-	return append(parts, "loop scope")
+	return []string{"loop scope"}
 }

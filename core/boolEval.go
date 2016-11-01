@@ -120,40 +120,40 @@ func (comp IsText) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
-// IsSame evals true when both Src and Tgt match;
+// IsObject evals true when both Src and Tgt match;
 // ( regardless of whether the refs are valid )
-type IsSame struct {
+type IsObject struct {
 	Src, Tgt rt.ObjEval
 }
 
-func (op IsSame) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (op IsObject) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if a, e := op.Src.GetObject(run); e != nil {
-		err = errutil.New("IsSame.Src", e)
+		err = errutil.New("IsObject.Src", e)
 	} else if tgt, e := op.Tgt.GetObject(run); e != nil {
-		err = errutil.New("IsSame.Tgt", e)
+		err = errutil.New("IsObject.Tgt", e)
 	} else {
 		ret = rt.Bool(a.GetId().Equals(tgt.GetId()))
 	}
 	return
 }
 
-// IsObject the object in the named state (a rt.BoolEval)
-type IsObject struct {
+// IsState the object in the named state (a rt.BoolEval)
+type IsState struct {
 	Ref   rt.ObjEval
 	State string
 }
 
-func (op IsObject) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (op IsState) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if obj, e := op.Ref.GetObject(run); e != nil {
-		err = errutil.New("IsObject.Ref", e)
+		err = errutil.New("IsState.Ref", e)
 	} else {
 		choice := MakeStringId(op.State)
 		if prop, ok := obj.GetPropertyByChoice(choice); !ok {
-			err = errutil.New("IsObject", obj, "choice does not exist", op.State)
+			err = errutil.New("IsState", obj, "choice does not exist", op.State)
 		} else if eval, ok := prop.GetGeneric().(rt.StateEval); !ok {
-			err = errutil.New("IsObject", obj, "property", prop, "unexpected type", sbuf.Type{eval})
+			err = errutil.New("IsState", obj, "property", prop, "unexpected type", sbuf.Type{eval})
 		} else if curr, e := eval.GetState(run); e != nil {
-			err = errutil.New("IsObject", obj, "property", prop, "get state", e)
+			err = errutil.New("IsState", obj, "property", prop, "get state", e)
 		} else {
 			ret = rt.Bool(curr.Id() == choice)
 		}

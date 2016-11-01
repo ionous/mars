@@ -5,6 +5,12 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
+func Try(message string, b rt.BoolEval) rt.Execute {
+	return Choose{If: b,
+		True:  PrintLine{PrintText{T(message)}},
+		False: Error{T(message)}}
+}
+
 // Error satifies all runtime evaluations;
 // in all cases returning an error string provided by "reason".
 type Error struct{ Reason rt.TextEval }

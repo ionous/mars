@@ -68,10 +68,10 @@ func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, 
 	if obj, e := noun.GetObject(run); e != nil {
 		err = e
 	} else {
-		run := scope.Make(run, scope.ObjectScope{obj})
+		run := scope.Make(run, scope.NewObjectScope(obj))
 		if name, e := (GetText{"printed name"}.GetText(run)); e != nil {
 			err = e
-		} else if proper, e := (IsObject{obj, "proper named"}.GetBool(run)); e != nil {
+		} else if proper, e := (IsState{obj, "proper named"}.GetBool(run)); e != nil {
 			err = e
 		} else {
 			name := name.String()
@@ -84,7 +84,7 @@ func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, 
 					} else {
 						article = indefinite.String()
 						if len(article) == 0 {
-							if plural, e := (IsObject{obj, "plural named"}.GetBool(run)); e != nil {
+							if plural, e := (IsState{obj, "plural named"}.GetBool(run)); e != nil {
 								err = e
 							} else {
 								if plural {

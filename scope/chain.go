@@ -10,8 +10,14 @@ type ScopeChain struct {
 	scopes []rt.FindValue
 }
 
+// NewChain is evaluated left-to-right
 func NewChain(scopes ...rt.FindValue) rt.FindValue {
 	return ScopeChain{scopes}
+}
+
+// MakeChain is evaluated left-to-right, but with run last of all
+func MakeChain(run rt.Runtime, scopes ...rt.FindValue) rt.Runtime {
+	return Make(run, ScopeChain{append(scopes, run)})
 }
 
 func (sc ScopeChain) FindValue(name string) (ret meta.Generic, err error) {

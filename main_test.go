@@ -15,12 +15,6 @@ import (
 	"testing"
 )
 
-func Try(b rt.BoolEval, message string) rt.Execute {
-	return Choose{If: b,
-		True:  g.Say(message),
-		False: Error{T(message)}}
-}
-
 func Run(t *testing.T, a ...rt.Execute) {
 	src := make(metal.ObjectValueMap)
 	m := metal.NewMetal(modeltest.NewModel(), src)
@@ -47,86 +41,87 @@ func Test_TooBig(t *testing.T) {
 	rtm.RegisterTypes(gob.RegisterName, rt.BuiltIn{}, Core{}, std.Std{})
 
 	Run(t,
-		Try(IsValid{Id("i")}, "i exists"),
-
-		Try(IsNot{IsValid{Id("nope")}}, "nope does not exist"),
-
-		Try(IsObject{
-			Id("i"), "no",
-		}, "i defaults no"),
+		Try("i exists", IsValid{Id("i")}),
+		Try("nope does not exist", IsNot{IsValid{Id("nope")}}),
+		Try("i defaults no", IsState{Id("i"), "no"}),
 		//"failed okay with ChangeState I does not have choice Borrigard"
 		Fails{
 			Change(Id("i")).To("borrigard"),
 			"no such state should exist"},
 		//
 		Change(Id("i")).To("yes"),
+		//
+		Try("i now yes", IsState{Id("i"), "yes"}),
 
-		Try(IsObject{
-			Id("i"), "yes",
-		}, "i now yes"),
-
-		Try(IsNumber{
-			NumProperty{Id("i"), "num"},
+		Try("initially zero", IsNumber{
+			PropertyNum{Id("i"), "num"},
 			EqualTo,
 			I(0),
-		}, "initially zero"),
+		}),
 
 		SetNum{
-			NumProperty{Id("i"), "num"},
+			PropertyNum{Id("i"), "num"},
 			I(5),
 		},
-		Try(IsNumber{
-			NumProperty{Id("i"), "num"},
-			GreaterThan,
-			I(1),
-		}, "now greater than 1"),
-		Try(IsNumber{
-			NumProperty{Id("i"), "num"},
-			GreaterThan | EqualTo,
-			I(5),
-		}, "now greater than or equal to 5"),
+		Try("now greater than 1",
+			IsNumber{
+				PropertyNum{Id("i"), "num"},
+				GreaterThan,
+				I(1),
+			}),
+		Try("now greater than or equal to 5",
+			IsNumber{
+				PropertyNum{Id("i"), "num"},
+				GreaterThan | EqualTo,
+				I(5),
+			}),
 		g.Say("hello"),
 		PrintLine{PrintNum{
-			NumProperty{Id("i"), "num"},
+			PropertyNum{Id("i"), "num"},
 		}},
-		Try(IsNot{IsNumber{
-			NumProperty{Id("i"), "num"},
-			GreaterThan | LesserThan,
-			I(5),
-		}}, "not greater than or lesser to 5"),
+		Try("not greater than or lesser to 5",
+			IsNot{IsNumber{
+				PropertyNum{Id("i"), "num"},
+				GreaterThan | LesserThan,
+				I(5),
+			}}),
 
 		SetObj{
-			RefProperty{Id("i"), "object"},
+			PropertyRef{Id("i"), "object"},
 			Id("i"),
 		},
 		//
-		Try(IsSame{
-			RefProperty{Id("i"), "object"},
-			Id("i"),
-		}, "i should point to i"),
+		Try("i should point to i",
+			IsObject{
+				PropertyRef{Id("i"), "object"},
+				Id("i"),
+			}),
 
-		Try(IsNot{IsSame{
-			RefProperty{Id("i"), "object"},
-			Id("x"),
-		}}, "i should not equal x"),
+		Try("i should not equal x",
+			IsNot{IsObject{
+				PropertyRef{Id("i"), "object"},
+				Id("x"),
+			}}),
 
 		SetObj{
-			RefProperty{Id("i"), "object"},
+			PropertyRef{Id("i"), "object"},
 			Nothing(),
 		},
 
-		Try(IsSame{
-			RefProperty{Id("i"), "object"},
-			Nothing(),
-		}, "i should now be nothing"),
+		Try("i should now be nothing",
+			IsObject{
+				PropertyRef{Id("i"), "object"},
+				Nothing(),
+			}),
 
-		Try(IsSame{
-			ChooseRef{
-				If:   IsNumber{I(0), EqualTo, I(0)},
-				True: Id("i"),
-			},
-			Id("i"),
-		}, "zero test should choose i"),
+		Try("zero test should choose i",
+			IsObject{
+				ChooseRef{
+					If:   IsNumber{I(0), EqualTo, I(0)},
+					True: Id("i"),
+				},
+				Id("i"),
+			}),
 
 		Context{Id("i"), g.Say("In that game you scored", GetNum{"num"}, "out of a possible", I(1000), ".")},
 	// not implemented:

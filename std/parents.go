@@ -7,8 +7,8 @@ import (
 
 func Carrier(obj string) (ret rt.ObjEval) {
 	our := core.Id(obj)
-	wearer := core.RefProperty{our, "wearer"}
-	owner := core.RefProperty{our, "owner"}
+	wearer := core.PropertyRef{our, "wearer"}
+	owner := core.PropertyRef{our, "owner"}
 	return core.ChooseRef{
 		If:   core.IsValid{wearer},
 		True: wearer,

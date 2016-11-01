@@ -8,8 +8,8 @@ type Core struct {
 	// boolEval.go
 	*IsNumber
 	*IsText
-	*IsSame
 	*IsObject
+	*IsState
 	*IsNot
 	*IsEmpty
 	*IsValid
@@ -18,6 +18,7 @@ type Core struct {
 	*SetTxt
 	*SetObj
 	*ChangeState
+	*Named
 	// Choose
 	*Choose
 	*ChooseRef
@@ -46,10 +47,10 @@ type Core struct {
 	*PrintText
 	*PrintLine
 	// property access
-	*TextProperty
-	*NumProperty
-	*RefProperty
-	*TextListProperty
-	*NumListProperty
-	*RefListProperty
+	*PropertyText
+	*PropertyNum
+	*PropertyRef
+	*PropertyTextList
+	*PropertyNumList
+	*PropertyRefList
 }

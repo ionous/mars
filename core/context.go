@@ -16,7 +16,7 @@ func (c Context) Execute(run rt.Runtime) (err error) {
 	if obj, e := c.Ref.GetObject(run); e != nil {
 		err = e
 	} else {
-		newScope := scope.Make(run, scope.ObjectScope{obj})
+		newScope := scope.Make(run, scope.NewObjectScope(obj))
 		if e := c.Run.Execute(newScope); e != nil {
 			err = e
 		}

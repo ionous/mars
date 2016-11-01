@@ -26,9 +26,9 @@ func TestForEach(t *testing.T) {
 	run.PushOutput(buf)
 	ts := Ts("hello", "there", "world")
 	lines := EachText{
+		In:   ts,
 		Go:   Say(GetText{}),
-		For:  ts,
-		Else: Error{"should have run"},
+		Else: Error{T("should have run")},
 	}
 	if e := lines.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "hello\nthere\nworld\n", buf.String(), "on multiple lines") {
@@ -38,9 +38,9 @@ func TestForEach(t *testing.T) {
 	buf.Reset()
 
 	x := PrintLine{EachText{
+		In:   ts,
 		Go:   PrintText{GetText{}},
-		For:  ts,
-		Else: Error{"should have run"},
+		Else: Error{T("should have run")},
 	}}
 
 	if e := x.Execute(run); assert.NoError(t, e, "execute") {
@@ -51,9 +51,9 @@ func TestForEach(t *testing.T) {
 	buf.Reset()
 
 	index := EachText{
+		In:   ts,
 		Go:   Say(EachIndex{}),
-		For:  ts,
-		Else: Error{"should have run"},
+		Else: Error{T("should have run")},
 	}
 	if e := index.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "1\n2\n3\n", buf.String(), "count now") {
@@ -71,8 +71,8 @@ func TestForEach(t *testing.T) {
 					True:  T("last"),
 					False: GetText{},
 				}}),
-			For:  ts,
-			Else: Error{"should have run"},
+			In:   ts,
+			Else: Error{T("should have run")},
 		}
 	buf.Reset()
 	if e := andAlways.Execute(run); assert.NoError(t, e, "execute") {

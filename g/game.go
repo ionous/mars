@@ -4,13 +4,7 @@ import (
 	. "github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
-	"github.com/ionous/sashimi/util/errutil"
 )
-
-// ScriptName searches for objects by name, as opposed to core.Id which uses direct lookup.
-type ScriptName struct {
-	Name string
-}
 
 // ScriptRef provides (some) backwards compatibility with the old game interface
 type ScriptRef struct {
@@ -18,7 +12,7 @@ type ScriptRef struct {
 }
 
 func The(s string) ScriptRef {
-	return ScriptRef{ScriptName{s}}
+	return ScriptRef{Named{s}}
 }
 
 func StopHere() rt.Execute {
@@ -26,35 +20,21 @@ func StopHere() rt.Execute {
 }
 
 type Game struct {
-	*ScriptName
+	*Named
 	*ScriptRef
-}
-
-// GetObject searches through the scope for an object matching Name
-func (h ScriptName) GetObject(run rt.Runtime) (ret rt.Object, err error) {
-	if v, e := run.FindValue(h.Name); e != nil {
-		err = errutil.New("ScriptRef.GetObject", e)
-	} else if x, ok := v.(rt.ObjEval); !ok {
-		err = errutil.New("ScriptRef.GetObject", h.Name, "is not an object")
-	} else if r, e := x.GetObject(run); e != nil {
-		err = errutil.New("ScriptRef.GetObject", e)
-	} else {
-		ret = r
-	}
-	return
 }
 
 // ex. g.Say(g.The("player").Text("greeting"))
 func (h ScriptRef) Text(name PropertyName) rt.TextEval {
-	return TextProperty{h, name}
+	return PropertyText{h, name}
 }
 
 func (h ScriptRef) Num(name PropertyName) rt.NumEval {
-	return NumProperty{h, name}
+	return PropertyNum{h, name}
 }
 
 func (h ScriptRef) Object(name PropertyName) ScriptRef {
-	return ScriptRef{RefProperty{h, name}}
+	return ScriptRef{PropertyRef{h, name}}
 }
 
 // 	// Get returns the named property.
