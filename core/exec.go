@@ -5,9 +5,9 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-type Executes []rt.Execute
+type ExecuteList []rt.Execute
 
-func (x Executes) Execute(run rt.Runtime) (err error) {
+func (x ExecuteList) Execute(run rt.Runtime) (err error) {
 	for _, s := range x {
 		if e := s.Execute(run); e != nil {
 			err = e

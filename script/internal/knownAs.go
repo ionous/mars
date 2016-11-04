@@ -14,7 +14,7 @@ func (f KnownAs) And(name string) KnownAs {
 	return f
 }
 
-func (f KnownAs) BuildFragment(src Source, top Topic) (err error) {
+func (f KnownAs) GenFragment(src *S.Statements, top Topic) (err error) {
 	alias := S.AliasFields{top.Subject, f.Names}
-	return src.NewAlias(alias, UnknownLocation)
+	return src.NewAlias(alias, S.UnknownLocation)
 }

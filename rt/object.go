@@ -14,6 +14,10 @@ func (obj Object) Empty() bool {
 	return obj.Instance == nil
 }
 
+func (obj Object) Equals(other Object) bool {
+	return obj.GetId() == other.GetId()
+}
+
 // GetObject implements ObjEval for objects; allowing objects to be returned from evals.
 func (obj Object) GetObject(Runtime) (Object, error) {
 	return obj, nil

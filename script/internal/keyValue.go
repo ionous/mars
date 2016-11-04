@@ -13,7 +13,7 @@ type KeyValue struct {
 	value interface{}
 }
 
-func (f KeyValue) BuildFragment(src Source, top Topic) error {
+func (f KeyValue) GenFragment(src *S.Statements, top Topic) error {
 	fields := S.KeyValueFields{top.Subject, f.key, f.value}
-	return src.NewKeyValue(fields, UnknownLocation)
+	return src.NewKeyValue(fields, S.UnknownLocation)
 }

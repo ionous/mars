@@ -4,6 +4,7 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/scope"
 	"github.com/ionous/sashimi/meta"
+	"github.com/ionous/sashimi/play/api"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/ident"
 	"github.com/ionous/sashimi/util/sbuf"
@@ -13,12 +14,17 @@ import (
 type Rtm struct {
 	model meta.Model
 	scope.ModelScope
-	output []*PrintMachine
+	output  []*PrintMachine
+	parents api.LookupParents
 }
 
 func NewRtm(model meta.Model) *Rtm {
 	ms := scope.NewModelScope(model)
 	return &Rtm{ModelScope: ms, model: model}
+}
+func NewRtmParents(model meta.Model, parents api.LookupParents) *Rtm {
+	ms := scope.NewModelScope(model)
+	return &Rtm{ModelScope: ms, model: model, parents: parents}
 }
 
 func (run *Rtm) RunAction(id ident.Id, params []meta.Generic) (err error) {
@@ -72,8 +78,10 @@ func (run *Rtm) GetAction(id ident.Id, params []meta.Generic) (ret ActionProvide
 }
 
 func (run *Rtm) LookupParent(inst meta.Instance) (meta.Instance, meta.Property, bool) {
-	panic("not implemented")
-	return nil, nil, false
+	if run.parents == nil {
+		panic("not implemented")
+	}
+	return run.parents.LookupParent(inst)
 }
 
 func (run *Rtm) Print(args ...interface{}) (err error) {

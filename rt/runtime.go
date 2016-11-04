@@ -21,7 +21,11 @@ type Runtime interface {
 	PopOutput()
 	// Query?
 	// Random
-	// api.LookupParents
-	// LookupParent(inst meta.Instance) (ret meta.Instance, rel meta.Property, okay bool)
-	// api.Event?
+	// LookupParent is a nod to the stdlib: objects have a "parent" relation
+	// but the parent mechanism is currently actually multiple properties.
+	// MARS: once we can fully store machines in properties (and have class defaults),
+	// the stdlib could store a parent eval; to satisfy its current implementation
+	// ( multiple properties ) it would probably have to return a data object
+	// designating the parent and the name of the relation.
+	LookupParent(meta.Instance) (meta.Instance, meta.Property, bool)
 }

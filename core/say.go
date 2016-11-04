@@ -1,13 +1,12 @@
-package g
+package core
 
 import (
-	. "github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
 )
 
 // Say shortcut runs a bunch of statements and "collects" them via PrintLine
 func Say(all ...interface{}) rt.Execute {
-	sayWhat := Executes{}
+	sayWhat := ExecuteList{}
 	for _, a := range all {
 		switch val := a.(type) {
 		case int:

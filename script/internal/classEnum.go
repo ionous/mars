@@ -23,7 +23,7 @@ func (f ClassEnum) Usually(choice string) ClassEnum {
 	return f
 }
 
-func (f ClassEnum) BuildFragment(src Source, top Topic) (err error) {
+func (f ClassEnum) GenFragment(src *S.Statements, top Topic) (err error) {
 	name := f.Choices[0] //-property
 	enum := S.EnumFields{top.Subject, name, f.Choices}
 	if len(f.UsualChoice) > 0 {
@@ -38,7 +38,7 @@ func (f ClassEnum) BuildFragment(src Source, top Topic) (err error) {
 		}
 	}
 	if err == nil {
-		err = src.NewEnumeration(enum, UnknownLocation)
+		err = src.NewEnumeration(enum, S.UnknownLocation)
 	}
 	return
 }

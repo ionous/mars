@@ -1,5 +1,7 @@
 package internal
 
+import S "github.com/ionous/sashimi/source"
+
 // Topic targets a noun and or its type.
 type Topic struct {
 	Target, Subject string
@@ -7,7 +9,7 @@ type Topic struct {
 
 // Fragment phrases appear in "The" phrases.
 type Fragment interface {
-	BuildFragment(Source, Topic) error
+	GenFragment(*S.Statements, Topic) error
 }
 
 // Fragments array

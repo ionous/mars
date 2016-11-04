@@ -2,12 +2,13 @@ package script
 
 import (
 	"github.com/ionous/mars/rt"
+	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/internal"
 	S "github.com/ionous/sashimi/source"
 )
 
 // The targets a noun for new assertions.
-func The(target string, fragments ...internal.Fragment) internal.BackendPhrase {
+func The(target string, fragments ...internal.Fragment) backend.Spec {
 	return internal.NounPhrase{
 		target, fragments,
 	}

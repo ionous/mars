@@ -17,10 +17,10 @@ type ClassProperty struct {
 	Kind string // property kind: primitive or user class
 }
 
-func (c ClassProperty) BuildFragment(src Source, top Topic) error {
+func (c ClassProperty) GenFragment(src *S.Statements, top Topic) error {
 	isMany, kind := c.listKind()
 	fields := S.PropertyFields{top.Subject, c.Name, kind, isMany}
-	return src.NewProperty(fields, UnknownLocation)
+	return src.NewProperty(fields, S.UnknownLocation)
 }
 
 func (c ClassProperty) listKind() (isMany bool, kind string) {

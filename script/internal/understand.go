@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
 )
 
@@ -11,7 +12,7 @@ func (p ParserPartial) And(s string) ParserPartial {
 }
 
 // MARS: its eems this would read better with the event name than the action name...
-func (p ParserPartial) As(s string) BackendPhrase {
+func (p ParserPartial) As(s string) backend.Spec {
 	return ParserPhrase{s, p}
 }
 
@@ -20,7 +21,7 @@ type ParserPhrase struct {
 	Phrases ParserPartial
 }
 
-func (p ParserPhrase) Build(src Source) error {
+func (p ParserPhrase) Generate(src *S.Statements) error {
 	alias := S.AliasFields{p.What, p.Phrases}
-	return src.NewAlias(alias, UnknownLocation)
+	return src.NewAlias(alias, S.UnknownLocation)
 }

@@ -2,7 +2,6 @@ package internal
 
 import (
 	"github.com/ionous/mars/rt"
-	//E "github.com/ionous/sashimi/event"
 	S "github.com/ionous/sashimi/source"
 )
 
@@ -39,10 +38,10 @@ func (p EventPartial) Go(cb rt.Execute, cbs ...rt.Execute) EventPhrase {
 }
 
 //
-func (ef EventPhrase) BuildFragment(src Source, top Topic) (err error) {
+func (ef EventPhrase) GenFragment(src *S.Statements, top Topic) (err error) {
 	for _, evt := range ef.Events {
 		fields := S.ListenFields{top.Subject, evt, ef.Execute, ef.Options}
-		if e := src.NewEventHandler(fields, UnknownLocation); e != nil {
+		if e := src.NewEventHandler(fields, S.UnknownLocation); e != nil {
 			err = e
 			break
 		}

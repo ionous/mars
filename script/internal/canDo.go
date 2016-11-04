@@ -49,14 +49,14 @@ type ActionAssertion struct {
 	Target, Context string
 }
 
-func (f ActionAssertion) BuildFragment(src Source, top Topic) (err error) {
+func (f ActionAssertion) GenFragment(src *S.Statements, top Topic) (err error) {
 	if top.Subject == "" {
 		err = errutil.New("action", f.ActionName, "has no subject")
 	} else {
 		fields := S.ActionAssertionFields{
 			f.ActionName, f.EventName,
 			top.Subject, f.Target, f.Context}
-		err = src.NewActionAssertion(fields, UnknownLocation)
+		err = src.NewActionAssertion(fields, S.UnknownLocation)
 	}
 	return
 }

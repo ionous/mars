@@ -15,8 +15,8 @@ func (p PropertyName) String() string {
 
 // Property refers to a field within an object.
 type Property struct {
-	Ref   rt.ObjEval
 	Field PropertyName
+	Ref   rt.ObjEval
 }
 
 type PropertyNum Property

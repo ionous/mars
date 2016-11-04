@@ -5,12 +5,16 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-func Any(any ...rt.BoolEval) rt.BoolEval {
+func Any(any ...rt.BoolEval) AnyTrue {
 	return AnyTrue{any}
 }
 
 type AnyTrue struct {
 	Test []rt.BoolEval
+}
+
+func (a AnyTrue) Or(choice rt.BoolEval) AnyTrue {
+	return AnyTrue{append(a.Test, choice)}
 }
 
 func (a AnyTrue) GetBool(run rt.Runtime) (okay rt.Bool, err error) {

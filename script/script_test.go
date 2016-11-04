@@ -1,21 +1,23 @@
 package script
 
 import (
+	S "github.com/ionous/sashimi/source"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestSimpleScript(t *testing.T) {
-	s := Script{
+	src := &S.Statements{}
+	s := Script(
 		The("kinds",
 			Called("rooms"),
 			Have("greeting", "text"),
 		),
 		The("room", Called("world"), Has("greeting", "hello")),
-	}
-	if res, e := s.BuildStatements(); assert.NoError(t, e, "failed to build") {
-		assert.Len(t, res.Asserts, 2, "one kind, one instance")
-		assert.Len(t, res.Properties, 1, "room has one property")
-		assert.Len(t, res.KeyValues, 1, "instance has one value")
+	)
+	if e := s.Generate(src); assert.NoError(t, e, "failed to build") {
+		assert.Len(t, src.Asserts, 2, "one kind, one instance")
+		assert.Len(t, src.Properties, 1, "room has one property")
+		assert.Len(t, src.KeyValues, 1, "instance has one value")
 	}
 }

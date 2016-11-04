@@ -137,7 +137,7 @@ func (op IsObject) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
-// IsState the object in the named state (a rt.BoolEval)
+// IsState (rt.BoolEval) determines if the object is in the named state.
 type IsState struct {
 	Ref   rt.ObjEval
 	State string

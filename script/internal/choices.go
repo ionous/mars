@@ -12,10 +12,10 @@ type Choices struct {
 	choices []string
 }
 
-func (f Choices) BuildFragment(src Source, top Topic) (err error) {
+func (f Choices) GenFragment(src *S.Statements, top Topic) (err error) {
 	for _, choice := range f.choices {
 		fields := S.ChoiceFields{top.Subject, choice}
-		if e := src.NewChoice(fields, UnknownLocation); e != nil {
+		if e := src.NewChoice(fields, S.UnknownLocation); e != nil {
 			err = e
 			break
 		}

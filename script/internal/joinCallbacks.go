@@ -9,7 +9,7 @@ func JoinCallbacks(cb rt.Execute, cbs []rt.Execute) (ret rt.Execute) {
 	if len(cbs) == 0 {
 		ret = cb
 	} else {
-		ret = core.Executes(append([]rt.Execute{cb}, cbs...))
+		ret = core.ExecuteList(append([]rt.Execute{cb}, cbs...))
 	}
 	return
 }

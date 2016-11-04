@@ -20,7 +20,7 @@ func (c ScriptSubject) WithSingularName(name string) Fragment {
 	return c
 }
 
-func (c ScriptSubject) BuildFragment(src Source, top Topic) error {
+func (c ScriptSubject) GenFragment(src *S.Statements, top Topic) error {
 	// FIX: this is only half measure --
 	// really it needs to split into words, then compare the first article.
 	name := strings.TrimSpace(top.Subject)
@@ -31,5 +31,5 @@ func (c ScriptSubject) BuildFragment(src Source, top Topic) error {
 		"singular name": c.Singular,
 	}
 	fields := S.AssertionFields{top.Target, bare, opt}
-	return src.NewAssertion(fields, UnknownLocation)
+	return src.NewAssertion(fields, S.UnknownLocation)
 }

@@ -1,6 +1,7 @@
 package internal
 
 import (
+	S "github.com/ionous/sashimi/source"
 	"github.com/ionous/sashimi/util/errutil"
 )
 
@@ -13,10 +14,10 @@ type NounPhrase struct {
 	Fragments Fragments
 }
 
-func (p NounPhrase) Build(src Source) (err error) {
+func (p NounPhrase) Generate(src *S.Statements) (err error) {
 	topic := Topic{p.Target, p.findSubject()}
 	for _, frag := range p.Fragments {
-		if e := frag.BuildFragment(src, topic); e != nil {
+		if e := frag.GenFragment(src, topic); e != nil {
 			err = errutil.Append(err, e)
 		}
 	}

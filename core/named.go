@@ -5,7 +5,13 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-// Named searches for objects by name, as opposed to core.Id which uses direct lookup.
+// Name provides a shortcut for Named.
+func Name(name string) Named {
+	return Named{name}
+}
+
+// Named searches for objects by name.
+// see also: core.Id() which uses direct lookup.
 type Named struct {
 	Name string
 }

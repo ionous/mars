@@ -2,7 +2,7 @@ package g
 
 import (
 	"bytes"
-	. "github.com/ionous/mars/core"
+	c "github.com/ionous/mars/core"
 	"github.com/ionous/mars/rtm"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -24,11 +24,11 @@ func TestForEach(t *testing.T) {
 	buf := bytes.NewBuffer(nil)
 	run := rtm.NewRtm(nil)
 	run.PushOutput(buf)
-	ts := Ts("hello", "there", "world")
-	lines := EachText{
+	ts := c.Ts("hello", "there", "world")
+	lines := c.EachText{
 		In:   ts,
-		Go:   Say(GetText{}),
-		Else: Error{T("should have run")},
+		Go:   c.Say(c.GetText{}),
+		Else: c.Error{c.T("should have run")},
 	}
 	if e := lines.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "hello\nthere\nworld\n", buf.String(), "on multiple lines") {
@@ -37,10 +37,10 @@ func TestForEach(t *testing.T) {
 	}
 	buf.Reset()
 
-	x := PrintLine{EachText{
+	x := c.PrintLine{c.EachText{
 		In:   ts,
-		Go:   PrintText{GetText{}},
-		Else: Error{T("should have run")},
+		Go:   c.PrintText{c.GetText{}},
+		Else: c.Error{c.T("should have run")},
 	}}
 
 	if e := x.Execute(run); assert.NoError(t, e, "execute") {
@@ -50,10 +50,10 @@ func TestForEach(t *testing.T) {
 	}
 	buf.Reset()
 
-	index := EachText{
+	index := c.EachText{
 		In:   ts,
-		Go:   Say(EachIndex{}),
-		Else: Error{T("should have run")},
+		Go:   Say(c.EachIndex{}),
+		Else: c.Error{c.T("should have run")},
 	}
 	if e := index.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "1\n2\n3\n", buf.String(), "count now") {
@@ -62,17 +62,17 @@ func TestForEach(t *testing.T) {
 	}
 
 	andAlways :=
-		EachText{
-			Go: Say(ChooseText{
-				If:   IfEach{IsFirst: true},
-				True: T("first"),
-				False: ChooseText{
-					If:    IfEach{IsLast: true},
-					True:  T("last"),
-					False: GetText{},
+		c.EachText{
+			Go: Say(c.ChooseText{
+				If:   c.IfEach{IsFirst: true},
+				True: c.T("first"),
+				False: c.ChooseText{
+					If:    c.IfEach{IsLast: true},
+					True:  c.T("last"),
+					False: c.GetText{},
 				}}),
 			In:   ts,
-			Else: Error{T("should have run")},
+			Else: c.Error{c.T("should have run")},
 		}
 	buf.Reset()
 	if e := andAlways.Execute(run); assert.NoError(t, e, "execute") {

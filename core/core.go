@@ -1,6 +1,15 @@
 package core
 
-type Core struct {
+import "github.com/ionous/mars"
+
+// Core contains all of mar's built-in commands and primitives.
+var Core = mars.Package{
+	Name: "Core",
+	// MARS, FIX: move "kinds" declaration to a custom backend script?
+	Commands: (*CoreDL)(nil),
+}
+
+type CoreDL struct {
 	// all.go
 	*AllTrue
 	// any.go
@@ -35,7 +44,7 @@ type Core struct {
 	*IfEach
 	*EachIndex
 	// exec
-	*Executes
+	*ExecuteList
 	*Error
 	*Fails
 	// gocall.go
