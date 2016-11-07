@@ -2,7 +2,6 @@ package scope
 
 import (
 	"github.com/ionous/sashimi/meta"
-	"github.com/ionous/sashimi/util/errutil"
 	"strings"
 )
 
@@ -17,10 +16,8 @@ func NewParamScope(vs []meta.Generic) ParamScope {
 func (p ParamScope) FindValue(name string) (ret meta.Generic, err error) {
 	if i, ok := p.findByParamName(name); !ok {
 		err = NotFound(p, name)
-	} else if i < len(p.values) {
-		ret = p.values[i]
 	} else {
-		err = errutil.New("ParamScope", name, "out of range", i, "of", len(p.values))
+		ret = p.values[i]
 	}
 	return
 }

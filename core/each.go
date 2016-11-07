@@ -70,8 +70,8 @@ func (f EachNum) Execute(run rt.Runtime) (err error) {
 				err = e
 				break
 			} else {
-				s := scope.MakeChain(run, l.NextScope(v), scope.NewNumScope(v))
-				if e := f.Go.Execute(s); e != nil {
+				run := scope.Make(run, l.NextScope(v), scope.NewNumScope(v), run)
+				if e := f.Go.Execute(run); e != nil {
 					err = e
 					break
 				}
@@ -92,8 +92,8 @@ func (f EachText) Execute(run rt.Runtime) (err error) {
 				err = e
 				break
 			} else {
-				s := scope.MakeChain(run, l.NextScope(v), scope.NewTextScope(v))
-				if e := f.Go.Execute(s); e != nil {
+				run := scope.Make(run, l.NextScope(v), scope.NewTextScope(v), run)
+				if e := f.Go.Execute(run); e != nil {
 					err = e
 					break
 				}
@@ -114,8 +114,8 @@ func (f EachObj) Execute(run rt.Runtime) (err error) {
 				err = e
 				break
 			} else {
-				s := scope.MakeChain(run, l.NextScope(obj), scope.NewObjectScope(obj))
-				if e := f.Go.Execute(s); e != nil {
+				run := scope.Make(run, scope.NewObjectScope(obj), l.NextScope(obj), scope.NewObjectScope(obj), run)
+				if e := f.Go.Execute(run); e != nil {
 					err = e
 					break
 				}

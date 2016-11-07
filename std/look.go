@@ -2,11 +2,10 @@ package std
 
 import (
 	. "github.com/ionous/mars/script"
-	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/g"
 )
 
-var Look = []backend.Spec{
+var Look = Script(
 	// one visible thing, and requring light
 	The("actors",
 		Can("look").And("looking").RequiresNothing(),
@@ -17,4 +16,4 @@ var Look = []backend.Spec{
 		),
 	),
 	Understand("look|l").As("look"),
-}
+)

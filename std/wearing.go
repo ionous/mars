@@ -4,12 +4,11 @@ import (
 	. "github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
 	. "github.com/ionous/mars/script"
-	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/g"
 	"github.com/ionous/mars/script/test"
 )
 
-var Wearing = []backend.Spec{
+var Wearing = Script(
 	The("actors",
 		Can("wear it").And("wearing it").RequiresOne("prop"),
 		To("wear it", g.ReflectToTarget("report wear")),
@@ -26,14 +25,14 @@ var Wearing = []backend.Spec{
 				False: g.Say("That's not something you can wear."),
 				True: g.Go(
 					Clothe("actor").With("prop"),
-					g.Say("Now", g.The("actor").Lower(), "is wearing the", g.The("prop").Lower()),
+					g.Say("Now", g.The("actor").Lower(), "is wearing", g.The("prop").Lower(), "."),
 				),
 			}),
 	),
 	Understand("wear|don {{something}}").
 		And("put on {{something}}").
 		And("put {{something}} on").As("wear it"),
-}
+)
 
 // Clothe provides a shortcut for the passed actor to wear some prop.
 func Clothe(actor string) ClothePhrase {

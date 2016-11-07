@@ -15,7 +15,7 @@ func (l Location) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 	if obj, e := l.obj.GetObject(run); e != nil {
 		err = e
 	} else {
-		run := scope.Make(run, scope.NewObjectScope(obj))
+		run := scope.Make(run, scope.NewObjectScope(obj), run)
 		if where, e := l.locate(run); e != nil {
 			err = e
 		} else if where.Empty() {

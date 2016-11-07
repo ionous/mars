@@ -8,8 +8,8 @@ import (
 
 // SimilarClass: when all else fails try compatible classes one by one.
 func SimilarClass(model meta.Model, nouns meta.Nouns,
-	values []meta.Generic) (ret rt.FindValue) {
-	return ClassScope{model, SimilarClassFinder{model, nouns, values}}
+	values []meta.Generic) (ret rt.Scope) {
+	return &ClassScope{model, &SimilarClassFinder{model, nouns, values}}
 }
 
 type SimilarClassFinder struct {
@@ -18,7 +18,7 @@ type SimilarClassFinder struct {
 	values ValueFinder
 }
 
-func (cf SimilarClassFinder) FindClass(id ident.Id) (ret meta.Generic, err error) {
+func (cf *SimilarClassFinder) FindClass(id ident.Id) (ret meta.Generic, err error) {
 	err = ClassNotFound(string(id))
 	for i, nounClass := range cf.nouns {
 		if similar := cf.model.AreCompatible(id, nounClass); similar {

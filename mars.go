@@ -12,7 +12,7 @@ type Package struct {
 	// Commands should be a nil pointer to a structure containing pointers to all of the commands in the package.
 	Commands interface{}
 	// Scripts contains all declarations for the package.
-	Scripts ScriptList
+	Scripts SpecList
 	// Test contains all test suites for the package.
 	Tests TestList
 	// Imports contains all package dependencies.
@@ -20,12 +20,12 @@ type Package struct {
 }
 
 type ImportList []Import
-type ScriptList []backend.Script
+type SpecList []backend.Spec
 type TestList []test.Suite
 
 type Import *Package
 
-func Scripts(scripts ...backend.Script) ScriptList {
+func Scripts(scripts ...backend.Spec) SpecList {
 	return scripts
 }
 
@@ -47,7 +47,7 @@ func (p *Package) Generate(src *S.Statements) (err error) {
 	return p.genPackage(g)
 }
 
-func (sl ScriptList) Generate(src *S.Statements) (err error) {
+func (sl SpecList) Generate(src *S.Statements) (err error) {
 	for _, s := range sl {
 		if e := s.Generate(src); e != nil {
 			err = e

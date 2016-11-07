@@ -8,7 +8,7 @@ import (
 )
 
 // Package std contains the basic objects and actions used for for sashimi-style games. It fulfills a role similar to the Inform7 standard library.
-var Package = mars.Package{
+var Std = mars.Package{
 	Name: "Std",
 	Scripts: mars.Scripts(
 		//	Inventory,
@@ -19,11 +19,11 @@ var Package = mars.Package{
 		Types,
 		Wearing),
 	Tests:    mars.Tests(WearingTest),
-	Imports:  mars.Imports(&core.Package, &lang.Package),
-	Commands: (*Std)(nil),
+	Imports:  mars.Imports(&core.Core, &lang.Lang),
+	Commands: (*StdDl)(nil),
 }
 
-type Std struct {
+type StdDl struct {
 	*compat.ScriptRef
 	*compat.ScriptRefList
 	// give

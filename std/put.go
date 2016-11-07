@@ -11,7 +11,7 @@ func Put(prop string) PutOntoPhrase {
 
 func (p PutOntoPhrase) Onto(supporter string) rt.Execute {
 	// FIX: validate that the supporter is a supporter?
-	return ChangeParent{core.Id(p.prop), "support", core.Id(supporter)}
+	return ChangeParent{core.Name(p.prop), "support", core.Name(supporter)}
 }
 
 type PutOntoPhrase struct {

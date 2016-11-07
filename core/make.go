@@ -40,7 +40,7 @@ func Empty() rt.Text {
 }
 
 // Id creates a new reference via MakeStringId
-func Id(s string) rt.Reference {
+func RawId(s string) rt.Reference {
 	id := MakeStringId(s)
 	return rt.Reference(id)
 }
@@ -58,10 +58,10 @@ func Ts(vals ...string) rt.Texts {
 	return rt.Texts(vals)
 }
 
-func Ids(vals ...string) rt.References {
+func RawIds(vals ...string) rt.References {
 	refs := []rt.Reference{}
 	for i := 0; i < len(vals); i++ {
-		ref := Id(vals[i])
+		ref := RawId(vals[i])
 		refs = append(refs, ref)
 	}
 	return rt.References(refs)

@@ -6,10 +6,11 @@ import (
 )
 
 // matching logic follows RuntimeAction from sashimi v1
-func NewAction(model meta.Model, nouns meta.Nouns, values []meta.Generic) rt.FindValue {
-	return NewChain(
+func NewAction(model meta.Model, nouns meta.Nouns, values []meta.Generic) rt.Scope {
+	return ScopeChain{
 		NewModelScope(model),
 		NewParamScope(values),
 		ExactClass(model, nouns, values),
-		SimilarClass(model, nouns, values))
+		SimilarClass(model, nouns, values),
+	}
 }

@@ -9,7 +9,7 @@ type NumScope struct {
 	val rt.NumEval
 }
 
-func NewNumScope(val rt.NumEval) rt.FindValue {
+func NewNumScope(val rt.NumEval) rt.Scope {
 	return &NumScope{val}
 }
 
@@ -30,7 +30,7 @@ type TextScope struct {
 	val rt.TextEval
 }
 
-func NewTextScope(val rt.TextEval) rt.FindValue {
+func NewTextScope(val rt.TextEval) rt.Scope {
 	return &TextScope{val}
 }
 

@@ -16,11 +16,11 @@ import (
 // ultimatey, both are okay.
 
 func PlayerLearns(fact string) rt.BoolEval {
-	return Choose{If: Not{Is{Id(fact), "recollected"}},
+	return Choose{If: IsNot{IsState{Id(fact), "recollected"}},
 		True: Change(Id(fact)).To("recollected"),
 	}
 }
 
 func PlayerRecollects(fact string) rt.BoolEval {
-	return Is{Id(fact), "recollected"}
+	return IsState{Id(fact), "recollected"}
 }

@@ -5,18 +5,18 @@ import (
 	"github.com/ionous/sashimi/meta"
 )
 
-func Make(run rt.Runtime, scope rt.FindValue) rt.Runtime {
-	return Provider{run, scope}
+func Make(run rt.Runtime, find ...rt.Scope) rt.Runtime {
+	return scopedRuntime{
+		run,
+		find,
+	}
 }
 
-type Provider struct {
+type scopedRuntime struct {
 	rt.Runtime
-	scope rt.FindValue
+	find ScopeChain
 }
 
-func (p Provider) FindValue(name string) (meta.Generic, error) {
-	return p.scope.FindValue(name)
-}
-func (p Provider) ScopePath() []string {
-	return p.scope.ScopePath()
+func (sr scopedRuntime) FindValue(s string) (meta.Generic, error) {
+	return sr.find.FindValue(s)
 }

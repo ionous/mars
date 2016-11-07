@@ -2,11 +2,10 @@ package std
 
 import (
 	. "github.com/ionous/mars/script"
-	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/g"
 )
 
-var LookUnder = []backend.Spec{
+var LookUnder = Script(
 	// NOTE: inform has two entries for some actions (looking under as an example, jumping as a counter example):
 	// 1. carry out an actor looking under: if the player
 	// 2. report an actor looking under: if not the player
@@ -20,4 +19,4 @@ var LookUnder = []backend.Spec{
 		To("look under it", g.ReflectToTarget("report look under")),
 	),
 	Understand("look under {{something}}").As("look under it"),
-}
+)

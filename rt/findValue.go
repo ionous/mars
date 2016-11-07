@@ -2,7 +2,7 @@ package rt
 
 import "github.com/ionous/sashimi/meta"
 
-type FindValue interface {
+type Scope interface {
 	FindValue(string) (meta.Generic, error)
 	ScopePath() []string
 }

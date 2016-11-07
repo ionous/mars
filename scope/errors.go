@@ -12,16 +12,16 @@ func (a NotNamed) Error() string {
 	return sbuf.New("not named", string(a)).Join(" ")
 }
 
-func NotFound(s rt.FindValue, n string) error {
+func NotFound(s rt.Scope, n string) error {
 	return NotFoundError{s, n}
 }
 
 type NotFoundError struct {
-	scope rt.FindValue
+	scope rt.Scope
 	name  string
 }
 
 func (nf NotFoundError) Error() string {
 	str := strings.Join(nf.scope.ScopePath(), "/")
-	return sbuf.New("not found", sbuf.Quote{nf.name}, str).Join(" ")
+	return sbuf.New("not found", sbuf.Q(nf.name), str).Join(" ")
 }

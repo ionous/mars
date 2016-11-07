@@ -8,7 +8,6 @@ import (
 )
 
 // .. make sure hint only comes from listener class target: yes.
-
 type ModelScope struct {
 	model meta.Model
 }

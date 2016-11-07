@@ -8,8 +8,8 @@ import (
 
 // ExactClass matches the classes named in the action declaration and not the sub-classes of the event target. ie. s.The("actors", Can("crawl"), not s.The("babies", When("crawling")
 func ExactClass(model meta.Model, nouns meta.Nouns,
-	values []meta.Generic) (ret rt.FindValue) {
-	return ClassScope{model, ExactClassFinder{nouns, values}}
+	values []meta.Generic) (ret rt.Scope) {
+	return &ClassScope{model, &ExactClassFinder{nouns, values}}
 }
 
 type ClassNotFound string
@@ -23,7 +23,7 @@ type ExactClassFinder struct {
 	values ValueFinder
 }
 
-func (cf ExactClassFinder) FindClass(id ident.Id) (ret meta.Generic, err error) {
+func (cf *ExactClassFinder) FindClass(id ident.Id) (ret meta.Generic, err error) {
 	err = ClassNotFound(string(id))
 	for i, nounClass := range cf.nouns {
 		if same := id == nounClass; same {

@@ -44,7 +44,6 @@ func (p *PrintMachine) Println(args ...interface{}) (err error) {
 
 func (p *PrintMachine) Flush() (err error) {
 	if p.buf.Len() > 0 {
-
 		if _, e := p.flush.Write(p.buf.Bytes()); e != nil {
 			err = e
 		} else {

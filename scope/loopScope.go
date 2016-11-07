@@ -27,7 +27,7 @@ type LoopScope struct {
 	value           meta.Generic
 }
 
-func (l *Looper) NextScope(value meta.Generic) rt.FindValue {
+func (l *Looper) NextScope(value meta.Generic) rt.Scope {
 	first := l.index == 0
 	last := !l.HasNext()
 	s := &LoopScope{l.index + 1, first, last, value}

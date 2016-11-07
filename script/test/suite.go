@@ -20,6 +20,16 @@ type Trial struct {
 	Pre, Post Conditions
 }
 
+func (suite Suite) Test(try Trytime) (err error) {
+	for _, t := range suite.Trials {
+		if e := t.Test(try); e != nil {
+			err = e
+			break
+		}
+	}
+	return
+}
+
 func (t Trial) Test(try Trytime) (err error) {
 	if e := t.Pre.Test(try); e != nil {
 		err = e

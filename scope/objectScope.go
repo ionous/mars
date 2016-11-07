@@ -11,7 +11,7 @@ type ObjectScope struct {
 	inst meta.Instance // rt.Object?
 }
 
-func NewObjectScope(inst meta.Instance) rt.FindValue {
+func NewObjectScope(inst meta.Instance) rt.Scope {
 	return &ObjectScope{inst}
 }
 

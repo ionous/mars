@@ -7,18 +7,18 @@ import (
 
 // ReflectToTarget runs the passed action, flipping the source and target.
 func ReflectToTarget(action string) rt.Execute {
-	return The("action.Target").Go(action, core.Id("action.Source"))
+	return The("action.Target").Go(action, core.Name("action.Source"))
 }
 
 // ReflectToLocation invokes the passed action on the actor's current whereabouts.
 // TODO: will have to become more sophisticated for being inside a box.
 func ReflectToLocation(action string) rt.Execute {
-	return The("actor").Object("whereabouts").Go(action, core.Id("actor"))
+	return The("actor").Object("whereabouts").Go(action, core.Name("actor"))
 }
 
 // ReflectWithContext runs the passed action, shifting to target, context, source.
 // FIX: i think it'd be better to first use ReflectToTarget, keeping the context as the third parameter
 // and then ReflectToContext, possibly re-swapping source and target.
 func ReflectWithContext(action string) rt.Execute {
-	return The("action.Target").Go(action, core.Id("action.Context"), core.Id("action.Source"))
+	return The("action.Target").Go(action, core.Name("action.Context"), core.Name("action.Source"))
 }

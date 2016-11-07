@@ -2,10 +2,10 @@ package std
 
 import (
 	. "github.com/ionous/mars/script"
-	"github.com/ionous/mars/script/g"
+	// "github.com/ionous/mars/script/g"
 )
 
-var Types = Script{
+var Types = Script(
 	// FIX: hierarchy is a work in progress.
 	// kinds> stories, rooms, objects > actors (> animals),  props(> openers(> doors,containers), supporters, devices)
 
@@ -52,15 +52,6 @@ var Types = Script{
 		AreEither("unhandled").Or("handled"),
 		AreEither("scenery").Or("not scenery").Usually("not scenery")),
 
-	The("openers",
-		Called("doors"),
-		Exist()),
-
-	// CAN WE DEFAULT (USUALLY(X)) DOORS TO fixed-in-place???
-	The("doors", Before("reporting take").Always(
-		g.Say("It is fixed in place."),
-		g.StopHere())),
-
 	// nothing special: just a handy name to mirror inform's.
 	The("actors",
 		Called("animals"),
@@ -83,21 +74,8 @@ var Types = Script{
 		AreEither("portable").Or("fixed in place"),
 	),
 
-	// Usually opaque not transparent, open not closed, unopenable not openable, unlocked not locked.
-	// Usually not enterable, lockable.
-	// Can have carrying capacity (number)
-	The("openers",
-		Called("containers"),
-		HaveMany("contents", "objects").
-			Implying("objects", HaveOne("enclosure", "container")),
-		AreEither("opaque").Or("transparent"),
-		//AreEither("enterable").Or("not enterable"),
-		AreEither("lockable").Or("not lockable").Usually("not lockable"),
-		AreEither("locked").Or("unlocked").Usually("unlocked"),
-	),
-
 	The("props",
 		Called("supporters"),
 		HaveMany("contents", "objects").
 			Implying("objects", HaveOne("support", "supporter"))),
-}
+)

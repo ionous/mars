@@ -16,7 +16,7 @@ type ClassScope struct {
 	ClassFinder
 }
 
-func (cs ClassScope) FindValue(name string) (ret meta.Generic, err error) {
+func (cs *ClassScope) FindValue(name string) (ret meta.Generic, err error) {
 	clsid := ident.MakeId(cs.Model.Pluralize(lang.StripArticle(name)))
 	if v, e := cs.FindClass(clsid); e == nil {
 		ret = v
@@ -28,6 +28,6 @@ func (cs ClassScope) FindValue(name string) (ret meta.Generic, err error) {
 	return
 }
 
-func (cs ClassScope) ScopePath() (parts []string) {
+func (cs *ClassScope) ScopePath() (parts []string) {
 	return append(parts, sbuf.Type{cs.ClassFinder}.String())
 }
