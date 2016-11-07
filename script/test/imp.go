@@ -2,12 +2,14 @@ package test
 
 import (
 	"github.com/ionous/mars/rt"
+	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 )
 
 // Imp might become an interface
 type Imp struct {
 	Input, Match string
+	Args         []meta.Generic
 	Execute      rt.Execute
 }
 
@@ -18,6 +20,12 @@ func (t Imp) Run(try Trytime) (err error) {
 		var out string
 		if t.Execute != nil {
 			if res, e := try.Execute(t.Execute); e != nil {
+				err = e
+			} else {
+				out = res
+			}
+		} else if t.Args != nil {
+			if res, e := try.Run(t.Input, t.Args); e != nil {
 				err = e
 			} else {
 				out = res
