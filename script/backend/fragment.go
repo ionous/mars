@@ -1,4 +1,4 @@
-package internal
+package backend
 
 import S "github.com/ionous/sashimi/source"
 

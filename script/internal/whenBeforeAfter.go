@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/ionous/mars/rt"
+	. "github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
 )
 

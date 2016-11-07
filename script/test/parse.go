@@ -24,12 +24,12 @@ type TrialHelper struct {
 	trial Trial
 }
 
-func (h TrialHelper) Match(match string) TrialHelper {
+func (h TrialHelper) Match(match string) Trial {
 	h.trial.Imp.Match = match
-	return h
+	return h.trial
 }
 
-func (h TrialHelper) Expect(expect ...rt.BoolEval) Trial {
-	h.trial.Post = expect
-	return h.trial
+func (h Trial) Expect(expect ...rt.BoolEval) Trial {
+	h.Post = expect
+	return h
 }

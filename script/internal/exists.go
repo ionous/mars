@@ -1,6 +1,9 @@
 package internal
 
-import S "github.com/ionous/sashimi/source"
+import (
+	. "github.com/ionous/mars/script/backend"
+	S "github.com/ionous/sashimi/source"
+)
 
 type Exists struct{}
 

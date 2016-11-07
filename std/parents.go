@@ -2,19 +2,19 @@ package std
 
 import (
 	"github.com/ionous/mars/core"
-	"github.com/ionous/mars/rt"
-	"github.com/ionous/mars/script/g"
+	"github.com/ionous/mars/std/compat"
 )
 
-func Carrier(obj string) (ret rt.ObjEval) {
-	wearer := g.The(obj).Object("wearer")
-	owner := g.The(obj).Object("owner")
-	return core.ChooseRef{
+// FIX: note: this wouldnt work for something in a container
+func Carrier(r compat.ScriptRef) compat.ScriptRef {
+	wearer := r.Object("wearer")
+	owner := r.Object("owner")
+	return compat.ScriptRef{core.ChooseRef{
 		If:   core.IsValid{wearer},
 		True: wearer,
 		False: core.ChooseRef{
 			If:   core.IsValid{owner},
 			True: owner,
 		},
-	}
+	}}
 }

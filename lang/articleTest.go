@@ -6,15 +6,14 @@ import (
 	"github.com/ionous/mars/script/test"
 )
 
-var ArticleTest = test.Suite{"Articles",
+var ArticleTest = test.NewSuite("Articles",
 	test.Setup(
 		The("kind", Called("lamp-post"), Exists()),
 		The("kind", Called("soldiers"), Exists(),
 			Has("indefinite article", "some")),
 		The("kind", Called("Trevor"), Exists(),
 			Is("proper named")),
-	),
-	test.Trials(
+	).Try(
 		// examples from inform7
 		// PHRASE: say "[a (object)]" & say "[an (object)]"
 		test.Execute(
@@ -46,4 +45,4 @@ var ArticleTest = test.Suite{"Articles",
 		test.Execute("The soldiers may be a trick of the mist.",
 			Say(TheUpper{Named{"soldiers"}}, "may be a trick of the mist.")),
 	),
-}
+)

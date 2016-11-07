@@ -10,13 +10,11 @@ var Impress = The("actors",
 	Can("impress").And("impressing").RequiresNothing(),
 	To("impress", g.Say(g.The("actor").Upper(), "is unimpressed.")))
 
-var ImpressTest = test.Suite{"Impress",
+var ImpressTest = test.NewSuite("Impress",
 	test.Setup(
 		The("actor", Called("the player"), Exists()),
-	),
-	test.Trials(
+	).Try(
 		test.Run("impress", g.The("player")).
-			Match("The player is unimpressed.").
-			Expect(),
+			Match("The player is unimpressed."),
 	),
-}
+)

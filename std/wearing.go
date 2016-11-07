@@ -31,10 +31,12 @@ var Wearing = Script(
 	),
 	Understand("wear|don {{something}}").
 		And("put on {{something}}").
-		And("put {{something}} on").As("wear it"),
+		And("put {{something}} on").
+		As("wear it"),
 )
 
-// Clothe provides a shortcut for the passed actor to wear some prop.
+// Clothe provides a shortcut for the passed actor to wear some prop;
+// it bypasses all rules.
 func Clothe(actor string) ClothePhrase {
 	return ClothePhrase{g.The(actor)}
 }
@@ -47,13 +49,13 @@ type ClothePhrase struct {
 	actor rt.ObjEval
 }
 
-var WearingTest = test.Suite{"Wearing",
+var WearingTest = test.NewSuite("Wearing",
 	test.Setup(
 		The("actor", Called("the player"), Exists()),
 		The("prop", Called("the hat"), Is("wearable")),
 		The("prop", Called("the cat"), Exists()),
-	),
-	test.Trials(
+		The("prop", Called("the cloak"), Is("wearable")),
+	).Try(
 		test.Parse("don the hat").
 			Match("Now the player is wearing the hat.").
 			Expect(
@@ -65,5 +67,10 @@ var WearingTest = test.Suite{"Wearing",
 				IsNot{
 					g.The("player").ObjectList("clothing").Contains(g.The("cat")),
 				}),
+		test.Execute("",
+			Clothe("the player").With("the cloak")).
+			Expect(
+				g.The("player").ObjectList("clothing").Contains(g.The("cloak")),
+			),
 	),
-}
+)

@@ -5,7 +5,11 @@ import (
 )
 
 type Suite struct {
-	Name   string
+	Name  string
+	Units []Unit
+}
+
+type Unit struct {
 	Setup  backend.Script // an array of phrases
 	Trials []Trial
 }
@@ -20,8 +24,8 @@ type Trial struct {
 	Pre, Post Conditions
 }
 
-func (suite Suite) Test(try Trytime) (err error) {
-	for _, t := range suite.Trials {
+func (u Unit) Test(try Trytime) (err error) {
+	for _, t := range u.Trials {
 		if e := t.Test(try); e != nil {
 			err = e
 			break

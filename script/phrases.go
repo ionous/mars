@@ -8,7 +8,7 @@ import (
 )
 
 // The targets a noun for new assertions.
-func The(target string, fragments ...internal.Fragment) backend.Spec {
+func The(target string, fragments ...backend.Fragment) backend.Spec {
 	return internal.NounPhrase{
 		target, fragments,
 	}
@@ -30,7 +30,7 @@ func Called(subject string) internal.ScriptSubject {
 
 // Exists is an optional fragment for making otherwise empty statements more readable.
 // For example, The("room", Called("parlor of despair"), Exists())
-func Exists() internal.Fragment {
+func Exists() backend.Fragment {
 	return internal.Exists{}
 }
 
@@ -64,7 +64,7 @@ func IsKnownAs(name string, names ...string) internal.KnownAs {
 
 // Have asserts the existance of a property for all instances of a given class.
 // For relations, use HaveOne or HaveMany.
-func Have(name string, class string) internal.Fragment {
+func Have(name string, class string) backend.Fragment {
 	return internal.NewClassProperty(name, class)
 }
 
@@ -79,7 +79,7 @@ func HaveMany(name string, class string) internal.ClassRelation {
 }
 
 // Has asserts the value of an object's property. The property must (eventually) be declared for the class. ( For example, via Have. )
-func Has(property string, values ...interface{}) (ret internal.Fragment) {
+func Has(property string, values ...interface{}) (ret backend.Fragment) {
 	// we let the compiler checks ( and marshals ) types via a property "Builder".
 	// (ex. enumBuilder, numBuilder, textBuilder, pointerBuilder, and relativeBuilder.)
 	// this is necessary because we use string for both text, obj, and relation values.
@@ -103,7 +103,7 @@ func Can(verb string) internal.CanDoPhrase {
 }
 
 // To assigns runtime statements to a default action handler.
-func To(action string, call rt.Execute, calls ...rt.Execute) internal.Fragment {
+func To(action string, call rt.Execute, calls ...rt.Execute) backend.Fragment {
 	return internal.NewDefaultAction(action, internal.JoinCallbacks(call, calls))
 }
 

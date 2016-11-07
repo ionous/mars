@@ -57,6 +57,10 @@ func (h ScriptRef) Equals(other rt.ObjEval) rt.BoolEval {
 	return IsObject{h, other}
 }
 
+func (h ScriptRef) Exists() rt.BoolEval {
+	return IsValid{h}
+}
+
 // g.The("player").Go("test nothing"),
 func (h ScriptRef) Go(run string, all ...interface{}) rt.Execute {
 	parms := make([]meta.Generic, len(all)+1)

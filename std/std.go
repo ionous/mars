@@ -12,13 +12,14 @@ var Std = mars.Package{
 	Name: "Std",
 	Scripts: mars.Scripts(
 		//	Inventory,
+		Giving,
 		Impress,
 		Look,
 		LookUnder,
 		Reports,
 		Types,
 		Wearing),
-	Tests:    mars.Tests(WearingTest),
+	Tests:    mars.Tests(WearingTest, GivingTest),
 	Imports:  mars.Imports(&core.Core, &lang.Lang),
 	Commands: (*StdDl)(nil),
 }
@@ -26,8 +27,6 @@ var Std = mars.Package{
 type StdDl struct {
 	*compat.ScriptRef
 	*compat.ScriptRefList
-	// give
-	*GivePropTo
 	// locate
 	*Location
 	// move: shortcuts
