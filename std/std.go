@@ -11,15 +11,24 @@ import (
 var Std = mars.Package{
 	Name: "Std",
 	Scripts: mars.Scripts(
-		//	Inventory,
+		Actors,
+		Desc,
 		Giving,
-		Impress,
-		Look,
-		LookUnder,
-		Reports,
-		Types,
+		Impressing,
+		Looking,
+		LookingUnder,
+		Rooms,
+		Objects,
+		//Supporters,
 		Wearing),
-	Tests:    mars.Tests(WearingTest, GivingTest),
+	Tests: mars.Tests(
+		DescTest,
+		// GivingTest,
+		// ImpressTest,
+		//		LookingTest,
+		LookingUnderTest,
+	// WearingTest,
+	),
 	Imports:  mars.Imports(&core.Core, &lang.Lang),
 	Commands: (*StdDl)(nil),
 }
@@ -27,13 +36,5 @@ var Std = mars.Package{
 type StdDl struct {
 	*compat.ScriptRef
 	*compat.ScriptRefList
-	// locate
-	*Location
-	// move: shortcuts
-	// parent
-	*ChangeParent
-	// parents: shortcuts
-	// put: shortcuts
-	// speaker: shortcuts
-	// version: constants
+	*SaveGame
 }

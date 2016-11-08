@@ -116,7 +116,7 @@ func Run(t *testing.T, a ...rt.Execute) {
 
 // 		Try("zero test should choose i",
 // 			IsObject{
-// 				ChooseRef{
+// 				ChooseObj{
 // 					If:   IsNumber{I(0), EqualTo, I(0)},
 // 					True: Id("i"),
 // 				},

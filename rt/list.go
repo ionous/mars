@@ -57,7 +57,7 @@ func (it *TextIt) GetNext() (ret Text, err error) {
 }
 
 // References provides an array literal for object ids.
-type References []Reference
+type References []ObjEval
 
 func (l References) GetObjStream(run Runtime) (ObjectStream, error) {
 	return &RefIt{run: run, list: l}, nil

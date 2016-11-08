@@ -6,7 +6,7 @@ import (
 	"github.com/ionous/mars/script/test"
 )
 
-var Impress = The("actors",
+var Impressing = The("actors",
 	Can("impress").And("impressing").RequiresNothing(),
 	To("impress", g.Say(g.The("actor").Upper(), "is unimpressed.")))
 

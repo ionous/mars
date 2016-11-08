@@ -7,17 +7,17 @@ import (
 	"github.com/ionous/sashimi/util/sbuf"
 )
 
-type EachNum struct {
+type ForEachNum struct {
 	In       rt.NumListEval
 	Go, Else rt.Execute
 }
 
-type EachText struct {
+type ForEachText struct {
 	In       rt.TextListEval
 	Go, Else rt.Execute
 }
 
-type EachObj struct {
+type ForEachObject struct {
 	In       rt.ObjListEval
 	Go, Else rt.Execute
 }
@@ -59,7 +59,7 @@ func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	return
 }
 
-func (f EachNum) Execute(run rt.Runtime) (err error) {
+func (f ForEachNum) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetNumStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
@@ -81,7 +81,7 @@ func (f EachNum) Execute(run rt.Runtime) (err error) {
 	return
 }
 
-func (f EachText) Execute(run rt.Runtime) (err error) {
+func (f ForEachText) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetTextStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
@@ -103,7 +103,7 @@ func (f EachText) Execute(run rt.Runtime) (err error) {
 	return
 }
 
-func (f EachObj) Execute(run rt.Runtime) (err error) {
+func (f ForEachObject) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetObjStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
@@ -114,7 +114,7 @@ func (f EachObj) Execute(run rt.Runtime) (err error) {
 				err = e
 				break
 			} else {
-				run := scope.Make(run, scope.NewObjectScope(obj), l.NextScope(obj), scope.NewObjectScope(obj), run)
+				run := scope.Make(run, l.NextScope(obj), scope.NewObjectScope(obj), run)
 				if e := f.Go.Execute(run); e != nil {
 					err = e
 					break

@@ -42,7 +42,7 @@ func Clothe(actor string) ClothePhrase {
 }
 
 func (p ClothePhrase) With(clothing string) rt.Execute {
-	return AssignTo(g.The(clothing), "wearer", p.actor)
+	return AssignParent(g.The(clothing), "wearer", p.actor)
 }
 
 type ClothePhrase struct {
@@ -67,7 +67,7 @@ var WearingTest = test.NewSuite("Wearing",
 				IsNot{
 					g.The("player").ObjectList("clothing").Contains(g.The("cat")),
 				}),
-		test.Execute("",
+		test.Execute(
 			Clothe("the player").With("the cloak")).
 			Expect(
 				g.The("player").ObjectList("clothing").Contains(g.The("cloak")),

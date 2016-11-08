@@ -24,6 +24,23 @@ func (c Context) Execute(run rt.Runtime) (err error) {
 	return
 }
 
+type GetBool struct {
+	Name string
+}
+
+func (c GetBool) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if eval, e := run.FindValue(c.Name); e != nil {
+		err = e
+	} else if neval, ok := eval.(rt.BoolEval); !ok {
+		err = errutil.New("value", c.Name, "is not a BoolEval", sbuf.Type{eval})
+	} else if v, e := neval.GetBool(run); e != nil {
+		err = e
+	} else {
+		ret = v
+	}
+	return
+}
+
 // GetNum returns a numer from the current context.
 type GetNum struct {
 	Name string
@@ -33,7 +50,7 @@ func (c GetNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if neval, ok := eval.(rt.NumEval); !ok {
-		err = errutil.New("value", c.Name, "is not a number eval", sbuf.Type{eval})
+		err = errutil.New("value", c.Name, "is not a NumEval", sbuf.Type{eval})
 	} else if v, e := neval.GetNumber(run); e != nil {
 		err = e
 	} else {
@@ -51,7 +68,7 @@ func (c GetText) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if teval, ok := eval.(rt.TextEval); !ok {
-		err = errutil.New("value", c.Name, "is not text eval", sbuf.Type{eval})
+		err = errutil.New("value", c.Name, "is not a TextEval", sbuf.Type{eval})
 	} else if v, e := teval.GetText(run); e != nil {
 		err = e
 	} else {

@@ -17,7 +17,7 @@ type ChooseText struct {
 	True, False rt.TextEval
 }
 
-type ChooseRef struct {
+type ChooseObj struct {
 	If          rt.BoolEval
 	True, False rt.ObjEval
 }
@@ -74,7 +74,7 @@ func (x ChooseText) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-func (x ChooseRef) GetObject(run rt.Runtime) (ret rt.Object, err error) {
+func (x ChooseObj) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {

@@ -28,23 +28,23 @@ func (h ScriptRef) Upper() lang.TheUpper {
 }
 
 // Num returns an rt.NumEval yield the property with the passed name.
-func (h ScriptRef) Num(name PropertyName) rt.NumEval {
+func (h ScriptRef) Num(name string) rt.NumEval {
 	return PropertyNum{name, h}
 }
 
 // Text returns an rt.TextEval yield the property with the passed name.
 // g.The("player").Text("greeting"))
-func (h ScriptRef) Text(name PropertyName) rt.TextEval {
+func (h ScriptRef) Text(name string) rt.TextEval {
 	return PropertyText{name, h}
 }
 
 // Object yields the object property with the passed name.
 // It wraps the property's rt.ObjectEval with a ScriptRef to allow chaining.
-func (h ScriptRef) Object(name PropertyName) ScriptRef {
+func (h ScriptRef) Object(name string) ScriptRef {
 	return ScriptRef{PropertyRef{name, h}}
 }
 
-func (h ScriptRef) ObjectList(name PropertyName) ScriptRefList {
+func (h ScriptRef) ObjectList(name string) ScriptRefList {
 	return ScriptRefList{PropertyRefList{name, h}}
 }
 
@@ -53,12 +53,20 @@ func (h ScriptRef) Is(state string) rt.BoolEval {
 	return IsState{h, state}
 }
 
+func (h ScriptRef) IsNow(state string) rt.Execute {
+	return Change(h).To(state)
+}
+
 func (h ScriptRef) Equals(other rt.ObjEval) rt.BoolEval {
 	return IsObject{h, other}
 }
 
 func (h ScriptRef) Exists() rt.BoolEval {
 	return IsValid{h}
+}
+
+func (h ScriptRef) FromClass(cls string) rt.BoolEval {
+	return IsFromClass{h, cls}
 }
 
 // g.The("player").Go("test nothing"),

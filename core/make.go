@@ -58,11 +58,10 @@ func Ts(vals ...string) rt.Texts {
 	return rt.Texts(vals)
 }
 
-func RawIds(vals ...string) rt.References {
-	refs := []rt.Reference{}
+func RawIds(vals ...string) (ret rt.References) {
 	for i := 0; i < len(vals); i++ {
 		ref := RawId(vals[i])
-		refs = append(refs, ref)
+		ret = append(ret, ref)
 	}
-	return rt.References(refs)
+	return ret
 }

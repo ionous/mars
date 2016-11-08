@@ -2,7 +2,6 @@ package std
 
 import (
 	. "github.com/ionous/mars/core"
-	. "github.com/ionous/mars/lang"
 	"github.com/ionous/mars/rt"
 	. "github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/g"
@@ -32,7 +31,7 @@ var Giving = Script(
 	The("props",
 		Can("be acquired").And("being acquired").RequiresOne("actor"),
 		To("be acquired",
-			AssignTo(g.The("prop"), "owner", g.The("actor")),
+			AssignParent(g.The("prop"), "owner", g.The("actor")),
 		)),
 
 	// 1. source
@@ -63,7 +62,7 @@ var Giving = Script(
 			Choose{
 				If: Carrier(g.The("prop")).Equals(g.The("action.Source")),
 				False: g.Go(
-					g.Say("You aren't holding", TheLower{g.The("prop")}, "."),
+					g.Say("You aren't holding", g.The("prop").Lower(), "."),
 					g.StopHere(),
 				),
 			}),
@@ -96,6 +95,7 @@ func (prop GivePropPhrase) To(actor string) rt.Execute {
 
 type GivePropPhrase string
 
+// MARS: move all tests to a sub-directory.
 var GivingTest = test.NewSuite("Giving",
 	test.Setup(
 		The("actor", Called("the player"), Exists()),
@@ -104,7 +104,6 @@ var GivingTest = test.NewSuite("Giving",
 	).Try(
 		test.Parse("give the cat to the firefighter").
 			Match("You aren't holding the cat."),
-		// Match("The firefighter is not impressed."),
 	),
 	test.Setup(
 		The("actor", Called("the player"), Exists()),

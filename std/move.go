@@ -3,21 +3,20 @@ package std
 import (
 	"github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
-	"github.com/ionous/mars/script/g"
 )
 
-func Move(obj string) MoveToPhrase {
-	return MoveToPhrase{g.The(obj)}
+func Move(what rt.ObjEval) MoveToPhrase {
+	return MoveToPhrase{what}
 }
 
-func (move MoveToPhrase) To(dest string) rt.Execute {
-	return AssignTo(move.obj, "whereabouts", g.The(dest))
+func (move MoveToPhrase) To(where rt.ObjEval) rt.Execute {
+	return AssignParent(move.what, "whereabouts", where)
 }
 
 func (move MoveToPhrase) OutOfWorld() rt.Execute {
-	return AssignTo(move.obj, "whereabouts", core.NullRef())
+	return AssignParent(move.what, "whereabouts", core.NullRef())
 }
 
 type MoveToPhrase struct {
-	obj rt.ObjEval
+	what rt.ObjEval
 }

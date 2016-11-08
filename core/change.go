@@ -66,7 +66,6 @@ func (p ChangeState) And(state string) ChangeState {
 	return p
 }
 
-// func (oa *GameObject) IsNow(state string) {
 func (x ChangeState) Execute(run rt.Runtime) (err error) {
 	if obj, e := x.Ref.GetObject(run); e != nil {
 		err = errutil.New("ChangeState.Ref", e)
@@ -75,9 +74,11 @@ func (x ChangeState) Execute(run rt.Runtime) (err error) {
 			if prop, ok := obj.GetPropertyByChoice(choice.Id()); !ok {
 				err = errutil.New("ChangeState", obj, "does not have choice", choice)
 				break
-			} else if e := prop.SetGeneric(choice); e != nil {
-				err = errutil.New("ChangeState", e)
-				break
+			} else {
+				if e := prop.SetGeneric(rt.State(choice)); e != nil {
+					err = errutil.New("ChangeState", e)
+					break
+				}
 			}
 		}
 	}

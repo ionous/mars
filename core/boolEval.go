@@ -61,6 +61,22 @@ func (exists IsValid) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
+type IsFromClass struct {
+	Ref   rt.ObjEval
+	Class string
+}
+
+func (op IsFromClass) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if obj, e := op.Ref.GetObject(run); e != nil {
+		err = e
+	} else {
+		choice := MakeStringId(op.Class)
+		b := run.AreCompatible(obj.GetParentClass(), choice)
+		ret = rt.Bool(b)
+	}
+	return
+}
+
 // IsNumber two numbers (a rt.BoolEval)
 type IsNumber struct {
 	Src rt.NumEval

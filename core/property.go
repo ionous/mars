@@ -7,15 +7,9 @@ import (
 	"github.com/ionous/sashimi/util/sbuf"
 )
 
-type PropertyName string
-
-func (p PropertyName) String() string {
-	return string(p)
-}
-
 // Property refers to a field within an object.
 type Property struct {
-	Field PropertyName
+	Field string
 	Ref   rt.ObjEval
 }
 
@@ -95,7 +89,7 @@ func (p PropertyRefList) GetObjStream(run rt.Runtime) (ret rt.ObjectStream, err 
 func (p Property) GetGeneric(run rt.Runtime) (retprop meta.Property, retvalue meta.Generic, err error) {
 	if obj, e := p.Ref.GetObject(run); e != nil {
 		err = e
-	} else if prop, ok := obj.FindProperty(p.Field.String()); !ok {
+	} else if prop, ok := obj.FindProperty(p.Field); !ok {
 		err = errutil.New("object property not found", obj, p)
 	} else {
 		retprop, retvalue = prop, prop.GetGeneric()
@@ -106,7 +100,7 @@ func (p Property) GetGeneric(run rt.Runtime) (retprop meta.Property, retvalue me
 func (p Property) SetGeneric(run rt.Runtime, g meta.Generic) (err error) {
 	if obj, e := p.Ref.GetObject(run); e != nil {
 		err = e
-	} else if prop, ok := obj.FindProperty(p.Field.String()); !ok {
+	} else if prop, ok := obj.FindProperty(p.Field); !ok {
 		err = errutil.New("object property not found", obj, Property(p).Field)
 	} else {
 		err = prop.SetGeneric(g)

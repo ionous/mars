@@ -30,7 +30,7 @@ type CoreDL struct {
 	*Named
 	// Choose
 	*Choose
-	*ChooseRef
+	*ChooseObj
 	*ChooseText
 	*ChooseNum
 	// Context
@@ -38,9 +38,9 @@ type CoreDL struct {
 	*GetNum
 	*GetText
 	//each
-	*EachNum
-	*EachText
-	*EachObj
+	*ForEachNum
+	*ForEachText
+	*ForEachObject
 	*IfEach
 	*EachIndex
 	// exec
