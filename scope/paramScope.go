@@ -1,6 +1,7 @@
 package scope
 
 import (
+	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
 	"strings"
 )
@@ -21,7 +22,7 @@ func (p ParamScope) FindValue(name string) (ret meta.Generic, err error) {
 	}
 	return
 }
-func (p ParamScope) ScopePath() []string {
+func (p ParamScope) ScopePath() rt.ScopePath {
 	return []string{"scope.ParamScope"}
 }
 

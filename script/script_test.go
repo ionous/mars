@@ -8,7 +8,7 @@ import (
 
 func TestSimpleScript(t *testing.T) {
 	src := &S.Statements{}
-	s := Script(
+	s := NewScript(
 		The("kinds",
 			Called("rooms"),
 			Have("greeting", "text"),

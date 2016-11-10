@@ -14,7 +14,7 @@ type localRuntime struct {
 func (lr localRuntime) FindValue(s string) (meta.Generic, error) {
 	return lr.rtm.scope.Top().FindValue(s)
 }
-func (lr localRuntime) ScopePath() []string {
+func (lr localRuntime) ScopePath() rt.ScopePath {
 	return lr.rtm.scope.Top().ScopePath()
 }
 func (lr localRuntime) Print(args ...interface{}) error {

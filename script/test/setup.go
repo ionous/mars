@@ -34,6 +34,10 @@ func Execute(x rt.Execute) Trial {
 	return Trial{Imp: Imp{Execute: x}}
 }
 
+func Expect(expect ...rt.BoolEval) Trial {
+	return Trial{Post: expect}
+}
+
 func (h Trial) Match(match ...string) Trial {
 	h.Imp.Match = match
 	return h
@@ -41,5 +45,10 @@ func (h Trial) Match(match ...string) Trial {
 
 func (h Trial) Expect(expect ...rt.BoolEval) Trial {
 	h.Post = expect
+	return h
+}
+
+func (h Trial) Else(fini rt.Execute) Trial {
+	h.Fini = fini
 	return h
 }

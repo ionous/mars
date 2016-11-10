@@ -77,7 +77,7 @@ func (c GetText) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-// GetText returns a text value from the current context.
+// GetObject returns a object value from the current conobject.
 type GetObject struct {
 	Name string
 }
@@ -86,7 +86,7 @@ func (c GetObject) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if objeval, ok := eval.(rt.ObjEval); !ok {
-		err = errutil.New("value", c.Name, "is not text eval", sbuf.Type{eval})
+		err = errutil.New("value", c.Name, "is not object eval", sbuf.Type{eval})
 	} else if v, e := objeval.GetObject(run); e != nil {
 		err = e
 	} else {

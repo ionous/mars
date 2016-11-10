@@ -3,6 +3,7 @@ package scope
 import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
+	"github.com/ionous/sashimi/util/errutil"
 )
 
 func Make(run rt.Runtime, find ...rt.Scope) rt.Runtime {
@@ -17,6 +18,11 @@ type scopedRuntime struct {
 	find ScopeChain
 }
 
-func (sr scopedRuntime) FindValue(s string) (meta.Generic, error) {
-	return sr.find.FindValue(s)
+func (sr scopedRuntime) FindValue(s string) (ret meta.Generic, err error) {
+	if r, e := sr.find.FindValue(s); e != nil {
+		err = errutil.New("find value error", e, sr.find.ScopePath())
+	} else {
+		ret = r
+	}
+	return
 }

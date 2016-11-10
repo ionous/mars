@@ -1,6 +1,7 @@
 package scope
 
 import (
+	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/ident"
 )
@@ -33,6 +34,6 @@ func (l *ListenerScope) FindValue(s string) (meta.Generic, error) {
 	return l.chain.FindValue(s)
 }
 
-func (l *ListenerScope) ScopePath() []string {
+func (l *ListenerScope) ScopePath() rt.ScopePath {
 	return l.chain.ScopePath()
 }

@@ -10,7 +10,6 @@ type Reference ident.Id
 
 // GetObject implements ObjEval allowing reference literals.
 func (xr Reference) GetObject(run Runtime) (ret Object, err error) {
-
 	if id := ident.Id(xr); id.Empty() {
 		ret = Object{}
 	} else if inst, ok := run.GetInstance(id); !ok {

@@ -53,6 +53,6 @@ func (l *LoopScope) FindValue(name string) (ret meta.Generic, err error) {
 	return
 }
 
-func (l *LoopScope) ScopePath() []string {
+func (l *LoopScope) ScopePath() rt.ScopePath {
 	return []string{"loop scope"}
 }

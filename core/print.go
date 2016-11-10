@@ -12,6 +12,10 @@ type PrintText struct {
 	rt.TextEval
 }
 
+type PrintObject struct {
+	rt.ObjEval
+}
+
 // PrintLine
 type PrintLine struct {
 	Strings rt.Execute
@@ -33,6 +37,15 @@ func (x PrintText) Execute(run rt.Runtime) (err error) {
 		err = e
 	} else {
 		err = run.Print(s.String())
+	}
+	return err
+}
+
+func (x PrintObject) Execute(run rt.Runtime) (err error) {
+	if o, e := x.GetObject(run); e != nil {
+		err = e
+	} else {
+		err = run.Print(o.GetOriginalName())
 	}
 	return err
 }

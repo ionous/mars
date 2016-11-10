@@ -6,15 +6,18 @@ import (
 	"github.com/ionous/mars/script/test"
 )
 
-var Impressing = The("actors",
-	Can("impress").And("impressing").RequiresNothing(),
-	To("impress", g.Say(g.The("actor").Upper(), "is unimpressed.")))
+func init() {
+	addScript("Impressing",
+		The("actors",
+			Can("impress").And("impressing").RequiresNothing(),
+			To("impress", g.Say(g.The("actor").Upper(), "is unimpressed."))))
 
-var ImpressTest = test.NewSuite("Impress",
-	test.Setup(
-		The("actor", Called("the player"), Exists()),
-	).Try(
-		test.Run("impress", g.The("player")).
-			Match("The player is unimpressed."),
-	),
-)
+	addTest("Impressing",
+		test.Setup(
+			The("actor", Called("the player"), Exists()),
+		).Try(
+			test.Run("impress", g.The("player")).
+				Match("The player is unimpressed."),
+		),
+	)
+}

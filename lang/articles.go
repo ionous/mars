@@ -64,7 +64,7 @@ func (t ALower) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-var articles = Script(
+var articles = NewScript(
 	The("kinds",
 		Have("printed name", "text"),
 		Have("indefinite article", "text"),

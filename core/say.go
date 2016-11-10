@@ -20,6 +20,8 @@ func Say(all ...interface{}) rt.Execute {
 		case rt.Execute:
 			// FIX: could buffer operations have a specialized interface implementation?
 			sayWhat = append(sayWhat, val)
+		case rt.ObjEval:
+			sayWhat = append(sayWhat, PrintObject{val})
 		default:
 			panic("say what?")
 		}

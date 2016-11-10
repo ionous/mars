@@ -39,7 +39,9 @@ type SetObj struct {
 }
 
 func (x SetObj) Execute(run rt.Runtime) (err error) {
-	if obj, e := x.Ref.GetObject(run); e != nil {
+	if x.Ref == nil {
+		err = errutil.New("SetObj Ref is nil")
+	} else if obj, e := x.Ref.GetObject(run); e != nil {
 		err = errutil.New("SetObj.Ref", e)
 	} else if e := Property(x.Tgt).SetGeneric(run, obj); e != nil {
 		err = errutil.New("SetObj.Tgt", e)

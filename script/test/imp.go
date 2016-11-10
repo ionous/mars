@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
@@ -35,7 +34,7 @@ func (t Imp) Run(try Trytime) (err error) {
 			} else {
 				out = res
 			}
-		} else {
+		} else if t.Input != "" {
 			if res, e := try.Parse(t.Input); e != nil {
 				err = e
 			} else {
@@ -43,7 +42,6 @@ func (t Imp) Run(try Trytime) (err error) {
 			}
 		}
 		e := len(out)
-		fmt.Println(out)
 		for e > 0 {
 			if len(out[e-1]) > 0 {
 				break
@@ -51,13 +49,14 @@ func (t Imp) Run(try Trytime) (err error) {
 			e -= 1
 		}
 		out = out[:e]
-		fmt.Println(out)
 		// after running
 		if err == nil && (!assert.ObjectsAreEqualValues(t.Match, out)) {
-			// FIX: add quote to sbuf
-			err = errutil.New(
-				"expected", sbuf.Q(strings.Join(t.Match, ";")),
-				"received", sbuf.Q(strings.Join(out, ";")))
+			if t.Match != nil && (len(t.Match) != 0 || len(out) != 0) {
+				// FIX: add quote to sbuf
+				err = errutil.New("Imp.Run",
+					"expected", sbuf.Q(strings.Join(t.Match, ";")),
+					"received", sbuf.Q(strings.Join(out, ";")))
+			}
 		}
 	}
 	return

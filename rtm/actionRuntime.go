@@ -34,7 +34,6 @@ func NewActionRuntime(run rt.Runtime, id ident.Id, scp rt.Scope, params []meta.G
 					break
 				} else if obj, e := eval.GetObject(run); e != nil {
 					err = errutil.New("NewActionRuntime failed to find object", i, e)
-					panic(err)
 					break
 				} else {
 					want, have := types[i], obj.GetParentClass()

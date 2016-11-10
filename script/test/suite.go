@@ -1,7 +1,10 @@
 package test
 
 import (
+	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/script/backend"
+	"github.com/ionous/sashimi/util/errutil"
+	"strings"
 )
 
 type Suite struct {
@@ -22,6 +25,7 @@ type Trial struct {
 	Name      string
 	Imp       Imp
 	Pre, Post Conditions
+	Fini      rt.Execute
 }
 
 func (u Unit) Test(try Trytime) (err error) {
@@ -41,6 +45,13 @@ func (t Trial) Test(try Trytime) (err error) {
 		err = e
 	} else if e := t.Post.Test(try); e != nil {
 		err = e
+		if t.Fini != nil {
+			if s, e := try.Execute(t.Fini); e != nil {
+				panic(e)
+			} else {
+				err = errutil.New(err, strings.Join(s, ";"))
+			}
+		}
 	}
 	return
 }

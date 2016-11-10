@@ -10,8 +10,8 @@ type Object struct {
 	Instance meta.Instance
 }
 
-func (obj Object) Empty() bool {
-	return obj.Instance == nil
+func (obj Object) Exists() bool {
+	return obj.Instance != nil
 }
 
 func (obj Object) Equals(other Object) bool {

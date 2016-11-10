@@ -22,7 +22,7 @@ func (s *NumScope) FindValue(name string) (ret meta.Generic, err error) {
 	return
 }
 
-func (s *NumScope) ScopePath() []string {
+func (s *NumScope) ScopePath() rt.ScopePath {
 	return []string{"num"}
 }
 
@@ -43,6 +43,6 @@ func (s *TextScope) FindValue(name string) (ret meta.Generic, err error) {
 	return
 }
 
-func (s *TextScope) ScopePath() []string {
+func (s *TextScope) ScopePath() rt.ScopePath {
 	return []string{"text"}
 }

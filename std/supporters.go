@@ -5,9 +5,11 @@ import (
 	// "github.com/ionous/mars/script/g"
 )
 
-var Supporters = Script(
-	The("props",
-		Called("supporters"),
-		HaveMany("contents", "objects").
-			Implying("objects", HaveOne("support", "supporter"))),
-)
+func init() {
+	addScript("Supporters",
+		The("props",
+			Called("supporters"),
+			HaveMany("contents", "objects").
+				Implying("objects", HaveOne("support", "supporter"))),
+	)
+}

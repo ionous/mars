@@ -56,7 +56,7 @@ func (exists IsValid) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if obj, e := exists.Ref.GetObject(run); e != nil {
 		ret = false // if the object doesnt exist, then it's invalid
 	} else {
-		ret = rt.Bool(!obj.Empty()) // if the object is empty, then it's invalid
+		ret = rt.Bool(obj.Exists()) // if the object is empty, then it's invalid
 	}
 	return
 }

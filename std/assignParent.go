@@ -6,7 +6,7 @@ import (
 )
 
 func clearRef(src rt.ObjEval, name string) core.SetObj {
-	return core.SetObj{Tgt: core.PropertyRef{name, src}}
+	return core.SetObj{core.PropertyRef{name, src}, core.NullRef()}
 }
 
 func AssignParent(src rt.ObjEval, rel string, dst rt.ObjEval) (ret core.ExecuteList) {

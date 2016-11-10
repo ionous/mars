@@ -6,48 +6,50 @@ import (
 	"github.com/ionous/mars/script/g"
 )
 
-var Taking = Script(
-	The("actors",
-		Can("take it").And("taking it").RequiresOne("prop"),
-		To("take it", g.ReflectToTarget("report take")),
-	),
-	The("props",
-		Can("report take").And("reporting take").RequiresOne("actor"),
-		To("report take",
-			Choose{
-				If:    Enclosure(g.The("actor")).Equals(Enclosure(g.The("prop"))),
-				False: g.Say("That isn't available."),
-				True: Choose{
-					If:   g.The("prop").Is("scenery"),
-					True: g.Say("You can't take scenery."),
-					False: Choose{
-						If:   g.The("prop").Is("fixed in place"),
-						True: g.Say("It is fixed in place."),
+func init() {
+	addScript("Taking",
+		The("actors",
+			Can("take it").And("taking it").RequiresOne("prop"),
+			To("take it", g.ReflectToTarget("report take")),
+		),
+		The("props",
+			Can("report take").And("reporting take").RequiresOne("actor"),
+			To("report take",
+				Choose{
+					If:    Enclosure(g.The("actor")).Equals(Enclosure(g.The("prop"))),
+					False: g.Say("That isn't available."),
+					True: Choose{
+						If:   g.The("prop").Is("scenery"),
+						True: g.Say("You can't take scenery."),
 						False: Choose{
-							If: Carrier(g.The("prop")).Exists(),
-							True: Choose{
-								If:    Carrier(g.The("prop")).Equals(g.The("actor")),
-								False: g.Say("That'd be stealing!"),
-								True:  g.Say(g.The("actor").Upper(), "already has that!"),
-							},
-							False: g.Go(
-								Choose{ // separate report action?
-									If:    g.The("actor").Equals(g.The("player")),
-									True:  g.Say("You take", g.The("prop").Lower(), "."),
-									False: g.Say(g.The("actor").Upper(), "takes", g.The("prop").Lower(), "."),
+							If:   g.The("prop").Is("fixed in place"),
+							True: g.Say("It is fixed in place."),
+							False: Choose{
+								If: Carrier(g.The("prop")).Exists(),
+								True: Choose{
+									If:    Carrier(g.The("prop")).Equals(g.The("actor")),
+									False: g.Say("That'd be stealing!"),
+									True:  g.Say(g.The("actor").Upper(), "already has that!"),
 								},
-								g.Go(Give("prop").To("actor"))),
+								False: g.Go(
+									Choose{ // separate report action?
+										If:    g.The("actor").Equals(g.The("player")),
+										True:  g.Say("You take", g.The("prop").Lower(), "."),
+										False: g.Say(g.The("actor").Upper(), "takes", g.The("prop").Lower(), "."),
+									},
+									g.Go(Give("prop").To("actor"))),
+							},
 						},
 					},
 				},
-			},
-		)),
-	// understandings:
-	Understand("take|get {{something}}").
-		And("pick up {{something}}").
-		And("pick {{something}} up").
-		As("take it"),
-)
+			)),
+		// understandings:
+		Understand("take|get {{something}}").
+			And("pick up {{something}}").
+			And("pick {{something}} up").
+			As("take it"),
+	)
+}
 
 // touchable/reach inside checks --, plus:
 // check    an actor taking  can't take yourself rule

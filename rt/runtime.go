@@ -9,7 +9,7 @@ type Runtime interface {
 	meta.Model
 	//
 	FindValue(string) (meta.Generic, error)
-	ScopePath() []string
+	ScopePath() ScopePath
 	//
 	Print(...interface{}) error
 	Println(...interface{}) error

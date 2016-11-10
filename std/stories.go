@@ -23,7 +23,7 @@ package std
 // 		}
 
 // // System actions
-// var Stories = Script(		// in lieu of singletons, globals.
+// func init() { addScript("Stories",		// in lieu of singletons, globals.
 // 		// globals are transmitted to the client in the default view.
 // 		The("kinds", Called("globals"), Exist()),
 // 		The("globals",

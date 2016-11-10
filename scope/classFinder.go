@@ -1,6 +1,7 @@
 package scope
 
 import (
+	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/ident"
 	"github.com/ionous/sashimi/util/lang"
@@ -28,6 +29,6 @@ func (cs *ClassScope) FindValue(name string) (ret meta.Generic, err error) {
 	return
 }
 
-func (cs *ClassScope) ScopePath() (parts []string) {
+func (cs *ClassScope) ScopePath() (parts rt.ScopePath) {
 	return append(parts, sbuf.Type{cs.ClassFinder}.String())
 }

@@ -17,9 +17,8 @@ func NewModelScope(m meta.Model) ModelScope {
 }
 
 func (ms ModelScope) FindValue(name string) (ret meta.Generic, err error) {
-	// StripStringId
 	if id := ident.MakeId(lang.StripArticle(name)); id.Empty() {
-		err = NotNamed(name)
+		err = NotNamed("model scope")
 	} else if i, ok := ms.model.GetInstance(id); !ok {
 		err = NotFound(ms, name)
 	} else {
@@ -28,6 +27,6 @@ func (ms ModelScope) FindValue(name string) (ret meta.Generic, err error) {
 	return
 }
 
-func (sc ModelScope) ScopePath() []string {
+func (sc ModelScope) ScopePath() rt.ScopePath {
 	return []string{"scope.ModelScope"}
 }

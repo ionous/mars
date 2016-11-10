@@ -22,7 +22,7 @@ func (sc ScopeChain) FindValue(name string) (ret meta.Generic, err error) {
 	return
 }
 
-func (sc ScopeChain) ScopePath() (parts []string) {
+func (sc ScopeChain) ScopePath() (parts rt.ScopePath) {
 	for _, s := range sc {
 		p := s.ScopePath()
 		parts = append(parts, p...)

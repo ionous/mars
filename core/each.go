@@ -63,16 +63,20 @@ func (f ForEachNum) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetNumStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
-		err = f.Else.Execute(run)
+		if f.Else != nil {
+			if e := f.Else.Execute(run); e != nil {
+				err = errutil.New("failed each num else", e)
+			}
+		}
 	} else {
 		for l := scope.NewLooper(it); l.HasNext(); {
 			if v, e := it.GetNext(); e != nil {
-				err = e
+				err = errutil.New("failed each num get", e)
 				break
 			} else {
 				run := scope.Make(run, l.NextScope(v), scope.NewNumScope(v), run)
 				if e := f.Go.Execute(run); e != nil {
-					err = e
+					err = errutil.New("failed each num go", v, e)
 					break
 				}
 			}
@@ -85,16 +89,20 @@ func (f ForEachText) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetTextStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
-		err = f.Else.Execute(run)
+		if f.Else != nil {
+			if e := f.Else.Execute(run); e != nil {
+				err = errutil.New("failed each text else", e)
+			}
+		}
 	} else {
 		for l := scope.NewLooper(it); l.HasNext(); {
 			if v, e := it.GetNext(); e != nil {
-				err = e
+				err = errutil.New("failed each text get", e)
 				break
 			} else {
 				run := scope.Make(run, l.NextScope(v), scope.NewTextScope(v), run)
 				if e := f.Go.Execute(run); e != nil {
-					err = e
+					err = errutil.New("failed each text go", v, e)
 					break
 				}
 			}
@@ -107,16 +115,20 @@ func (f ForEachObject) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetObjStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
-		err = f.Else.Execute(run)
+		if f.Else != nil {
+			if e := f.Else.Execute(run); e != nil {
+				err = errutil.New("failed each obj else", e)
+			}
+		}
 	} else {
-		for l := scope.NewLooper(it); l.HasNext(); {
+		for i, l := 0, scope.NewLooper(it); l.HasNext(); i++ {
 			if obj, e := it.GetNext(); e != nil {
-				err = e
+				err = errutil.New("failed each obj get", e)
 				break
 			} else {
-				run := scope.Make(run, l.NextScope(obj), scope.NewObjectScope(obj), run)
-				if e := f.Go.Execute(run); e != nil {
-					err = e
+				sub := scope.Make(run, l.NextScope(obj), scope.NewObjectScope(obj), run)
+				if e := f.Go.Execute(sub); e != nil {
+					err = errutil.New("failed each obj go", obj, e)
 					break
 				}
 			}
