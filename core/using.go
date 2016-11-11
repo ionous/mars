@@ -7,14 +7,20 @@ import (
 	"github.com/ionous/sashimi/util/sbuf"
 )
 
-type Context struct {
-	Ref rt.ObjEval
-	Run rt.Execute
+type Using struct {
+	Object    rt.ObjEval
+	Run, Else rt.Execute
 }
 
-func (c Context) Execute(run rt.Runtime) (err error) {
-	if obj, e := c.Ref.GetObject(run); e != nil {
+func (c Using) Execute(run rt.Runtime) (err error) {
+	if obj, e := c.Object.GetObject(run); e != nil {
 		err = e
+	} else if !obj.Exists() {
+		if c.Else != nil {
+			if e := c.Else.Execute(run); e != nil {
+				err = e
+			}
+		}
 	} else {
 		run := scope.Make(run, scope.NewObjectScope(obj), run)
 		if e := c.Run.Execute(run); e != nil {

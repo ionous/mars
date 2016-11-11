@@ -25,7 +25,7 @@ func init() {
 		test.Setup(
 			The("actor", Called("the player"), Exists(), In("the memories")),
 			The("room", Called("memories"), Has("description", "You are trapped in your own unconsciousness.")),
-		).Try(
+		).Try("looking at the room",
 			test.Parse("look").
 				Match("memories", "You are trapped in your own unconsciousness.").
 				Expect(

@@ -44,6 +44,18 @@ func (h ScriptRef) Object(name string) ScriptRef {
 	return ScriptRef{PropertyRef{name, h}}
 }
 
+func (h ScriptRef) SetNum(name string, val rt.NumEval) rt.Execute {
+	return SetNum{PropertyNum{name, h}, val}
+}
+
+func (h ScriptRef) SetText(name string, val rt.TextEval) rt.Execute {
+	return SetTxt{PropertyText{name, h}, val}
+}
+
+func (h ScriptRef) SetObject(name string, val rt.ObjEval) rt.Execute {
+	return SetObj{PropertyRef{name, h}, val}
+}
+
 func (h ScriptRef) ObjectList(name string) ScriptRefList {
 	return ScriptRefList{PropertyRefList{name, h}}
 }

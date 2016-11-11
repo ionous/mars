@@ -55,7 +55,7 @@ func init() {
 			The("prop", Called("the hat"), Is("wearable")),
 			The("prop", Called("the cat"), Exists()),
 			The("prop", Called("the cloak"), Is("wearable")),
-		).Try(
+		).Try("wearing various objects",
 			test.Parse("don the hat").
 				Match("Now the player is wearing the hat.").
 				Expect(

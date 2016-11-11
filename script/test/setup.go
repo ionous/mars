@@ -11,10 +11,12 @@ func NewSuite(name string, units ...Unit) Suite {
 }
 
 func Setup(setup ...backend.Spec) Unit {
-	return Unit{setup, nil}
+	return Unit{Setup: setup}
 }
 
-func (u Unit) Try(trials ...Trial) Unit {
+func (u Unit) Try(name string, trials ...Trial) Unit {
+	// FIX: move this
+	u.Name = name
 	u.Trials = append(u.Trials, trials...)
 	return u
 }

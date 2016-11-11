@@ -15,7 +15,7 @@ func init() {
 	addTest("Impressing",
 		test.Setup(
 			The("actor", Called("the player"), Exists()),
-		).Try(
+		).Try("to impress",
 			test.Run("impress", g.The("player")).
 				Match("The player is unimpressed."),
 		),

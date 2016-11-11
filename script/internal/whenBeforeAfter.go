@@ -19,7 +19,7 @@ type EventPartial struct {
 //
 type EventPhrase struct {
 	EventPartial
-	Execute rt.Execute
+	Calls []rt.Execute
 }
 
 // FIX: itd be nice to have some sort of wrapper to detect if they are used outside of,
@@ -41,7 +41,7 @@ func (p EventPartial) Go(cb rt.Execute, cbs ...rt.Execute) EventPhrase {
 //
 func (ef EventPhrase) GenFragment(src *S.Statements, top Topic) (err error) {
 	for _, evt := range ef.Events {
-		fields := S.ListenFields{top.Subject, evt, ef.Execute, ef.Options}
+		fields := S.ListenFields{top.Subject, evt, ef.Calls, ef.Options}
 		if e := src.NewEventHandler(fields, S.UnknownLocation); e != nil {
 			err = e
 			break

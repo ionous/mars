@@ -3,6 +3,7 @@ package rt
 import (
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/ident"
+	"io"
 )
 
 type Runtime interface {
@@ -18,6 +19,10 @@ type Runtime interface {
 	// MARS im not satisfied with this --  ex. what about a new print?
 	// maybe revisit post lookupparent cahnges
 	RunAction(action ident.Id, scope Scope, args ...meta.Generic) error
+
+	// FIX: we have scope passed into RunAction ( which, essentially is using the go stack as a pushdown ), but explict push for output.
+	PushOutput(out io.Writer)
+	PopOutput()
 
 	// LookupParent is a nod to the stdlib: objects have a "parent" relation
 	// but the parent mechanism is currently actually multiple properties.

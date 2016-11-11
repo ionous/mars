@@ -65,16 +65,13 @@ func init() {
 			Can("go to").And("going to").RequiresOne("direction"),
 			To("go to",
 				// try the forward direction:
-				Context{
+				Using{
 					// north-via is a relation,
-					Ref: DoorHack{
+					Object: DoorHack{
 						g.The("actor").Object("whereabouts"),
 						g.The("action.Target")},
-					Run: Choose{
-						If:    g.TheObject().Exists(),
-						True:  g.The("actor").Go("go through it", g.TheObject()),
-						False: g.Say("You can't move that direction."),
-					},
+					Run:  g.The("actor").Go("go through it", g.TheObject()),
+					Else: g.Say("You can't move that direction."),
 				},
 			)),
 		The("actors",
@@ -84,29 +81,23 @@ func init() {
 		The("doors",
 			Can("be passed through").And("being passed through").RequiresOne("actor"),
 			To("be passed through",
-				Context{
+				Using{
 					// the destination of a door is another door
-					Ref: g.The("door").Object("destination"),
-					Run: Choose{
-						If: g.TheObject().Exists(),
-						True: Context{
-							// the whereabouts of the door, is the room
-							Ref: g.TheObject().Object("whereabouts"),
-							Run: Choose{
-								If: g.TheObject().Exists(),
-								True: Choose{
-									If: g.The("door").Is("closed"),
-									True: Choose{
-										If:    g.The("door").Is("locked"),
-										True:  g.The("door").Go("report locked", g.The("actor")),
-										False: g.The("door").Go("report currently closed", g.The("actor")),
-									},
-									False: g.Go( // FIX: player property change?
-										// at the very least a move action.
-										Move(g.The("actor")).To(g.TheObject()),
-										g.TheObject().Go("report the view")),
-								},
+					Object: g.The("door").Object("destination"),
+					Run: Using{
+						// the whereabouts of the door, is the room
+						Object: g.TheObject().Object("whereabouts"),
+						Run: Choose{
+							If: g.The("door").Is("closed"),
+							True: Choose{
+								If:    g.The("door").Is("locked"),
+								True:  g.The("door").Go("report locked", g.The("actor")),
+								False: g.The("door").Go("report currently closed", g.The("actor")),
 							},
+							False: g.Go( // FIX: player property change?
+								// at the very least a move action.
+								Move(g.The("actor")).To(g.TheObject()),
+								g.TheObject().Go("report the view")),
 						},
 					},
 				},
@@ -170,15 +161,15 @@ func init() {
 
 	// test moving around
 	addTest("Moving",
-		test.Setup(s).Try(
+		test.Setup(s).Try("moving about",
 			test.Expect(g.The("player").Object("whereabouts").Equals(g.The("lobby"))).
 				Else(g.Say(g.The("player").Object("whereabouts"))),
 			move("go west", "Lobby").Match("You can't move that direction."),
 			move("go east", "Lobby").Match("You can't move that direction."),
 			move("go up", "Parapet"),
 			move("go down", "Lobby"), // first two way
-			move("go down", "Basement").Match("You can't move that direction."),
-			move("go up", "Basement"),
+			move("go down", "Basement"),
+			move("go up", "Basement").Match("You can't move that direction."),
 			move("go south", "Outside"),
 			move("go south", "Foyer"),
 			move("enter curtain", "Cloakroom"),

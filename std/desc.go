@@ -54,7 +54,7 @@ func init() {
 			The("object", Called("plain ring"), Exists(),
 				Has("brief", "Cast aside, as if worthless, is a plain brass ring.")),
 			//"No better than the loops of metal the old women use for fastening curtains."
-		).Try(
+		).Try("handling changes description",
 			test.Execute(
 				Describe(g.The("plain ring"))).
 				Match("Cast aside, as if worthless, is a plain brass ring."),

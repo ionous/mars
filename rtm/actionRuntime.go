@@ -59,11 +59,11 @@ type ActionRuntime struct {
 	meta.Action
 	scope  *scope.ListenerScope
 	values []meta.Generic
-	after  []QueuedAction
+	after  []QueuedCallback
 }
 
-type QueuedAction struct {
-	call rt.Execute
+type QueuedCallback struct {
+	cb   meta.Callback
 	hint ident.Id
 }
 
@@ -98,22 +98,27 @@ func (ap *ActionRuntime) getObject(i int) (ret meta.Instance) {
 	return
 }
 
-func (ap *ActionRuntime) RunNow(cb meta.Callback, hint ident.Id) (err error) {
-	if call, ok := cb.(rt.Execute); !ok {
-		err = errutil.New("callback not of execute type", sbuf.Type{cb})
+func (ap *ActionRuntime) run(cb meta.Callback) (err error) {
+	if calls, ok := cb.([]rt.Execute); !ok {
+		err = errutil.New("RunAction: callback not of execute type", reflect.TypeOf(cb))
 	} else {
-		ap.scope.SetHint(hint)
-		err = call.Execute(ap)
+		for _, exec := range calls {
+			if e := exec.Execute(ap); e != nil {
+				err = e
+				break
+			}
+		}
 	}
 	return
 }
 
+func (ap *ActionRuntime) RunNow(cb meta.Callback, hint ident.Id) error {
+	ap.scope.SetHint(hint)
+	return ap.run(cb)
+}
+
 func (ap *ActionRuntime) RunLater(cb meta.Callback, hint ident.Id) (err error) {
-	if call, ok := cb.(rt.Execute); !ok {
-		err = errutil.New("callback not of execute type", sbuf.Type{cb})
-	} else {
-		ap.after = append(ap.after, QueuedAction{call, hint})
-	}
+	ap.after = append(ap.after, QueuedCallback{cb, hint})
 	return
 }
 
@@ -123,16 +128,7 @@ func (ap *ActionRuntime) RunDefault() (err error) {
 	if cbs, ok := ap.GetCallbacks(); ok {
 		ap.scope.SetHint(ident.Empty())
 		for i := 0; i < cbs.NumCallback(); i++ {
-			cb := cbs.CallbackNum(i)
-			if exec, ok := cb.(rt.Execute); !ok {
-				err = errutil.New("RunAction: callback not of execute type", reflect.TypeOf(cb))
-				break
-			} else {
-				if e := exec.Execute(ap); e != nil {
-					err = e
-					break
-				}
-			}
+			ap.run(cbs.CallbackNum(i))
 		}
 	}
 	return
@@ -142,9 +138,9 @@ func (ap *ActionRuntime) RunDefault() (err error) {
 func (ap *ActionRuntime) RunAfterActions() (err error) {
 	if after := ap.after; len(after) > 0 {
 		for _, qa := range after {
-			call, hint := qa.call, qa.hint
+			cb, hint := qa.cb, qa.hint
 			ap.scope.SetHint(hint)
-			if e := call.Execute(ap); e != nil {
+			if e := ap.run(cb); e != nil {
 				err = e
 				break
 			}

@@ -13,7 +13,8 @@ type Suite struct {
 }
 
 type Unit struct {
-	Setup  backend.Script // an array of phrases
+	Name   string
+	Setup  backend.SpecList
 	Trials []Trial
 }
 

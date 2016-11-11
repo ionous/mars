@@ -64,14 +64,16 @@ func (t ALower) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-var articles = NewScript(
-	The("kinds",
+func init() {
+	s := NewScript()
+	s.The("kinds",
 		Have("printed name", "text"),
 		Have("indefinite article", "text"),
 		AreEither("singular-named").Or("plural-named"),
 		AreEither("common-named").Or("proper-named"),
-	),
-)
+	)
+	addScript("Articles", s)
+}
 
 // You can only just make out the lamp-post.", or "You can only just make out _ Trevor.", or "You can only just make out the soldiers."
 func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, err error) {

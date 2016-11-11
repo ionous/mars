@@ -7,7 +7,6 @@ import (
 	"github.com/ionous/sashimi/play/api"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/ident"
-	"io"
 )
 
 type Rtm struct {
@@ -29,14 +28,6 @@ func NewRtmParents(model meta.Model, parents api.LookupParents) *Rtm {
 	rtm := &Rtm{model: model, parents: parents}
 	rtm.scope.PushScope(scope.NewModelScope(model))
 	return rtm
-}
-
-func (rtm *Rtm) PushOutput(out io.Writer) {
-	rtm.output.PushOutput(out)
-}
-
-func (rtm *Rtm) PopOutput() {
-	rtm.output.PopOutput()
 }
 
 func (rtm *Rtm) Flush() error {

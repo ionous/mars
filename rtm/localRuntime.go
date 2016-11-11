@@ -4,6 +4,7 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/ident"
+	"io"
 )
 
 type localRuntime struct {
@@ -28,4 +29,12 @@ func (lr localRuntime) RunAction(id ident.Id, scp rt.Scope, args ...meta.Generic
 }
 func (lr localRuntime) LookupParent(i meta.Instance) (meta.Instance, meta.Property, bool) {
 	return lr.rtm.parents.LookupParent(i)
+}
+
+func (lr localRuntime) PushOutput(out io.Writer) {
+	lr.rtm.output.PushOutput(out)
+}
+
+func (lr localRuntime) PopOutput() {
+	lr.rtm.output.PopOutput()
 }

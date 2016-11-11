@@ -102,7 +102,7 @@ func init() {
 			The("actor", Called("the player"), Exists()),
 			The("actor", Called("the firefighter"), Exists()),
 			The("prop", Called("the cat"), Exists()),
-		).Try(
+		).Try("giving when not having",
 			test.Parse("give the cat to the firefighter").
 				Match("You aren't holding the cat."),
 		),
@@ -113,7 +113,7 @@ func init() {
 			The("prop", Called("the hat"), Exists()),
 			The("player", Possesses("the cat")),
 			The("player", Wears("the hat")),
-		).Try(
+		).Try("giving while having failures",
 			test.Parse("give the cat to the player").
 				Match("You can't give to yourself."),
 			test.Parse("give the hat to the firefighter").

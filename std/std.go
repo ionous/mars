@@ -10,11 +10,21 @@ import (
 	"github.com/ionous/mars/std/compat"
 )
 
-var tests []test.Suite
-
-func addTest(name string, units ...test.Unit) {
-	tests = append(tests, test.NewSuite(name, units...))
+// Package std contains the basic objects and actions used for for sashimi-style games. It fulfills a role similar to the Inform7 standard library.
+func Std() *mars.Package {
+	if std == nil {
+		std = &mars.Package{
+			Name:     "Std",
+			Scripts:  scripts,
+			Tests:    tests,
+			Imports:  mars.Imports(core.Core(), lang.Lang()),
+			Commands: (*StdDL)(nil),
+		}
+	}
+	return std
 }
+
+var std *mars.Package
 
 var scripts mars.SpecList
 
@@ -22,23 +32,13 @@ func addScript(_ string, specs ...backend.Spec) {
 	scripts = append(scripts, script.NewScript(specs...))
 }
 
-// Package std contains the basic objects and actions used for for sashimi-style games. It fulfills a role similar to the Inform7 standard library.
-var std *mars.Package
+var tests []test.Suite
 
-func Std() *mars.Package {
-	if std == nil {
-		std = &mars.Package{
-			Name:     "Std",
-			Scripts:  scripts,
-			Tests:    tests,
-			Imports:  mars.Imports(&core.Core, &lang.Lang),
-			Commands: (*StdDl)(nil),
-		}
-	}
-	return std
+func addTest(name string, units ...test.Unit) {
+	tests = append(tests, test.NewSuite(name, units...))
 }
 
-type StdDl struct {
+type StdDL struct {
 	*compat.ScriptRef
 	*compat.ScriptRefList
 	*SaveGame

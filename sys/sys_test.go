@@ -123,7 +123,7 @@ func Run(t *testing.T, a ...rt.Execute) {
 // 				Id("i"),
 // 			}),
 
-// 		Context{Id("i"), g.Say("In that game you scored", GetNum{"num"}, "out of a possible", I(1000), ".")},
+// 		Using{Id("i"), g.Say("In that game you scored", GetNum{"num"}, "out of a possible", I(1000), ".")},
 // 	// not implemented:
 // 	// g.The("i").Go("give", g.The("x"), 5),
 

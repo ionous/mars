@@ -7,10 +7,10 @@ type Spec interface {
 	Generate(*S.Statements) error
 }
 
-type Script []Spec
+type SpecList []Spec
 
 // Generate implements Spec
-func (s Script) Generate(src *S.Statements) (err error) {
+func (s SpecList) Generate(src *S.Statements) (err error) {
 	for _, b := range s {
 		if e := b.Generate(src); e != nil {
 			err = e

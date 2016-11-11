@@ -9,14 +9,14 @@ import (
 
 type DefaultAction struct {
 	Action string
-	Call   rt.Execute
+	Calls  []rt.Execute
 }
 
-func NewDefaultAction(action string, call rt.Execute) Fragment {
-	return DefaultAction{action, call}
+func NewDefaultAction(action string, calls []rt.Execute) Fragment {
+	return DefaultAction{action, calls}
 }
 
 func (to DefaultAction) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.RunFields{top.Subject, to.Action, to.Call, E.TargetPhase}
+	fields := S.RunFields{top.Subject, to.Action, to.Calls, E.TargetPhase}
 	return src.NewActionHandler(fields, S.UnknownLocation)
 }

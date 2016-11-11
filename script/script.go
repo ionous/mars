@@ -6,7 +6,7 @@ import (
 )
 
 type LocalScript struct {
-	specs backend.Script
+	specs backend.SpecList
 }
 
 func NewScript(specs ...backend.Spec) LocalScript {
