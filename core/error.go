@@ -27,7 +27,7 @@ func (x Error) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetNum(run rt.Runtime) (ret rt.Number, err error) {
+func (x Error) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	err = x.Execute(run)
 	return
 }
@@ -39,7 +39,7 @@ func (x Error) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetNumStream(run rt.Runtime) (ret rt.NumberStream, err error) {
+func (x Error) GetNumberStream(run rt.Runtime) (ret rt.NumberStream, err error) {
 	err = x.Execute(run)
 	return
 }

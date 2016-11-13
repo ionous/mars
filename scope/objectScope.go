@@ -21,14 +21,10 @@ func (s *ObjectScope) String() string {
 
 // FindValue implements Scope
 func (s *ObjectScope) FindValue(name string) (ret meta.Generic, err error) {
-	if name == "" {
-		ret = s.obj
+	if p, ok := s.obj.FindProperty(name); !ok {
+		err = NotFound(s, name)
 	} else {
-		if p, ok := s.obj.FindProperty(name); !ok {
-			err = NotFound(s, name)
-		} else {
-			ret = p.GetGeneric()
-		}
+		ret = p.GetGeneric()
 	}
 	return
 }

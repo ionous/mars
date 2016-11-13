@@ -77,18 +77,18 @@ func (op IsFromClass) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
-// IsNumber two numbers (a rt.BoolEval)
-type IsNumber struct {
-	Src rt.NumEval
+// IsNum two numbers (a rt.BoolEval)
+type IsNum struct {
+	Src rt.NumberEval
 	Is  CompareType
-	Tgt rt.NumEval
+	Tgt rt.NumberEval
 }
 
-func (comp IsNumber) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (comp IsNum) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if src, e := comp.Src.GetNumber(run); e != nil {
-		err = errutil.New("IsNumber.Src", e)
+		err = errutil.New("IsNum.Src", e)
 	} else if tgt, e := comp.Tgt.GetNumber(run); e != nil {
-		err = errutil.New("IsNumber.Tgt", e)
+		err = errutil.New("IsNum.Tgt", e)
 	} else {
 		d := src.Float() - tgt.Float()
 		switch {
@@ -136,17 +136,17 @@ func (comp IsText) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
-// IsObject evals true when both Src and Tgt match;
+// IsObj evals true when both Src and Tgt match;
 // ( regardless of whether the refs are valid )
-type IsObject struct {
+type IsObj struct {
 	Src, Tgt rt.ObjEval
 }
 
-func (op IsObject) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (op IsObj) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if a, e := op.Src.GetObject(run); e != nil {
-		err = errutil.New("IsObject.Src", e)
+		err = errutil.New("IsObj.Src", e)
 	} else if tgt, e := op.Tgt.GetObject(run); e != nil {
-		err = errutil.New("IsObject.Tgt", e)
+		err = errutil.New("IsObj.Tgt", e)
 	} else {
 		ret = rt.Bool(a.GetId().Equals(tgt.GetId()))
 	}

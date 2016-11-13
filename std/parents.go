@@ -32,7 +32,7 @@ func Enclosure(obj rt.ObjEval) compat.ScriptRef {
 	//
 	return compat.ScriptRef{
 		stream.First{
-			In: stream.Generate{
+			In: stream.MakeStream{
 				First: obj,
 				Next: stream.First{
 					In:       refs,

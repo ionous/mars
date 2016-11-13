@@ -1,13 +1,9 @@
 package rt
 
-import (
-	"github.com/ionous/sashimi/util/errutil"
-)
-
 // Numbers provides an array literal for floats.
 type Numbers []float64
 
-func (l Numbers) GetNumStream(Runtime) (NumberStream, error) {
+func (l Numbers) GetNumberStream(Runtime) (NumberStream, error) {
 	return &NumberIt{list: l}, nil
 }
 
@@ -22,7 +18,7 @@ func (it *NumberIt) HasNext() bool {
 
 func (it *NumberIt) GetNext() (ret Number, err error) {
 	if !it.HasNext() {
-		err = errutil.New("out of range")
+		err = StreamExceeded("Numbers")
 	} else {
 		ret = Number(it.list[it.idx])
 		it.idx++
@@ -48,7 +44,7 @@ func (it *TextIt) HasNext() bool {
 
 func (it *TextIt) GetNext() (ret Text, err error) {
 	if !it.HasNext() {
-		err = errutil.New("out of range")
+		err = StreamExceeded("Texts")
 	} else {
 		ret = Text(it.list[it.idx])
 		it.idx++
@@ -75,7 +71,7 @@ func (it *RefIt) HasNext() bool {
 
 func (it *RefIt) GetNext() (ret Object, err error) {
 	if !it.HasNext() {
-		err = errutil.New("out of range")
+		err = StreamExceeded("References")
 	} else {
 		ref := it.list[it.idx]
 		if obj, e := ref.GetObject(it.run); e != nil {

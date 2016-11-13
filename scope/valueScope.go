@@ -5,44 +5,23 @@ import (
 	"github.com/ionous/sashimi/meta"
 )
 
-type NumScope struct {
-	val rt.NumEval
+type ValueScope struct {
+	val meta.Generic
 }
 
-func NewNumScope(val rt.NumEval) rt.Scope {
-	return &NumScope{val}
+func NewValue(val meta.Generic) rt.Scope {
+	return &ValueScope{val}
 }
 
-func (s *NumScope) FindValue(name string) (ret meta.Generic, err error) {
-	if name != "" {
-		err = NotFound(s, "num is not an object")
+func (s *ValueScope) FindValue(name string) (ret meta.Generic, err error) {
+	if name != "@" {
+		err = NotFound(s, "value is not an object")
 	} else {
 		ret = s.val
 	}
 	return
 }
 
-func (s *NumScope) ScopePath() rt.ScopePath {
-	return []string{"num"}
-}
-
-type TextScope struct {
-	val rt.TextEval
-}
-
-func NewTextScope(val rt.TextEval) rt.Scope {
-	return &TextScope{val}
-}
-
-func (s *TextScope) FindValue(name string) (ret meta.Generic, err error) {
-	if name != "" {
-		err = NotFound(s, "text is not an object")
-	} else {
-		ret = s.val
-	}
-	return
-}
-
-func (s *TextScope) ScopePath() rt.ScopePath {
-	return []string{"text"}
+func (s *ValueScope) ScopePath() rt.ScopePath {
+	return []string{"value"}
 }

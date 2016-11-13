@@ -17,7 +17,7 @@ type ForEachText struct {
 	Go, Else rt.Execute
 }
 
-type ForEachObject struct {
+type ForEachObj struct {
 	In       rt.ObjListEval
 	Go, Else rt.Execute
 }
@@ -51,7 +51,7 @@ type EachIndex struct{}
 func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if v, e := run.FindValue("@index"); e != nil {
 		err = errutil.New("EachIndex", "not in a l", e)
-	} else if eval, ok := v.(rt.NumEval); !ok {
+	} else if eval, ok := v.(rt.NumberEval); !ok {
 		err = errutil.New("ifEach, expected num", sbuf.Type{v})
 	} else {
 		ret, err = eval.GetNumber(run)
@@ -60,7 +60,7 @@ func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 }
 
 func (f ForEachNum) Execute(run rt.Runtime) (err error) {
-	if it, e := f.In.GetNumStream(run); e != nil {
+	if it, e := f.In.GetNumberStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
 		if f.Else != nil {
@@ -74,7 +74,7 @@ func (f ForEachNum) Execute(run rt.Runtime) (err error) {
 				err = errutil.New("failed each num get", e)
 				break
 			} else {
-				run := scope.Make(run, l.NextScope(v), scope.NewNumScope(v), run)
+				run := scope.Make(run, l.NextScope(v), run)
 				if e := f.Go.Execute(run); e != nil {
 					err = errutil.New("failed each num go", v, e)
 					break
@@ -100,7 +100,7 @@ func (f ForEachText) Execute(run rt.Runtime) (err error) {
 				err = errutil.New("failed each text get", e)
 				break
 			} else {
-				run := scope.Make(run, l.NextScope(v), scope.NewTextScope(v), run)
+				run := scope.Make(run, l.NextScope(v), run)
 				if e := f.Go.Execute(run); e != nil {
 					err = errutil.New("failed each text go", v, e)
 					break
@@ -111,7 +111,7 @@ func (f ForEachText) Execute(run rt.Runtime) (err error) {
 	return
 }
 
-func (f ForEachObject) Execute(run rt.Runtime) (err error) {
+func (f ForEachObj) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetObjStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {

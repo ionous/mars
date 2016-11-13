@@ -6,7 +6,7 @@ type Execute interface {
 type BoolEval interface {
 	GetBool(Runtime) (Bool, error)
 }
-type NumEval interface {
+type NumberEval interface {
 	GetNumber(Runtime) (Number, error)
 }
 type TextEval interface {
@@ -19,7 +19,7 @@ type StateEval interface {
 	GetState(Runtime) (State, error)
 }
 type NumListEval interface {
-	GetNumStream(Runtime) (NumberStream, error)
+	GetNumberStream(Runtime) (NumberStream, error)
 }
 type TextListEval interface {
 	GetTextStream(Runtime) (TextStream, error)

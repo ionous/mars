@@ -40,6 +40,8 @@ func (l *LoopScope) FindValue(name string) (ret meta.Generic, err error) {
 		err = NotFound(l, name)
 	} else {
 		switch {
+		case name == "@":
+			ret = l.value
 		case strings.EqualFold(name, "@first"):
 			ret = rt.Bool(l.isFirst)
 		case strings.EqualFold(name, "@last"):

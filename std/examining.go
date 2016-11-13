@@ -38,7 +38,7 @@ func init() {
 				Choose{
 					If: Any(g.The("container").Is("open"),
 						g.The("container").Is("transparent")),
-					True: ForEachObject{
+					True: ForEachObj{
 						In: g.The("container").ObjectList("contents"),
 						Go: g.Go(
 							Choose{
@@ -58,7 +58,7 @@ func init() {
 		//	say "[The actor] [look] closely at [the noun]." (A).
 		The("supporters",
 			When("printing contents").Always(
-				ForEachObject{
+				ForEachObj{
 					In: g.The("supporter").ObjectList("contents"),
 					Go: g.Go(
 						Choose{If: GetBool{"@first"},

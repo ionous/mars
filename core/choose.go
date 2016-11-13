@@ -9,7 +9,7 @@ type Choose struct {
 
 type ChooseNum struct {
 	If          rt.BoolEval
-	True, False rt.NumEval
+	True, False rt.NumberEval
 }
 
 type ChooseText struct {
@@ -44,7 +44,7 @@ func (x ChooseNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
-		var next rt.NumEval
+		var next rt.NumberEval
 		if b {
 			next = x.True
 		} else {

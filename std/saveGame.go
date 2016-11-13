@@ -16,7 +16,7 @@ func (op SaveGame) Execute(run rt.Runtime) (err error) {
 	if autosave, e := op.AutoSave.GetBool(run); e != nil {
 		err = e
 	} else if msg, ok := play.SaveCurrentGame(run, bool(autosave)); true {
-		run := scope.Make(run, scope.NewTextScope(T(msg)), run)
+		run := scope.Make(run, scope.NewValue(T(msg)), run)
 		if ok {
 			err = op.Saved.Execute(run)
 		} else {

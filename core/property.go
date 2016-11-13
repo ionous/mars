@@ -23,7 +23,7 @@ type PropertyRefList Property
 func (p PropertyNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
-	} else if v, ok := g.(rt.NumEval); !ok {
+	} else if v, ok := g.(rt.NumberEval); !ok {
 		err = errutil.New("property", p, "is not a number", sbuf.Type{g})
 	} else {
 		ret, err = v.GetNumber(run)
@@ -53,13 +53,13 @@ func (p PropertyRef) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 	return
 }
 
-func (p PropertyNumList) GetNumStream(run rt.Runtime, i int) (ret rt.NumberStream, err error) {
+func (p PropertyNumList) GetNumberStream(run rt.Runtime) (ret rt.NumberStream, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.NumListEval); !ok {
 		err = errutil.New("property", p, "is not a number list", sbuf.Type{g})
 	} else {
-		ret, err = v.GetNumStream(run)
+		ret, err = v.GetNumberStream(run)
 	}
 	return
 }

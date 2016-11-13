@@ -5,14 +5,14 @@ import (
 )
 
 type PrintNum struct {
-	rt.NumEval
+	rt.NumberEval
 }
 
 type PrintText struct {
 	rt.TextEval
 }
 
-type PrintObject struct {
+type PrintObj struct {
 	rt.ObjEval
 }
 
@@ -41,7 +41,7 @@ func (x PrintText) Execute(run rt.Runtime) (err error) {
 	return err
 }
 
-func (x PrintObject) Execute(run rt.Runtime) (err error) {
+func (x PrintObj) Execute(run rt.Runtime) (err error) {
 	if o, e := x.GetObject(run); e != nil {
 		err = e
 	} else {

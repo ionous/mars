@@ -4,6 +4,7 @@ import (
 	. "github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
 	"github.com/ionous/sashimi/util/errutil"
+	"github.com/ionous/sashimi/util/sbuf"
 )
 
 // NounPhrase builds "The" and "Our" statements.
@@ -16,22 +17,34 @@ type NounPhrase struct {
 }
 
 func (p NounPhrase) Generate(src *S.Statements) (err error) {
-	topic := Topic{p.Target, p.findSubject()}
-	for _, frag := range p.Fragments {
-		if e := frag.GenFragment(src, topic); e != nil {
-			err = errutil.Append(err, e)
+	if s, e := p.findSubject(); e != nil {
+		err = e
+	} else {
+		topic := Topic{p.Target, s}
+		for _, frag := range p.Fragments {
+			if e := frag.GenFragment(src, topic); e != nil {
+				err = errutil.Append(err, e)
+			}
 		}
 	}
 	return err
 }
 
-func (p NounPhrase) findSubject() string {
-	subject := p.Target // by default,
+func (p NounPhrase) findSubject() (ret string, err error) {
+	subject, found := p.Target, false // by default
 	for _, f := range p.Fragments {
 		if called, ok := f.(ScriptSubject); ok {
-			subject = called.Subject
-			break
+			if !found {
+				subject = called.Subject
+				found = true
+			} else {
+				err = errutil.New("phrase has multiple subjects: was", sbuf.Q(subject), "now", sbuf.Q(called.Subject))
+				break
+			}
 		}
 	}
-	return subject
+	if err == nil {
+		ret = subject
+	}
+	return
 }

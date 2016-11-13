@@ -12,17 +12,17 @@ type ScriptRefList struct {
 }
 
 func (l ScriptRefList) Empty() rt.BoolEval {
-	return ObjListEmpty{l}
+	return ObjListIsEmpty{l}
 }
 func (l ScriptRefList) Contains(which rt.ObjEval) rt.BoolEval {
 	return ObjListContains{l, which}
 }
 
-type ObjListEmpty struct {
+type ObjListIsEmpty struct {
 	In rt.ObjListEval
 }
 
-func (op ObjListEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (op ObjListIsEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if s, e := op.In.GetObjStream(run); e != nil {
 		err = errutil.New("ObjListContains, couldnt get stream", e)
 	} else {

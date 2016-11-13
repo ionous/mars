@@ -21,7 +21,7 @@ func (b Bool) String() string {
 // Number provides a dl float primitive.
 type Number float64
 
-// GetNumber implements NumEval providing the dl with a literal number type.
+// GetNumber implements NumberEval providing the dl with a literal number type.
 func (n Number) GetNumber(Runtime) (Number, error) {
 	return n, nil
 }

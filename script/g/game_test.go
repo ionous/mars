@@ -27,7 +27,7 @@ func TestForEach(t *testing.T) {
 	ts := c.Ts("hello", "there", "world")
 	lines := c.ForEachText{
 		In:   ts,
-		Go:   c.Say(c.GetText{}),
+		Go:   c.Say(c.GetText{"@"}),
 		Else: c.Error{c.T("should have run")},
 	}
 	if e := lines.Execute(run.Runtime()); assert.NoError(t, e, "execute") {
@@ -39,7 +39,7 @@ func TestForEach(t *testing.T) {
 
 	x := c.PrintLine{c.ForEachText{
 		In:   ts,
-		Go:   c.PrintText{c.GetText{}},
+		Go:   c.PrintText{c.GetText{"@"}},
 		Else: c.Error{c.T("should have run")},
 	}}
 
@@ -69,7 +69,7 @@ func TestForEach(t *testing.T) {
 				False: c.ChooseText{
 					If:    c.IfEach{IsLast: true},
 					True:  c.T("last"),
-					False: c.GetText{},
+					False: c.GetText{"@"},
 				}}),
 			In:   ts,
 			Else: c.Error{c.T("should have run")},

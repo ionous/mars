@@ -41,9 +41,9 @@ type CoreDL struct {
 	// any.go
 	*AnyTrue
 	// boolEval.go
-	*IsNumber
+	*IsNum
 	*IsText
-	*IsObject
+	*IsObj
 	*IsState
 	*IsNot
 	*IsEmpty
@@ -63,11 +63,11 @@ type CoreDL struct {
 	*Using
 	*GetNum
 	*GetText
-	*GetObject
+	*GetObj
 	//each
 	*ForEachNum
 	*ForEachText
-	*ForEachObject
+	*ForEachObj
 	*IfEach
 	*EachIndex
 	// exec
@@ -81,6 +81,7 @@ type CoreDL struct {
 	// print
 	*PrintNum
 	*PrintText
+	*PrintObj
 	*PrintLine
 	// property access
 	*PropertyText

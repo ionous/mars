@@ -6,7 +6,7 @@ import (
 )
 
 type AddNum struct {
-	Augend, Addend rt.NumEval
+	Augend, Addend rt.NumberEval
 }
 
 func (op AddNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
@@ -25,7 +25,7 @@ type Inc struct {
 }
 
 func (op Inc) Execute(run rt.Runtime) (err error) {
-	ref := GetObject{}
+	ref := GetObj{"@"}
 	if v, e := (PropertyNum{op.Name, ref}).GetNumber(run); e != nil {
 		err = errutil.New("inc property get", e)
 	} else {

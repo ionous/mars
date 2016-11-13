@@ -24,7 +24,7 @@ func init() {
 				// one door can be the target of many other doors
 				Implying("doors", HaveMany("sources", "doors")),
 		),
-		func() (s LocalScript) {
+		func() (s Script) {
 			// 3. A Room+Travel Direction (has a Understand) Departure door
 			// FIX: without relation by value we have to give each room a set of explict directions
 			// each direction relation points to the Understand door
@@ -52,7 +52,7 @@ func init() {
 				//FIX: the reverse shouldnt be required; something in the compiler.
 				Implying("directions", HaveOne("x-opposite", "direction")),
 		),
-		func() (s LocalScript) {
+		func() (s Script) {
 			for i := 0; i < len(Directions)/2; i++ {
 				a, b := Directions[2*i], Directions[2*i+1]
 				s.The("direction", Called(a), Has("opposite", b))

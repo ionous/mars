@@ -47,7 +47,7 @@ func (c GetBool) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	return
 }
 
-// GetNum returns a numer from the current context.
+// GetNum returns a number from the current context.
 type GetNum struct {
 	Name string
 }
@@ -55,8 +55,8 @@ type GetNum struct {
 func (c GetNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
-	} else if neval, ok := eval.(rt.NumEval); !ok {
-		err = errutil.New("value", c.Name, "is not a NumEval", sbuf.Type{eval})
+	} else if neval, ok := eval.(rt.NumberEval); !ok {
+		err = errutil.New("value", c.Name, "is not a NumberEval", sbuf.Type{eval})
 	} else if v, e := neval.GetNumber(run); e != nil {
 		err = e
 	} else {
@@ -84,11 +84,11 @@ func (c GetText) GetText(run rt.Runtime) (ret rt.Text, err error) {
 }
 
 // GetObject returns a object value from the current conobject.
-type GetObject struct {
+type GetObj struct {
 	Name string
 }
 
-func (c GetObject) GetObject(run rt.Runtime) (ret rt.Object, err error) {
+func (c GetObj) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if objeval, ok := eval.(rt.ObjEval); !ok {

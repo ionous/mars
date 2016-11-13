@@ -5,32 +5,32 @@ import (
 	S "github.com/ionous/sashimi/source"
 )
 
-type LocalScript struct {
+type Script struct {
 	specs backend.SpecList
 }
 
-func NewScript(specs ...backend.Spec) LocalScript {
-	return LocalScript{specs}
+func NewScript(specs ...backend.Spec) Script {
+	return Script{specs}
 }
 
-func (s *LocalScript) Add(specs ...backend.Spec) *LocalScript {
+func (s *Script) Add(specs ...backend.Spec) *Script {
 	s.specs = append(s.specs, specs...)
 	return s
 }
 
-func (s *LocalScript) The(target string, frags ...backend.Fragment) *LocalScript {
+func (s *Script) The(target string, frags ...backend.Fragment) *Script {
 	s.specs = append(s.specs, The(target, frags...))
 	return s
 }
 
-func (s *LocalScript) Understand(input ...string) (ret *ParserIt) {
+func (s *Script) Understand(input ...string) (ret *ParserIt) {
 	ret = &ParserIt{Input: input}
 	s.specs = append(s.specs, ret)
 	return
 }
 
 // Generate implements Spec
-func (s LocalScript) Generate(src *S.Statements) (err error) {
+func (s Script) Generate(src *S.Statements) (err error) {
 	return s.specs.Generate(src)
 }
 

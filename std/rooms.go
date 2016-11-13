@@ -45,7 +45,7 @@ func ViewRoom(obj compat.ScriptRef) rt.Execute {
 	return g.Go(
 		g.Say(obj.Text("name")),
 		g.Say(obj.Text("description")),
-		ForEachObject{
+		ForEachObj{
 			In: obj.ObjectList("contents"),
 			Go: g.TheObject().Go("print description"),
 		},

@@ -7,7 +7,7 @@ import (
 
 type SetNum struct {
 	Tgt PropertyNum
-	Num rt.NumEval
+	Num rt.NumberEval
 }
 
 func (x SetNum) Execute(run rt.Runtime) (err error) {

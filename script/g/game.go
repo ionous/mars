@@ -23,7 +23,7 @@ func StopHere() rt.Execute {
 var Our = The
 
 func TheObject() compat.ScriptRef {
-	return compat.ScriptRef{core.GetObject{}}
+	return compat.ScriptRef{core.GetObj{"@"}}
 }
 
 // Go shortcut runs a bunch of statements

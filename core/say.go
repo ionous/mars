@@ -39,7 +39,7 @@ func Format(all ...interface{}) rt.Execute {
 		switch val := a.(type) {
 		case int:
 			sayWhat = append(sayWhat, PrintNum{I(val)})
-		case rt.NumEval:
+		case rt.NumberEval:
 			sayWhat = append(sayWhat, PrintNum{val})
 		case string:
 			sayWhat = append(sayWhat, PrintText{T(val)})
@@ -49,7 +49,16 @@ func Format(all ...interface{}) rt.Execute {
 			// FIX: could buffer operations have a specialized interface implementation?
 			sayWhat = append(sayWhat, val)
 		case rt.ObjEval:
-			sayWhat = append(sayWhat, PrintObject{val})
+			sayWhat = append(sayWhat, PrintObj{val})
+		case rt.NumListEval:
+			l := ForEachNum{In: val, Go: PrintNum{GetNum{"@"}}}
+			sayWhat = append(sayWhat, l)
+		case rt.TextListEval:
+			l := ForEachText{In: val, Go: PrintText{GetText{"@"}}}
+			sayWhat = append(sayWhat, l)
+		case rt.ObjListEval:
+			l := ForEachObj{In: val, Go: PrintObj{GetObj{"@"}}}
+			sayWhat = append(sayWhat, l)
 		default:
 			panic("say what?")
 		}

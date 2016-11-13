@@ -65,13 +65,13 @@ func init() {
 				// list the contents of the noun, as a sentence, tersely, not listing concealed items;
 				// FIX? not all openers are opaque/transparent, and not all openers have contents.
 				Choose{If: g.The("opener").Is("opaque"),
-					True: ForEachObject{
+					True: ForEachObj{
 						In: g.The("opener").ObjectList("contents"),
 						Go: g.Go(
 							Choose{If: GetBool{"@first"},
 								True: g.Say("In", g.The("opener").Lower(), ":"),
 							},
-							g.Call("print description", GetObject{}),
+							g.Call("print description", GetObj{"@"}),
 						),
 					},
 				},

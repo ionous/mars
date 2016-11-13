@@ -27,8 +27,8 @@ func (h ScriptRef) Upper() lang.TheUpper {
 	return lang.TheUpper{h}
 }
 
-// Num returns an rt.NumEval yield the property with the passed name.
-func (h ScriptRef) Num(name string) rt.NumEval {
+// Num returns an rt.NumberEval yield the property with the passed name.
+func (h ScriptRef) Num(name string) rt.NumberEval {
 	return PropertyNum{name, h}
 }
 
@@ -44,7 +44,7 @@ func (h ScriptRef) Object(name string) ScriptRef {
 	return ScriptRef{PropertyRef{name, h}}
 }
 
-func (h ScriptRef) SetNum(name string, val rt.NumEval) rt.Execute {
+func (h ScriptRef) SetNum(name string, val rt.NumberEval) rt.Execute {
 	return SetNum{PropertyNum{name, h}, val}
 }
 
@@ -70,7 +70,7 @@ func (h ScriptRef) IsNow(state string) rt.Execute {
 }
 
 func (h ScriptRef) Equals(other rt.ObjEval) rt.BoolEval {
-	return IsObject{h, other}
+	return IsObj{h, other}
 }
 
 func (h ScriptRef) Exists() rt.BoolEval {
@@ -92,8 +92,8 @@ func (h ScriptRef) Go(run string, all ...interface{}) rt.Execute {
 			ps = I(val)
 		case float64:
 			ps = N(val)
-		// note, rt.Number implements rt.NumEval. no need for a separate switch
-		case rt.NumEval:
+		// note, rt.Number implements rt.NumberEval. no need for a separate switch
+		case rt.NumberEval:
 			ps = val
 		case string:
 			ps = T(val)

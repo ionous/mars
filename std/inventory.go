@@ -26,7 +26,7 @@ func init() {
 func invList(source ...string) (ret ExecuteList) {
 	for _, s := range source {
 		ret = append(ret,
-			ForEachObject{
+			ForEachObj{
 				In:   g.The("actor").ObjectList(s),
 				Else: g.Say(s, ": none."),
 				Go: g.Go(
