@@ -52,10 +52,7 @@ func (x PrintObj) Execute(run rt.Runtime) (err error) {
 
 // Execute a little machine to add spaces between words, but not before punctuation.
 func (p PrintLine) Execute(run rt.Runtime) (err error) {
-	// var fin bytes.Buffer
-	// rt.PushOutput(&fin)
 	err = p.Strings.Execute(run)
-	// rt.PopOutput()
 	if err == nil {
 		err = run.Println()
 	}
