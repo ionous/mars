@@ -16,6 +16,7 @@ type Property struct {
 type PropertyNum Property
 type PropertyText Property
 type PropertyRef Property
+type PropertySafeRef Property
 type PropertyNumList Property
 type PropertyTextList Property
 type PropertyRefList Property
@@ -49,6 +50,14 @@ func (p PropertyRef) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 		err = errutil.New("property", p, "is not an object", sbuf.Type{g})
 	} else {
 		ret, err = v.GetObject(run)
+	}
+	return
+}
+
+// GetObject never returns error.
+func (p PropertySafeRef) GetObject(run rt.Runtime) (ret rt.Object, err error) {
+	if o, e := PropertyRef(p).GetObject(run); e == nil {
+		ret = o
 	}
 	return
 }
@@ -90,7 +99,7 @@ func (p Property) GetGeneric(run rt.Runtime) (retprop meta.Property, retvalue me
 	if obj, e := p.Ref.GetObject(run); e != nil {
 		err = e
 	} else if prop, ok := obj.FindProperty(p.Field); !ok {
-		err = errutil.New("object property not found", obj, p)
+		err = errutil.New("object property", sbuf.Q(p.Field), "not found in", sbuf.Q(obj))
 	} else {
 		retprop, retvalue = prop, prop.GetGeneric()
 	}
