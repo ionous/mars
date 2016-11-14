@@ -73,13 +73,6 @@ func init() {
 					g.The("story").IsNow("playing"),
 				),
 				Else: Error{T("The player is nowhere.")},
-				// if !room.Exists() {
-				// 	rooms := g.Query("rooms", false)
-				// 	if !rooms.HasNext() {
-				// 		panic("story has no rooms")
-				// 	}
-				// 	room = rooms.Next()
-				// }
 			}),
 	)
 
@@ -143,20 +136,24 @@ func init() {
 		Has("author", "me"),
 		Has("headline", "extra extra"))
 	t.The("room",
-		Called("somewhere"),
+		Called("the nothing"),
+		Has("printed name", "the nothing"),
 		Has("description", "an empty room"),
 		When("describing").Always(g.StopHere()),
 	)
-	t.The("player", Exists(), In("somewhere"))
+	t.The("player", Exists(), In("the nothing"))
 
 	addTest("Stories",
+		test.Setup(t).Try("player location",
+			test.Expect(IsObj{Parent(g.The("player")), g.The("nothing")}),
+		),
 		test.Setup(t).Try("commencing the story",
 			test.Expect(IsText{g.The("testing").Text("name"), EqualTo, T("testing")}),
 			test.Run("commence", g.The("testing")).Match(
 				"testing.",
 				"extra extra by me.",
 				VersionString,
-				"somewhere",
+				"the nothing",
 				"an empty room",
 			),
 		))
