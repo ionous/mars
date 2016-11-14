@@ -100,10 +100,10 @@ func (ap *ActionRuntime) getObject(i int) (ret meta.Instance) {
 
 func (ap *ActionRuntime) run(cb meta.Callback) (err error) {
 	if calls, ok := cb.([]rt.Execute); !ok {
-		err = errutil.New("RunAction: callback not of execute type", reflect.TypeOf(cb))
+		err = errutil.New("ActionRuntime", ap.GetId(), "callback not of execute type", reflect.TypeOf(cb))
 	} else {
-		for _, exec := range calls {
-			if e := exec.Execute(ap); e != nil {
+		for _, c := range calls {
+			if e := c.Execute(ap); e != nil {
 				err = e
 				break
 			}
@@ -112,9 +112,12 @@ func (ap *ActionRuntime) run(cb meta.Callback) (err error) {
 	return
 }
 
-func (ap *ActionRuntime) RunNow(cb meta.Callback, hint ident.Id) error {
+func (ap *ActionRuntime) RunNow(cb meta.Callback, hint ident.Id) (err error) {
 	ap.scope.SetHint(hint)
-	return ap.run(cb)
+	if e := ap.run(cb); e != nil {
+		err = errutil.New("RunNow", e)
+	}
+	return err
 }
 
 func (ap *ActionRuntime) RunLater(cb meta.Callback, hint ident.Id) (err error) {
@@ -128,7 +131,10 @@ func (ap *ActionRuntime) RunDefault() (err error) {
 	if cbs, ok := ap.GetCallbacks(); ok {
 		ap.scope.SetHint(ident.Empty())
 		for i := 0; i < cbs.NumCallback(); i++ {
-			ap.run(cbs.CallbackNum(i))
+			if e := ap.run(cbs.CallbackNum(i)); e != nil {
+				err = errutil.New("RunDefault", i, e)
+				break
+			}
 		}
 	}
 	return
@@ -137,11 +143,11 @@ func (ap *ActionRuntime) RunDefault() (err error) {
 // run "after" actions queued by RunCallbackLater
 func (ap *ActionRuntime) RunAfterActions() (err error) {
 	if after := ap.after; len(after) > 0 {
-		for _, qa := range after {
+		for i, qa := range after {
 			cb, hint := qa.cb, qa.hint
 			ap.scope.SetHint(hint)
 			if e := ap.run(cb); e != nil {
-				err = e
+				err = errutil.New("RunAfterActions", i, e)
 				break
 			}
 		}
