@@ -21,7 +21,9 @@ func (s *ObjectScope) String() string {
 
 // FindValue implements Scope
 func (s *ObjectScope) FindValue(name string) (ret meta.Generic, err error) {
-	if p, ok := s.obj.FindProperty(name); !ok {
+	if name == "@" {
+		ret = s.obj
+	} else if p, ok := s.obj.FindProperty(name); !ok {
 		err = NotFound(s, name)
 	} else {
 		ret = p.GetGeneric()
