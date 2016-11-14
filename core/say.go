@@ -7,12 +7,12 @@ import (
 
 // Say shortcut runs a bunch of statements and "collects" them via PrintLine
 func Say(all ...interface{}) rt.Execute {
-	txt := Format(all...)
+	txt := Print(all...)
 	return PrintLine{txt}
 }
 
 func MakeText(all ...interface{}) rt.TextEval {
-	txt := Format(all...)
+	txt := Print(all...)
 	return Buffer{txt}
 }
 
@@ -33,7 +33,7 @@ func (m Buffer) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-func Format(all ...interface{}) rt.Execute {
+func Print(all ...interface{}) rt.Execute {
 	sayWhat := ExecuteList{}
 	for _, a := range all {
 		switch val := a.(type) {

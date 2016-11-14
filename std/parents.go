@@ -50,7 +50,6 @@ func Ancestors(obj rt.ObjEval) rt.ObjListEval {
 		Next: stream.First{
 			In:       refs,
 			Matching: g.TheObject().Exists(),
-			Else:     core.Nothing(),
 		},
 	}
 }

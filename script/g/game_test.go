@@ -11,10 +11,10 @@ import (
 //
 func TestPrint(t *testing.T) {
 	var buf bytes.Buffer
-	run := rtm.NewRtm(nil)
+	run := rtm.NewRtm(nil).Runtime()
 	run.PushOutput(&buf)
 	x := Say("hello", "there.", "world.")
-	if e := x.Execute(run.Runtime()); assert.NoError(t, e, "execute") {
+	if e := x.Execute(run); assert.NoError(t, e, "execute") {
 		assert.Equal(t, "hello there. world.\n", buf.String(), "result")
 	}
 }
@@ -22,7 +22,7 @@ func TestPrint(t *testing.T) {
 //
 func TestForEach(t *testing.T) {
 	buf := bytes.NewBuffer(nil)
-	run := rtm.NewRtm(nil)
+	run := rtm.NewRtm(nil).Runtime()
 	run.PushOutput(buf)
 	ts := c.Ts("hello", "there", "world")
 	lines := c.ForEachText{
@@ -30,7 +30,7 @@ func TestForEach(t *testing.T) {
 		Go:   c.Say(c.GetText{"@"}),
 		Else: c.Error{c.T("should have run")},
 	}
-	if e := lines.Execute(run.Runtime()); assert.NoError(t, e, "execute") {
+	if e := lines.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "hello\nthere\nworld\n", buf.String(), "on multiple lines") {
 			t.FailNow()
 		}
@@ -43,7 +43,7 @@ func TestForEach(t *testing.T) {
 		Else: c.Error{c.T("should have run")},
 	}}
 
-	if e := x.Execute(run.Runtime()); assert.NoError(t, e, "execute") {
+	if e := x.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "hello there world\n", buf.String(), "one one line") {
 			t.FailNow()
 		}
@@ -55,7 +55,7 @@ func TestForEach(t *testing.T) {
 		Go:   Say(c.EachIndex{}),
 		Else: c.Error{c.T("should have run")},
 	}
-	if e := index.Execute(run.Runtime()); assert.NoError(t, e, "execute") {
+	if e := index.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "1\n2\n3\n", buf.String(), "count now") {
 			t.FailNow()
 		}
@@ -75,7 +75,7 @@ func TestForEach(t *testing.T) {
 			Else: c.Error{c.T("should have run")},
 		}
 	buf.Reset()
-	if e := andAlways.Execute(run.Runtime()); assert.NoError(t, e, "execute") {
+	if e := andAlways.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "first\nthere\nlast\n", buf.String(), "first and last") {
 			t.FailNow()
 		}

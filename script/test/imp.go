@@ -24,19 +24,19 @@ func (t Imp) Run(try Trytime) (err error) {
 		var out []string
 		if t.Execute != nil {
 			if res, e := try.Execute(t.Execute); e != nil {
-				err = e
+				err = errutil.New("test implementation failed execute", e)
 			} else {
 				out = res
 			}
 		} else if t.Args != nil {
 			if res, e := try.Run(t.Input, t.Args); e != nil {
-				err = e
+				err = errutil.New("test implementation failed run", e)
 			} else {
 				out = res
 			}
 		} else if t.Input != "" {
 			if res, e := try.Parse(t.Input); e != nil {
-				err = e
+				err = errutil.New("test implementation failed parse", e)
 			} else {
 				out = res
 			}

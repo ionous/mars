@@ -112,12 +112,10 @@ func (ap *ActionRuntime) run(cb meta.Callback) (err error) {
 	return
 }
 
-func (ap *ActionRuntime) RunNow(cb meta.Callback, hint ident.Id) (err error) {
+func (ap *ActionRuntime) RunNow(cb meta.Callback, hint ident.Id) error {
 	ap.scope.SetHint(hint)
-	if e := ap.run(cb); e != nil {
-		err = errutil.New("RunNow", e)
-	}
-	return err
+	// Note: dont wrap the error, we need to check for stop now
+	return ap.run(cb)
 }
 
 func (ap *ActionRuntime) RunLater(cb meta.Callback, hint ident.Id) (err error) {

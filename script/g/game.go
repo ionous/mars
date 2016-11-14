@@ -5,7 +5,6 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/std/compat"
 	"github.com/ionous/sashimi/meta"
-	"github.com/ionous/sashimi/util/ident"
 )
 
 func Say(args ...interface{}) rt.Execute {
@@ -31,6 +30,6 @@ func Go(all ...rt.Execute) rt.Execute {
 	return core.ExecuteList(all)
 }
 
-func Call(act ident.Id, args ...meta.Generic) core.GoCall {
-	return core.GoCall{act, args}
+func Call(act string, args ...meta.Generic) core.GoCall {
+	return core.GoCall{core.MakeStringId(act), args}
 }
