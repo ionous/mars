@@ -12,8 +12,8 @@ type localRuntime struct {
 	rtm *Rtm
 }
 
-func (lr localRuntime) FindValue(s string) (meta.Generic, error) {
-	return lr.rtm.scope.Top().FindValue(s)
+func (lr localRuntime) FindValue(name string) (meta.Generic, error) {
+	return lr.rtm.scope.Top().FindValue(name)
 }
 func (lr localRuntime) ScopePath() rt.ScopePath {
 	return lr.rtm.scope.Top().ScopePath()
@@ -27,10 +27,9 @@ func (lr localRuntime) Println(args ...interface{}) error {
 func (lr localRuntime) RunAction(id ident.Id, scp rt.Scope, args ...meta.Generic) error {
 	return lr.rtm.RunAction(id, scp, args...)
 }
-func (lr localRuntime) LookupParent(i meta.Instance) (meta.Instance, meta.Property, bool) {
-	return lr.rtm.parents.LookupParent(i)
+func (lr localRuntime) FindParent(rt.Object) (ret rt.Object, err error) {
+	return
 }
-
 func (lr localRuntime) PushOutput(out io.Writer) {
 	lr.rtm.output.PushOutput(out)
 }

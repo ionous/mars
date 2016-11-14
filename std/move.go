@@ -14,7 +14,7 @@ func (move MoveToPhrase) To(where rt.ObjEval) rt.Execute {
 }
 
 func (move MoveToPhrase) OutOfWorld() rt.Execute {
-	return AssignParent(move.what, "whereabouts", core.NullRef())
+	return AssignParent(move.what, "whereabouts", core.Nothing())
 }
 
 type MoveToPhrase struct {

@@ -4,16 +4,14 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/scope"
 	"github.com/ionous/sashimi/meta"
-	"github.com/ionous/sashimi/play/api"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/ident"
 )
 
 type Rtm struct {
-	model   meta.Model
-	parents api.LookupParents
-	output  OutputStack
-	scope   ScopeStack
+	model  meta.Model
+	output OutputStack
+	scope  ScopeStack
 }
 
 func (rtm *Rtm) Runtime() rt.Runtime {
@@ -21,11 +19,7 @@ func (rtm *Rtm) Runtime() rt.Runtime {
 }
 
 func NewRtm(model meta.Model) *Rtm {
-	return NewRtmParents(model, api.NoParents{})
-}
-
-func NewRtmParents(model meta.Model, parents api.LookupParents) *Rtm {
-	rtm := &Rtm{model: model, parents: parents}
+	rtm := &Rtm{model: model}
 	rtm.scope.PushScope(scope.NewModelScope(model))
 	return rtm
 }

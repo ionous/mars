@@ -31,5 +31,5 @@ type Runtime interface {
 	// ( multiple properties ) it would probably have to return a data object
 	// designating the parent and the name of the relation.
 	// Users/ionous/Dev/go/src/github.com/ionous/sashimi/play/api/lookupParents.go
-	LookupParent(meta.Instance) (meta.Instance, meta.Property, bool)
+	FindParent(Object) (Object, error)
 }

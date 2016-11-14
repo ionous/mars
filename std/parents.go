@@ -22,27 +22,35 @@ func Carrier(r compat.ScriptRef) compat.ScriptRef {
 	}}
 }
 
-// the first room, closed container, or empty parent.
+// Enclosure returns the first room, closed container, or empty parent.
 func Enclosure(obj rt.ObjEval) compat.ScriptRef {
-	// a search through all releation properties:
-	refs := rt.References{}
-	for _, x := range []string{"wearer", "owner", "whereabouts", "support", "enclosure"} {
-		refs = append(refs, g.TheObject().Object(x))
-	}
-	//
 	return compat.ScriptRef{
 		stream.First{
-			In: stream.MakeStream{
-				First: obj,
-				Next: stream.First{
-					In:       refs,
-					Matching: g.TheObject().Exists(),
-					Else:     core.NullRef(),
-				},
-			},
+			In: Ancestors(obj),
 			Matching: core.Any(g.TheObject().FromClass("rooms"),
 				core.All(g.TheObject().FromClass("container"), g.TheObject().Is("closed"))),
-			Else: core.NullRef(),
+			Else: core.Nothing(),
+		},
+	}
+}
+
+func Parent(obj rt.ObjEval) rt.ObjEval {
+	return stream.First{In: Ancestors(obj), Else: core.Nothing()}
+}
+
+// Ancestors returns a stream of parent objects, starting from the passed object's parent, and moving upwards from there.
+func Ancestors(obj rt.ObjEval) rt.ObjListEval {
+	// a search through all relation properties:
+	refs := rt.References{}
+	for _, rel := range []string{"wearer", "owner", "whereabouts", "support", "enclosure"} {
+		refs = append(refs, core.PropertySafeRef{rel, core.GetObj{"@"}})
+	}
+	return stream.MakeStream{
+		Using: obj,
+		Next: stream.First{
+			In:       refs,
+			Matching: g.TheObject().Exists(),
+			Else:     core.Nothing(),
 		},
 	}
 }

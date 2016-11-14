@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/ionous/mars/rt"
+	"github.com/ionous/sashimi/util/ident"
 )
 
 // False returns a Bool which evaluates to true.
@@ -64,4 +65,8 @@ func RawIds(vals ...string) (ret rt.References) {
 		ret = append(ret, ref)
 	}
 	return ret
+}
+
+func MakeStringId(name string) ident.Id {
+	return ident.MakeId(name)
 }
