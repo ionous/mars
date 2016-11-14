@@ -3,6 +3,7 @@ package internal
 import (
 	. "github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
+	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/sbuf"
 )
@@ -13,7 +14,7 @@ import (
 // ( MARS its called oldstyle because i want to remove the called fragment )
 type NounPhrase struct {
 	Target    string
-	Fragments Fragments
+	Fragments []Fragment
 }
 
 func (p NounPhrase) Generate(src *S.Statements) (err error) {
@@ -30,7 +31,7 @@ func (p NounPhrase) Generate(src *S.Statements) (err error) {
 	return err
 }
 
-func (p NounPhrase) findSubject() (ret string, err error) {
+func (p NounPhrase) findSubject() (ret types.Subject, err error) {
 	subject, found := p.Target, false // by default
 	for _, f := range p.Fragments {
 		if called, ok := f.(ScriptSubject); ok {
@@ -44,7 +45,7 @@ func (p NounPhrase) findSubject() (ret string, err error) {
 		}
 	}
 	if err == nil {
-		ret = subject
+		ret = types.Subject(subject)
 	}
 	return
 }

@@ -24,7 +24,7 @@ func (c ScriptSubject) WithSingularName(name string) Fragment {
 func (c ScriptSubject) GenFragment(src *S.Statements, top Topic) error {
 	// FIX: this is only half measure --
 	// really it needs to split into words, then compare the first article.
-	name := strings.TrimSpace(top.Subject)
+	name := strings.TrimSpace(string(top.Subject))
 	article, bare := lang.SliceArticle(name)
 	opt := map[string]string{
 		"article":       article,

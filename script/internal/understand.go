@@ -18,7 +18,7 @@ func (p ParserPartial) As(s string) backend.Spec {
 
 type ParserPhrase struct {
 	What    string
-	Phrases ParserPartial
+	Phrases []string
 }
 
 func (p ParserPhrase) Generate(src *S.Statements) error {

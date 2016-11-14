@@ -27,9 +27,9 @@ func (f ClassRelation) Implying(kind string, dst ClassRelation) ClassRelation {
 
 func (f ClassRelation) GenFragment(src *S.Statements, top Topic) (err error) {
 	// uses the subject, ex. gremlins, and the field, ex. pets: gremlins-pets-relation
-	via := strings.Join([]string{top.Subject, f.Src.Name, "relation"}, "-")
+	via := strings.Join([]string{string(top.Subject), f.Src.Name, "relation"}, "-")
 
-	srel := S.RelativeProperty{top.Subject, f.Src.Name, f.Src.Kind, via, f.Src.Hint | S.RelativeSource}
+	srel := S.RelativeProperty{string(top.Subject), f.Src.Name, f.Src.Kind, via, f.Src.Hint | S.RelativeSource}
 	if e := src.NewRelative(srel, S.UnknownLocation); e != nil {
 		err = e
 	} else if f.ReverseClass != "" {

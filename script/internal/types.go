@@ -12,7 +12,7 @@ type Types struct {
 	*ClassEnum
 	*DefaultAction
 	*Exists
-	*KeyValue
+	*PropertyValue
 	*KnownAs
 	*ScriptSubject
 }

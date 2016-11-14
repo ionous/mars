@@ -15,7 +15,7 @@ func init() {
 
 		// kinds, to allow rooms and objects
 		The("kinds",
-			Can("report jump").And("reporting jump").RequiresOne("actor"),
+			Can("report jump").And("reporting jump").RequiresOnly("actor"),
 			To("report jump",
 				// FIX? inform often, but not always, tests for trying silently,
 				// "if the action is not silent" ...

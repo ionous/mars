@@ -1,10 +1,14 @@
 package backend
 
-import S "github.com/ionous/sashimi/source"
+import (
+	S "github.com/ionous/sashimi/source"
+	"github.com/ionous/sashimi/source/types"
+)
 
 // Topic targets a noun and or its type.
 type Topic struct {
-	Target, Subject string
+	Target  string
+	Subject types.Subject
 }
 
 // Fragment phrases appear in "The" phrases.

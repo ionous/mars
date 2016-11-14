@@ -9,10 +9,10 @@ import (
 func init() {
 	addScript("Searching",
 		The("actors",
-			Can("search it").And("searching it").RequiresOne("prop"),
+			Can("search it").And("searching it").RequiresOnly("prop"),
 			To("search it", g.ReflectToTarget("report search"))),
 		The("props",
-			Can("report search").And("reporting search").RequiresOne("actor"),
+			Can("report search").And("reporting search").RequiresOnly("actor"),
 			To("report search",
 				g.Say("You find nothing unexpected."))),
 

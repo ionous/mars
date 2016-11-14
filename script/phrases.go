@@ -5,6 +5,7 @@ import (
 	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/internal"
 	S "github.com/ionous/sashimi/source"
+	"github.com/ionous/sashimi/source/types"
 )
 
 // The targets a noun for new assertions.
@@ -53,7 +54,7 @@ func AreEither(firstChoice string) internal.EitherChoice {
 // Is asserts one or more states of one or more enumerations.
 // The enumerations must (eventually) be declared for the target's class. ( For example, via AreEither, or AreOneOf, )
 func Is(choice string, choices ...string) internal.Choices {
-	return internal.SetChoices(append(choices, choice)...)
+	return internal.HasChoices(append(choices, choice)...)
 }
 
 // IsKnownAs declares an alias for the current subject.
@@ -85,20 +86,20 @@ func Has(property string, values ...interface{}) (ret backend.Fragment) {
 	// this is necessary because we use string for both text, obj, and relation values.
 	switch len(values) {
 	case 0:
-		ret = internal.SetChoices(property)
+		ret = internal.HasChoices(property)
 	case 1:
-		ret = internal.SetKeyValue(property, values[0])
+		ret = internal.HasPropertyValue(property, values[0])
 	default:
 		// used for table, list definitions
 		// MARS: should tables be reworked? even lists should probably use something more like the rt section uses
 		// for example: HasList{} -- dont be afraid to be specific,
-		ret = internal.SetKeyValue(property, values)
+		ret = internal.HasPropertyValue(property, values)
 	}
 	return ret
 }
 
 // Can asserts a new verb for the targeted noun.
-func Can(verb string) internal.CanDoPhrase {
+func Can(verb types.ActionName) internal.CanDoPhrase {
 	return internal.NewCanDo(verb)
 }
 

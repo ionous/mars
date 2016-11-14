@@ -5,7 +5,7 @@ import (
 	S "github.com/ionous/sashimi/source"
 )
 
-func SetChoices(choices ...string) Choices {
+func HasChoices(choices ...string) Choices {
 	return Choices{choices}
 }
 
@@ -15,7 +15,7 @@ type Choices struct {
 
 func (f Choices) GenFragment(src *S.Statements, top Topic) (err error) {
 	for _, choice := range f.choices {
-		fields := S.ChoiceFields{top.Subject, choice}
+		fields := S.ChoiceFields{string(top.Subject), choice}
 		if e := src.NewChoice(fields, S.UnknownLocation); e != nil {
 			err = e
 			break

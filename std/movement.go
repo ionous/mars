@@ -62,7 +62,7 @@ func init() {
 		}(),
 
 		The("actors",
-			Can("go to").And("going to").RequiresOne("direction"),
+			Can("go to").And("going to").RequiresOnly("direction"),
 			To("go to",
 				// try the forward direction:
 				Using{
@@ -75,11 +75,11 @@ func init() {
 				},
 			)),
 		The("actors",
-			Can("go through it").And("going through it").RequiresOne("door"),
+			Can("go through it").And("going through it").RequiresOnly("door"),
 			To("go through it", g.ReflectToTarget("be passed through")),
 		),
 		The("doors",
-			Can("be passed through").And("being passed through").RequiresOne("actor"),
+			Can("be passed through").And("being passed through").RequiresOnly("actor"),
 			To("be passed through",
 				Using{
 					// the destination of a door is another door
@@ -104,7 +104,7 @@ func init() {
 			),
 			Can("report currently closed").
 				And("reporting currently closed").
-				RequiresOne("actor"),
+				RequiresOnly("actor"),
 			To("report currently closed",
 				// FIX: g.The("actor").Says("It's closed."),
 				g.Say("It's closed."),

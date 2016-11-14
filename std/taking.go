@@ -9,11 +9,11 @@ import (
 func init() {
 	addScript("Taking",
 		The("actors",
-			Can("take it").And("taking it").RequiresOne("prop"),
+			Can("take it").And("taking it").RequiresOnly("prop"),
 			To("take it", g.ReflectToTarget("report take")),
 		),
 		The("props",
-			Can("report take").And("reporting take").RequiresOne("actor"),
+			Can("report take").And("reporting take").RequiresOnly("actor"),
 			To("report take",
 				Choose{
 					If:    Enclosure(g.The("actor")).Equals(Enclosure(g.The("prop"))),

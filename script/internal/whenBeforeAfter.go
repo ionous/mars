@@ -34,14 +34,10 @@ func (p EventPartial) Always(cb rt.Execute, cbs ...rt.Execute) EventPhrase {
 	return EventPhrase{p, JoinCallbacks(cb, cbs)}
 }
 
-func (p EventPartial) Go(cb rt.Execute, cbs ...rt.Execute) EventPhrase {
-	return EventPhrase{p, JoinCallbacks(cb, cbs)}
-}
-
 //
 func (ef EventPhrase) GenFragment(src *S.Statements, top Topic) (err error) {
 	for _, evt := range ef.Events {
-		fields := S.ListenFields{top.Subject, evt, ef.Calls, ef.Options}
+		fields := S.ListenFields{string(top.Subject), evt, ef.Calls, ef.Options}
 		if e := src.NewEventHandler(fields, S.UnknownLocation); e != nil {
 			err = e
 			break

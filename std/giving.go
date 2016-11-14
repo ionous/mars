@@ -38,11 +38,11 @@ func init() {
 		The("actors", AreEither("items receiver").Or("items rejector")),
 
 		The("actors",
-			Can("acquire it").And("acquiring it").RequiresOne("prop"),
+			Can("acquire it").And("acquiring it").RequiresOnly("prop"),
 			To("acquire it", g.ReflectToTarget("be acquired"))),
 
 		The("props",
-			Can("be acquired").And("being acquired").RequiresOne("actor"),
+			Can("be acquired").And("being acquired").RequiresOnly("actor"),
 			To("be acquired",
 				AssignParent(g.The("prop"), "owner", g.The("actor")),
 			)),

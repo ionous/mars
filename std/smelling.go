@@ -12,13 +12,13 @@ func init() {
 			Can("smell").And("smelling").RequiresNothing(),
 			To("smell", g.ReflectToLocation("report smell")),
 
-			Can("smell it").And("smelling it").RequiresOne("kind"),
+			Can("smell it").And("smelling it").RequiresOnly("kind"),
 			To("smell it", g.ReflectToTarget("report smell")),
 		),
 
 		// kinds, to allow rooms and objects
 		The("kinds",
-			Can("report smell").And("reporting smell").RequiresOne("actor"),
+			Can("report smell").And("reporting smell").RequiresOnly("actor"),
 			To("report smell", Choose{
 				If:    g.The("player").Equals(g.The("action.Target")),
 				True:  g.Say("You smell nothing unexpected."),

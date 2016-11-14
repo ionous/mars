@@ -40,11 +40,11 @@ func init() {
 		// Turn on, fix: was "prop", now "object" to handle outlet actors :(
 		//
 		The("actors",
-			Can("switch it on").And("switching it on").RequiresOne("object"),
+			Can("switch it on").And("switching it on").RequiresOnly("object"),
 			To("switch it on", g.ReflectToTarget("report switched on"))),
 
 		The("objects",
-			Can("report switched on").And("reporting switched on").RequiresOne("actor"),
+			Can("report switched on").And("reporting switched on").RequiresOnly("actor"),
 			To("report switched on",
 				Choose{
 					If:    g.The("action.source").Is("operable"),
@@ -58,11 +58,11 @@ func init() {
 						),
 					},
 				}),
-			Can("report already on").And("reporting already on").RequiresOne("actor"),
+			Can("report already on").And("reporting already on").RequiresOnly("actor"),
 			To("report already on",
 				g.Say("It's already switched on."),
 			),
-			Can("report now on").And("reporting now on").RequiresOne("actor"),
+			Can("report now on").And("reporting now on").RequiresOnly("actor"),
 			To("report now on",
 				g.Say("Now", g.The("device").Lower(), "is on."),
 			)),
@@ -71,7 +71,7 @@ func init() {
 		// Turn off
 		//
 		The("actors",
-			Can("switch it off").And("switching it off").RequiresOne("prop"),
+			Can("switch it off").And("switching it off").RequiresOnly("prop"),
 			To("switch it off", g.ReflectToTarget("report switch off"))),
 
 		The("devices",
@@ -86,11 +86,11 @@ func init() {
 					),
 				},
 			),
-			Can("report already off").And("reporting already off").RequiresOne("actor"),
+			Can("report already off").And("reporting already off").RequiresOnly("actor"),
 			To("report already off",
 				g.Say("It's already off."), //[regarding the noun]?
 			),
-			Can("report now off").And("reporting now off").RequiresOne("actor"),
+			Can("report now off").And("reporting now off").RequiresOnly("actor"),
 			To("report now off", g.Go(
 				g.Say("Now", g.The("device").Lower(), "is off."),
 			))),

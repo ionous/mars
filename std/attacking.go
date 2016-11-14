@@ -10,11 +10,11 @@ import (
 func init() {
 	addScript("Attacking",
 		The("actors",
-			Can("attack it").And("attacking it").RequiresOne("object"),
+			Can("attack it").And("attacking it").RequiresOnly("object"),
 			To("attack it", g.ReflectToTarget("report attack"))),
 
 		The("objects",
-			Can("report attack").And("reporting attack").RequiresOne("actor"),
+			Can("report attack").And("reporting attack").RequiresOnly("actor"),
 			To("report attack", Choose{
 				If:   g.Our("player").Equals(g.Our("actor")),
 				True: g.Say("Violence isn't the answer."),

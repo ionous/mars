@@ -20,13 +20,13 @@ func init() {
 
 		// Open:
 		The("actors",
-			Can("open it").And("opening it").RequiresOne("prop"),
+			Can("open it").And("opening it").RequiresOnly("prop"),
 			To("open it", g.ReflectToTarget("be opened by")),
 		),
 
 		// "[regarding the noun][They] [aren't] something [we] [can] open."
 		The("props",
-			Can("be opened by").And("being opened by").RequiresOne("actor"),
+			Can("be opened by").And("being opened by").RequiresOnly("actor"),
 			To("be opened by",
 				Choose{
 					If:    g.The("prop").Is("hinged"),
@@ -45,20 +45,20 @@ func init() {
 					},
 				},
 			),
-			Can("report locked").And("reporting locked").RequiresOne("actor"),
+			Can("report locked").And("reporting locked").RequiresOnly("actor"),
 			To("report locked",
 				// FIX? g.The("actor").Says("It's locked!"),
 				g.Say("It's locked!"),
 			),
-			Can("report unopenable").And("reporting unopenable").RequiresOne("actor"),
+			Can("report unopenable").And("reporting unopenable").RequiresOnly("actor"),
 			To("report unopenable",
 				g.Say("That's not something you can open."),
 			),
-			Can("report already open").And("reporting already opened").RequiresOne("actor"),
+			Can("report already open").And("reporting already opened").RequiresOnly("actor"),
 			To("report already open",
 				g.Say("It's already opened."),
 			),
-			Can("report now open").And("reporting now open").RequiresOne("actor"),
+			Can("report now open").And("reporting now open").RequiresOnly("actor"),
 			To("report now open",
 				g.Say(g.The("opener").Upper(), "is now open."),
 				// if the noun doesnt not enclose the actor
@@ -81,11 +81,11 @@ func init() {
 		// Close:
 		// one visible thing, and requiring light
 		The("actors",
-			Can("close it").And("closing it").RequiresOne("prop"),
+			Can("close it").And("closing it").RequiresOnly("prop"),
 			To("close it", g.ReflectToTarget("be closed by")),
 		),
 		The("props",
-			Can("be closed by").And("being closed by").RequiresOne("actor"),
+			Can("be closed by").And("being closed by").RequiresOnly("actor"),
 			To("be closed by",
 				Choose{
 					If:    g.The("prop").Is("hinged"),
@@ -100,15 +100,15 @@ func init() {
 					},
 				},
 			),
-			Can("report not closeable").And("reporting not closeable").RequiresOne("actor"),
+			Can("report not closeable").And("reporting not closeable").RequiresOnly("actor"),
 			To("report not closeable",
 				g.Say("That's not something you can close."),
 			),
-			Can("report already closed").And("reporting already closed").RequiresOne("actor"),
+			Can("report already closed").And("reporting already closed").RequiresOnly("actor"),
 			To("report already closed",
 				g.Say("It's already closed."), //[regarding the noun]?
 			),
-			Can("report now closed").And("reporting now closed").RequiresOne("actor"),
+			Can("report now closed").And("reporting now closed").RequiresOnly("actor"),
 			To("report now closed",
 				g.Say("Now", g.The("prop").Lower(), "is closed."),
 			),

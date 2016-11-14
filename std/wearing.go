@@ -25,7 +25,7 @@ type ClothePhrase struct {
 func init() {
 	addScript("Wearing",
 		The("actors",
-			Can("wear it").And("wearing it").RequiresOne("prop"),
+			Can("wear it").And("wearing it").RequiresOnly("prop"),
 			To("wear it", g.ReflectToTarget("report wear")),
 		),
 
@@ -33,7 +33,7 @@ func init() {
 			AreEither("wearable").Or("not wearable").Usually("not wearable")),
 
 		The("props",
-			Can("report wear").And("reporting wear").RequiresOne("actor"),
+			Can("report wear").And("reporting wear").RequiresOnly("actor"),
 			To("report wear",
 				Choose{
 					If:    g.The("prop").Is("wearable"),

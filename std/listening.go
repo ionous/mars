@@ -27,11 +27,11 @@ func init() {
 			Can("listen").And("listening").RequiresNothing(),
 			To("listen", g.ReflectToLocation("report listen"))),
 		The("actors",
-			Can("listen to").And("listening to").RequiresOne("kind"),
+			Can("listen to").And("listening to").RequiresOnly("kind"),
 			To("listen to", g.ReflectToTarget("report listen"))),
 		// kinds, to allow rooms and objects
 		The("kinds",
-			Can("report listen").And("reporting listen").RequiresOne("actor"),
+			Can("report listen").And("reporting listen").RequiresOnly("actor"),
 			To("report listen",
 				Choose{
 					If:    g.The("player").Equals(g.The("action.Target")),

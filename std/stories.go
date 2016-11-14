@@ -104,7 +104,7 @@ func init() {
 
 	s.The("stories",
 		Can("describe the first room").
-			And("describing the first room").RequiresOne("room"),
+			And("describing the first room").RequiresOnly("room"),
 		To("describe the first room",
 			g.The("action.Target").Go("report the view"),
 		))

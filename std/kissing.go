@@ -10,7 +10,7 @@ func init() {
 	addScript("Kissing",
 		// kissing
 		The("actors",
-			Can("kiss it").And("kissing it").RequiresOne("object"),
+			Can("kiss it").And("kissing it").RequiresOnly("object"),
 			To("kiss it", g.ReflectToTarget("report kiss")),
 			//  kissing yourself rule
 			Before("kissing it").Always(
@@ -23,7 +23,7 @@ func init() {
 				})),
 		//  block kissing rule
 		The("objects",
-			Can("report kiss").And("reporting kiss").RequiresOne("actor"),
+			Can("report kiss").And("reporting kiss").RequiresOnly("actor"),
 			To("report kiss",
 				g.Say(g.The("action.Source").Upper(), "might not like that."),
 			)),

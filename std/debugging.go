@@ -40,7 +40,7 @@ func init() {
 
 func debugScript() (s Script) {
 	s.The("actors",
-		Can("debug direct parent").And("debugging direct parent").RequiresOne("kind"),
+		Can("debug direct parent").And("debugging direct parent").RequiresOnly("kind"),
 		To("debug direct parent",
 			Using{
 				Object: g.The("action.target"),
@@ -48,7 +48,7 @@ func debugScript() (s Script) {
 			},
 		))
 	s.The("actors",
-		Can("debug ancestors").And("debugging ancestors").RequiresOne("kind"),
+		Can("debug ancestors").And("debugging ancestors").RequiresOnly("kind"),
 		To("debug ancestors",
 			Using{
 				Object: g.The("action.target"),
@@ -64,7 +64,7 @@ func debugScript() (s Script) {
 	// >parent of automat
 	//	hall-automat-door => whereabouts main hallway
 	s.The("actors",
-		Can("debug contents").And("debugging contents").RequiresOne("kind"),
+		Can("debug contents").And("debugging contents").RequiresOnly("kind"),
 		To("debug contents",
 			g.Say(g.The("action.Target").Lower(), "=>",
 				stream.KeySort{"name", g.The("action.target").ObjectList("contents")}),

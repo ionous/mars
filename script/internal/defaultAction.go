@@ -17,6 +17,6 @@ func NewDefaultAction(action string, calls []rt.Execute) Fragment {
 }
 
 func (to DefaultAction) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.RunFields{top.Subject, to.Action, to.Calls, E.TargetPhase}
+	fields := S.RunFields{string(top.Subject), to.Action, to.Calls, E.TargetPhase}
 	return src.NewActionHandler(fields, S.UnknownLocation)
 }

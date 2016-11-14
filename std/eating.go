@@ -9,14 +9,14 @@ import (
 func init() {
 	addScript("Eating",
 		The("actors",
-			Can("eat it").And("eating it").RequiresOne("prop"),
+			Can("eat it").And("eating it").RequiresOnly("prop"),
 			To("eat it", g.ReflectToTarget("report eat")),
 		),
 
 		The("props", AreEither("inedible").Or("edible")),
 
 		The("props",
-			Can("report eat").And("reporting eat").RequiresOne("actor"),
+			Can("report eat").And("reporting eat").RequiresOnly("actor"),
 			To("report eat",
 				Choose{
 					If:    g.The("prop").Is("inedible"),

@@ -10,14 +10,14 @@ func init() {
 	addScript("Examining", // one visible thing
 		// examine studio: You can't see any such thing; sad face.
 		The("actors",
-			Can("examine it").And("examining it").RequiresOne("object"),
+			Can("examine it").And("examining it").RequiresOnly("object"),
 			To("examine it", g.ReflectToTarget("be examined")),
 		),
 		// the default action prints the place holder text
 		// the events system prints the specifics and prevents the defaults as needed
 		// users can override for a particular object the entire thing
 		The("objects",
-			Can("be examined").And("being examined").RequiresOne("actor"),
+			Can("be examined").And("being examined").RequiresOnly("actor"),
 			To("be examined",
 				g.The("object").Go("print details"),
 				g.The("object").Go("print contents"),

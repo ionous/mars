@@ -26,7 +26,7 @@ func init() {
 			To("autosave via input",
 				g.The("actor").Go("save it", g.The("auto-save")),
 			),
-			Can("save it").And("saving it").RequiresOne("save-setting"),
+			Can("save it").And("saving it").RequiresOnly("save-setting"),
 			To("save it",
 				SaveGame{
 					AutoSave: g.The("save-setting").Equals(g.The("auto-save")),

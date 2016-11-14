@@ -46,7 +46,7 @@ func Wears(prop string) ListOfItems {
 func (my ListOfItems) GenFragment(src *S.Statements, top Topic) (err error) {
 	list := my.list
 	for _, item := range my.items {
-		fields := S.KeyValueFields{top.Subject, list, item}
+		fields := S.KeyValueFields{string(top.Subject), list, item}
 		if e := src.NewKeyValue(fields, S.UnknownLocation); e != nil {
 			err = e
 			break

@@ -17,12 +17,12 @@ func init() {
 		// keep in mind, most of these really want to be animations, and only sometimes voice.
 		// one visible thing and requiring light.
 		The("actors",
-			Can("look under it").And("looking under it").RequiresOne("object"),
+			Can("look under it").And("looking under it").RequiresOnly("object"),
 			To("look under it", g.ReflectToTarget("report look under")),
 		),
 		Understand("look under {{something}}").As("look under it"),
 		The("objects",
-			Can("report look under").And("reporting look under").RequiresOne("actor"),
+			Can("report look under").And("reporting look under").RequiresOnly("actor"),
 			To("report look under",
 				g.Say(Choose{
 					If:   g.The("action.Target").Equals(g.The("player")),

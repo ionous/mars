@@ -16,6 +16,6 @@ func (f KnownAs) And(name string) KnownAs {
 }
 
 func (f KnownAs) GenFragment(src *S.Statements, top Topic) (err error) {
-	alias := S.AliasFields{top.Subject, f.Names}
+	alias := S.AliasFields{string(top.Subject), f.Names}
 	return src.NewAlias(alias, S.UnknownLocation)
 }
