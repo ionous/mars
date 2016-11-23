@@ -18,18 +18,18 @@ func (c CanDoPhrase) And(doing EventName) RequiresWhatPhrase {
 
 func (c RequiresWhatPhrase) RequiresNothing() Fragment {
 	c.Requires = &RequiresNothing{}
-	return &CanDoIt{CanDoParameters(c)}
+	return (*CanDoIt)(&c)
 }
 
 // FIX: class name must be singular right now :(
 func (c RequiresWhatPhrase) RequiresTwo(class ClassName) Fragment {
 	c.Requires = &RequiresTwo{class}
-	return &CanDoIt{CanDoParameters(c)}
+	return (*CanDoIt)(&c)
 }
 
 func (c RequiresWhatPhrase) RequiresOnly(target ClassName) Fragment {
 	c.Requires = &RequiresOnly{Target: target}
-	return &CanDoIt{CanDoParameters(c)}
+	return (*CanDoIt)(&c)
 }
 
 func (c RequiresWhatPhrase) RequiresOne(target ClassName) RequiresMorePhrase {
@@ -40,13 +40,13 @@ func (c RequiresWhatPhrase) RequiresOne(target ClassName) RequiresMorePhrase {
 func (c RequiresMorePhrase) AndOne(context ClassName) Fragment {
 	req := c.Requires.(*Requires)
 	req.Context = context
-	return &CanDoIt{CanDoParameters(c)}
+	return (*CanDoIt)(&c)
 }
 
 //
-type CanDoPhrase CanDoParameters
-type RequiresWhatPhrase CanDoParameters
-type RequiresMorePhrase CanDoParameters
+type CanDoPhrase CanDoIt
+type RequiresWhatPhrase CanDoIt
+type RequiresMorePhrase CanDoIt
 
 type ActionAssertion struct {
 	RequiresWhatPhrase
@@ -54,11 +54,7 @@ type ActionAssertion struct {
 }
 
 type CanDoIt struct {
-	CanDoParameters `mars:"can"`
-}
-
-type CanDoParameters struct {
-	ActionName ActionName `mars:"[act]"`
+	ActionName ActionName `mars:"can [act]"`
 	EventName  EventName  `mars:"and [acting]"`
 	Requires   ActionRequirements
 }
@@ -68,7 +64,8 @@ type ActionRequirements interface {
 	ContextClass() ClassName
 }
 
-type RequiresNothing struct{}
+type RequiresNothing struct {
+}
 
 type Requires struct {
 	Target  ClassName `mars:"one"`
@@ -76,7 +73,7 @@ type Requires struct {
 }
 
 type RequiresOnly struct {
-	Target ClassName `mars:"classes"`
+	Target ClassName
 }
 
 type RequiresTwo struct {

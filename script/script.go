@@ -2,9 +2,25 @@ package script
 
 import (
 	"github.com/ionous/mars/script/backend"
+	"github.com/ionous/mars/script/internal"
 	S "github.com/ionous/sashimi/source"
 )
 
+// https://github.com/ungerik/pkgreflect: could be used via go generate
+type Structures struct {
+	Spec               *backend.Spec
+	Fragment           *backend.Fragment
+	ActionRequirements *internal.ActionRequirements
+	//
+	NounPhrase      *internal.NounPhrase
+	CanDoIt         *internal.CanDoIt
+	Requires        *internal.Requires
+	RequiresOnly    *internal.RequiresOnly
+	RequiresTwo     *internal.RequiresTwo
+	RequiresNothing *internal.RequiresNothing
+}
+
+//
 type Script struct {
 	specs backend.SpecList
 }

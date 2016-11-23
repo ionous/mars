@@ -11,7 +11,7 @@ import (
 // The targets a noun for new assertions.
 func The(target string, fragments ...backend.Fragment) backend.Spec {
 	return internal.NounPhrase{
-		target, fragments,
+		types.Subject(target), fragments,
 	}
 }
 
