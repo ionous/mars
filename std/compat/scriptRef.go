@@ -16,7 +16,11 @@ import (
 //  * Get(string) IValue: replace with Num, Text, or Object
 //  * List(string) IList: replace with NumList, TextList, or ObjectList
 type ScriptRef struct {
-	rt.ObjEval
+	Obj rt.ObjEval
+}
+
+func (x ScriptRef) GetObject(run rt.Runtime) (rt.Object, error) {
+	return x.Obj.GetObject(run)
 }
 
 func (h ScriptRef) Lower() lang.TheLower {
@@ -45,15 +49,15 @@ func (h ScriptRef) Object(name string) ScriptRef {
 }
 
 func (h ScriptRef) SetNum(name string, val rt.NumberEval) rt.Execute {
-	return SetNum{PropertyNum{name, h}, val}
+	return SetNum{name, h, val}
 }
 
 func (h ScriptRef) SetText(name string, val rt.TextEval) rt.Execute {
-	return SetTxt{PropertyText{name, h}, val}
+	return SetTxt{name, h, val}
 }
 
 func (h ScriptRef) SetObject(name string, val rt.ObjEval) rt.Execute {
-	return SetObj{PropertyRef{name, h}, val}
+	return SetObj{name, h, val}
 }
 
 func (h ScriptRef) ObjectList(name string) ScriptRefList {

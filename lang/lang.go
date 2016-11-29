@@ -11,11 +11,11 @@ import (
 func Lang() *mars.Package {
 	if pkg == nil {
 		pkg = &mars.Package{
-			Name:     "Lang",
-			Scripts:  scripts,
-			Tests:    tests,
-			Imports:  mars.Imports(core.Core()),
-			Commands: (*LangDL)(nil),
+			Name:         "Lang",
+			Scripts:      scripts,
+			Tests:        tests,
+			Dependencies: mars.Dependencies(core.Core()),
+			Commands:     (*LangCommands)(nil),
 		}
 	}
 	return pkg
@@ -23,10 +23,10 @@ func Lang() *mars.Package {
 
 var pkg *mars.Package
 
-var scripts mars.SpecList
+var scripts backend.SpecList
 
 func addScript(_ string, specs ...backend.Spec) {
-	scripts = append(scripts, backend.SpecList(specs))
+	scripts.Specs = append(scripts.Specs, specs...)
 }
 
 var tests []test.Suite
@@ -35,7 +35,7 @@ func addTest(name string, units ...test.Unit) {
 	tests = append(tests, test.NewSuite(name, units...))
 }
 
-type LangDL struct {
+type LangCommands struct {
 	*TheUpper
 	*TheLower
 	*AnUpper

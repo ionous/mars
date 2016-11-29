@@ -3,29 +3,30 @@ package internal
 import (
 	. "github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
+	"github.com/ionous/sashimi/source/types"
 	"strings"
 )
 
 // FIX: hacky, maybe should be HaveMany() instead.
 const ListKind = " list"
 
-func NewClassProperty(n, k string) Fragment {
+func NewClassProperty(n types.NamedProperty, k types.NamedClass) Fragment {
 	return ClassProperty{n, k}
 }
 
 type ClassProperty struct {
-	Name string // property field name
-	Kind string // property kind: primitive or user class
+	Name types.NamedProperty // property field name
+	Kind types.NamedClass    // property kind: primitive or user class
 }
 
 func (c ClassProperty) GenFragment(src *S.Statements, top Topic) error {
 	isMany, kind := c.listKind()
-	fields := S.PropertyFields{string(top.Subject), c.Name, kind, isMany}
+	fields := S.PropertyFields{top.Subject.String(), c.Name.String(), kind, isMany}
 	return src.NewProperty(fields, S.UnknownLocation)
 }
 
 func (c ClassProperty) listKind() (isMany bool, kind string) {
-	kind = c.Kind
+	kind = c.Kind.String()
 	if i := strings.Index(kind, ListKind); i > 0 {
 		if i+len(ListKind) == len(kind) {
 			kind = kind[:i]

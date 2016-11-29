@@ -18,9 +18,9 @@ func init() {
 	addTest("Core Tests",
 		test.Setup(t).Try("changing values",
 			test.Expect(IsValid{Named{"test"}}),
-			test.Expect(IsText{PropertyText{"amSet", Named{"test"}}, EqualTo, T("original")}),
-			test.Execute(SetTxt{PropertyText{"amSet", Named{"test"}}, T("new")}).Expect(IsText{PropertyText{"amSet", Named{"test"}}, EqualTo, T("new")}),
+			test.Expect(IsText{PropertyText{"amSet", Named{"test"}}, EqualTo{}, T("original")}),
+			test.Execute(SetTxt{"amSet", Named{"test"}, T("new")}).Expect(IsText{PropertyText{"amSet", Named{"test"}}, EqualTo{}, T("new")}),
 			test.Expect(IsEmpty{PropertyText{"amBlank", Named{"test"}}}),
-			test.Execute(SetTxt{PropertyText{"amBlank", Named{"test"}}, T("not blank any more")}).Expect(IsNot{IsEmpty{PropertyText{"amBlank", Named{"test"}}}}),
+			test.Execute(SetTxt{"amBlank", Named{"test"}, T("not blank any more")}).Expect(IsNot{IsEmpty{PropertyText{"amBlank", Named{"test"}}}}),
 		))
 }

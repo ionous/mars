@@ -8,7 +8,11 @@ import (
 )
 
 type ScriptRefList struct {
-	rt.ObjListEval
+	List rt.ObjListEval
+}
+
+func (x ScriptRefList) GetObjStream(run rt.Runtime) (rt.ObjectStream, error) {
+	return x.List.GetObjStream(run)
 }
 
 func (l ScriptRefList) Empty() rt.BoolEval {

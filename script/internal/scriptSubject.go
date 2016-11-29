@@ -12,23 +12,34 @@ func SetSubject(s string) ScriptSubject {
 }
 
 type ScriptSubject struct {
-	Subject  string // name of the class or instance being declared
-	Singular string // optional singular version of that name
-}
-
-func (c ScriptSubject) WithSingularName(name string) Fragment {
-	c.Singular = name
-	return c
+	Subject string `mars:"called [subject]"` // name of the class or instance being declared
 }
 
 func (c ScriptSubject) GenFragment(src *S.Statements, top Topic) error {
 	// FIX: this is only half measure --
 	// really it needs to split into words, then compare the first article.
-	name := strings.TrimSpace(string(top.Subject))
+	name := strings.TrimSpace(top.Subject.String())
 	article, bare := lang.SliceArticle(name)
 	opt := map[string]string{
-		"article":       article,
-		"long name":     name,
+		"article":   article,
+		"long name": name,
+	}
+	fields := S.AssertionFields{top.Target, bare, opt}
+	return src.NewAssertion(fields, S.UnknownLocation)
+}
+
+type ScriptSingular struct {
+	Singular string `mars:"has singular name [subject]"`
+}
+
+func SetSingularName(s string) ScriptSingular {
+	return ScriptSingular{s}
+}
+
+func (c ScriptSingular) GenFragment(src *S.Statements, top Topic) error {
+	name := top.Subject.String()
+	_, bare := lang.SliceArticle(name)
+	opt := map[string]string{
 		"singular name": c.Singular,
 	}
 	fields := S.AssertionFields{top.Target, bare, opt}

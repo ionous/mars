@@ -5,10 +5,12 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-type ExecuteList []rt.Execute
+type ExecuteList struct {
+	Calls []rt.Execute
+}
 
 func (x ExecuteList) Execute(run rt.Runtime) (err error) {
-	for _, s := range x {
+	for _, s := range x.Calls {
 		if e := s.Execute(run); e != nil {
 			err = e
 			break

@@ -8,7 +8,7 @@ import (
 // Topic targets a noun and or its type.
 type Topic struct {
 	Target  string
-	Subject types.Subject
+	Subject types.NamedSubject
 }
 
 // Fragment phrases appear in "The" phrases.

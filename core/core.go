@@ -2,6 +2,9 @@ package core
 
 import (
 	"github.com/ionous/mars"
+	"github.com/ionous/mars/core/stream"
+	"github.com/ionous/mars/inbuilt"
+	"github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/test"
 )
@@ -12,10 +15,11 @@ func Core() *mars.Package {
 		core = &mars.Package{
 			Name: "Core",
 			// MARS, FIX: move "kinds" declaration to a custom backend script?
-			Scripts:  scripts,
-			Tests:    tests,
-			Imports:  nil,
-			Commands: (*CoreDL)(nil),
+			Scripts:      scripts,
+			Tests:        tests,
+			Dependencies: mars.Dependencies(inbuilt.Inbuilt(), script.Package()),
+			Commands:     (*CoreCommands)(nil),
+			Interfaces:   (*CoreInterfaces)(nil),
 		}
 	}
 	return core
@@ -23,10 +27,10 @@ func Core() *mars.Package {
 
 var core *mars.Package
 
-var scripts mars.SpecList
+var scripts backend.SpecList
 
 func addScript(_ string, specs ...backend.Spec) {
-	scripts = append(scripts, backend.SpecList(specs))
+	scripts.Specs = append(scripts.Specs, specs...)
 }
 
 var tests []test.Suite
@@ -35,7 +39,11 @@ func addTest(name string, units ...test.Unit) {
 	tests = append(tests, test.NewSuite(name, units...))
 }
 
-type CoreDL struct {
+type CoreInterfaces struct {
+	CompareTo
+}
+
+type CoreCommands struct {
 	// all.go
 	*AllTrue
 	// any.go
@@ -90,4 +98,9 @@ type CoreDL struct {
 	*PropertyTextList
 	*PropertyNumList
 	*PropertyRefList
+	//
+	*stream.ClassStream
+	*stream.First
+	*stream.MakeStream
+	*stream.KeySort
 }

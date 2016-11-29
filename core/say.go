@@ -34,7 +34,7 @@ func (m Buffer) GetText(run rt.Runtime) (ret rt.Text, err error) {
 }
 
 func Print(all ...interface{}) rt.Execute {
-	sayWhat := ExecuteList{}
+	sayWhat := []rt.Execute{}
 	for _, a := range all {
 		switch val := a.(type) {
 		case int:
@@ -63,5 +63,5 @@ func Print(all ...interface{}) rt.Execute {
 			panic("say what?")
 		}
 	}
-	return sayWhat
+	return ExecuteList{sayWhat}
 }

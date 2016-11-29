@@ -6,36 +6,45 @@ import (
 )
 
 type SetNum struct {
-	Tgt PropertyNum
-	Num rt.NumberEval
+	Field  string
+	Object rt.ObjEval
+	Num    rt.NumberEval
 }
 
 func (x SetNum) Execute(run rt.Runtime) (err error) {
 	if n, e := x.Num.GetNumber(run); e != nil {
 		err = errutil.New("SetNum.Num", e)
-	} else if e := Property(x.Tgt).SetGeneric(run, n); e != nil {
-		err = errutil.New("SetNum.Tgt", e)
+	} else {
+		p := Property{x.Field, x.Object}
+		if e := p.SetGeneric(run, n); e != nil {
+			err = errutil.New("SetNum.Tgt", e)
+		}
 	}
 	return
 }
 
 type SetTxt struct {
-	Tgt PropertyText
-	Txt rt.TextEval
+	Field  string
+	Object rt.ObjEval
+	Txt    rt.TextEval
 }
 
 func (x SetTxt) Execute(run rt.Runtime) (err error) {
 	if t, e := x.Txt.GetText(run); e != nil {
 		err = errutil.New("SetTxt.Txt", e)
-	} else if e := Property(x.Tgt).SetGeneric(run, t); e != nil {
-		err = errutil.New("SetTxt.Tgt", e)
+	} else {
+		p := Property{x.Field, x.Object}
+		if e := p.SetGeneric(run, t); e != nil {
+			err = errutil.New("SetTxt.Tgt", e)
+		}
 	}
 	return
 }
 
 type SetObj struct {
-	Tgt PropertyRef
-	Ref rt.ObjEval
+	Field  string
+	Object rt.ObjEval
+	Ref    rt.ObjEval
 }
 
 func (x SetObj) Execute(run rt.Runtime) (err error) {
@@ -43,8 +52,11 @@ func (x SetObj) Execute(run rt.Runtime) (err error) {
 		err = errutil.New("SetObj Ref is nil")
 	} else if obj, e := x.Ref.GetObject(run); e != nil {
 		err = errutil.New("SetObj.Ref", e)
-	} else if e := Property(x.Tgt).SetGeneric(run, obj); e != nil {
-		err = errutil.New("SetObj.Tgt", e)
+	} else {
+		p := Property{x.Field, x.Object}
+		if e := p.SetGeneric(run, obj); e != nil {
+			err = errutil.New("SetObj.Tgt", e)
+		}
 	}
 	return
 }

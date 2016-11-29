@@ -11,7 +11,7 @@ func NewSuite(name string, units ...Unit) Suite {
 }
 
 func Setup(setup ...backend.Spec) Unit {
-	return Unit{Setup: setup}
+	return Unit{Setup: backend.SpecList{setup}}
 }
 
 func (u Unit) Try(name string, trials ...Trial) Unit {

@@ -5,15 +5,15 @@ import (
 )
 
 type PrintNum struct {
-	rt.NumberEval
+	Num rt.NumberEval
 }
 
 type PrintText struct {
-	rt.TextEval
+	Text rt.TextEval
 }
 
 type PrintObj struct {
-	rt.ObjEval
+	Obj rt.ObjEval
 }
 
 // PrintLine
@@ -22,7 +22,7 @@ type PrintLine struct {
 }
 
 func (x PrintNum) Execute(run rt.Runtime) (err error) {
-	if n, e := x.GetNumber(run); e != nil {
+	if n, e := x.Num.GetNumber(run); e != nil {
 		err = e
 	} else if s := n.String(); len(s) > 0 {
 		err = run.Print(s)
@@ -33,7 +33,7 @@ func (x PrintNum) Execute(run rt.Runtime) (err error) {
 }
 
 func (x PrintText) Execute(run rt.Runtime) (err error) {
-	if s, e := x.GetText(run); e != nil {
+	if s, e := x.Text.GetText(run); e != nil {
 		err = e
 	} else {
 		err = run.Print(s.String())
@@ -42,7 +42,7 @@ func (x PrintText) Execute(run rt.Runtime) (err error) {
 }
 
 func (x PrintObj) Execute(run rt.Runtime) (err error) {
-	if o, e := x.GetObject(run); e != nil {
+	if o, e := x.Obj.GetObject(run); e != nil {
 		err = e
 	} else {
 		err = run.Print(o.GetOriginalName())

@@ -7,11 +7,13 @@ type Spec interface {
 	Generate(*S.Statements) error
 }
 
-type SpecList []Spec
+type SpecList struct {
+	Specs []Spec
+}
 
 // Generate implements Spec
 func (s SpecList) Generate(src *S.Statements) (err error) {
-	for _, b := range s {
+	for _, b := range s.Specs {
 		if e := b.Generate(src); e != nil {
 			err = e
 			break

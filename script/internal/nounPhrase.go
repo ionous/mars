@@ -13,8 +13,8 @@ import (
 // The presence of a Called fragements switches the subject.
 // ( MARS its called oldstyle because i want to remove the called fragment )
 type NounPhrase struct {
-	Target    types.Subject `mars:"the [subject]"`
-	Fragments []Fragment    `mars:"[fragment]"`
+	Target    types.NamedSubject `mars:"the [subject]"`
+	Fragments []Fragment         `mars:"[fragment]"`
 }
 
 func (p NounPhrase) Generate(src *S.Statements) (err error) {
@@ -31,12 +31,12 @@ func (p NounPhrase) Generate(src *S.Statements) (err error) {
 	return err
 }
 
-func (p NounPhrase) findSubject() (ret types.Subject, err error) {
+func (p NounPhrase) findSubject() (ret types.NamedSubject, err error) {
 	subject, found := p.Target, false // by default
 	for _, f := range p.Fragments {
 		if called, ok := f.(ScriptSubject); ok {
 			if !found {
-				subject = types.Subject(called.Subject)
+				subject = types.NamedSubject(called.Subject)
 				found = true
 			} else {
 				err = errutil.New("phrase has multiple subjects: was", sbuf.Q(subject), "now", sbuf.Q(called.Subject))
@@ -45,7 +45,7 @@ func (p NounPhrase) findSubject() (ret types.Subject, err error) {
 		}
 	}
 	if err == nil {
-		ret = types.Subject(subject)
+		ret = types.NamedSubject(subject)
 	}
 	return
 }

@@ -2,6 +2,7 @@ package std
 
 import (
 	. "github.com/ionous/mars/core"
+	"github.com/ionous/mars/rt"
 	. "github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/g"
 )
@@ -23,7 +24,8 @@ func init() {
 		Understand("inventory|inv|i").As("report inventory"),
 	)
 }
-func invList(source ...string) (ret ExecuteList) {
+func invList(source ...string) ExecuteList {
+	var ret []rt.Execute
 	for _, s := range source {
 		ret = append(ret,
 			ForEachObj{
@@ -38,5 +40,5 @@ func invList(source ...string) (ret ExecuteList) {
 			},
 		)
 	}
-	return
+	return ExecuteList{ret}
 }

@@ -8,11 +8,25 @@ import (
 
 type CompareType int
 
+type CompareTo interface {
+	Compare() CompareType
+}
+
+type EqualTo struct{}
+type GreaterThan struct{}
+type LesserThan struct{}
+type NotEqualTo struct{}
+
+func (EqualTo) Compare() CompareType     { return Compare_EqualTo }
+func (GreaterThan) Compare() CompareType { return Compare_GreaterThan }
+func (LesserThan) Compare() CompareType  { return Compare_LesserThan }
+func (NotEqualTo) Compare() CompareType  { return Compare_NotEqualTo }
+
 const (
-	EqualTo CompareType = 1 << iota
-	GreaterThan
-	LesserThan
-	NotEqual = GreaterThan | LesserThan
+	Compare_EqualTo CompareType = 1 << iota
+	Compare_GreaterThan
+	Compare_LesserThan
+	Compare_NotEqualTo = Compare_GreaterThan | Compare_LesserThan
 )
 
 // maybe a regex or glob comparision
@@ -80,7 +94,7 @@ func (op IsFromClass) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 // IsNum two numbers (a rt.BoolEval)
 type IsNum struct {
 	Src rt.NumberEval
-	Is  CompareType
+	Is  CompareTo
 	Tgt rt.NumberEval
 }
 
@@ -91,13 +105,13 @@ func (comp IsNum) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 		err = errutil.New("IsNum.Tgt", e)
 	} else {
 		d := src.Float() - tgt.Float()
-		switch {
+		switch cmp := comp.Is.Compare(); {
 		case d == 0:
-			ret = (comp.Is & EqualTo) != 0
+			ret = (cmp & Compare_EqualTo) != 0
 		case d < 0:
-			ret = (comp.Is & LesserThan) != 0
+			ret = (cmp & Compare_LesserThan) != 0
 		case d > 0:
-			ret = (comp.Is & GreaterThan) != 0
+			ret = (cmp & Compare_GreaterThan) != 0
 		}
 	}
 	return
@@ -106,7 +120,7 @@ func (comp IsNum) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 // IsText
 type IsText struct {
 	Src rt.TextEval
-	Is  CompareType
+	Is  CompareTo
 	Tgt rt.TextEval
 }
 
@@ -116,21 +130,21 @@ func (comp IsText) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	} else if tgt, e := comp.Tgt.GetText(run); e != nil {
 		err = errutil.New("IsText.Tgt", e)
 	} else {
-		switch comp.Is {
-		case EqualTo:
+		switch cmp := comp.Is.Compare(); cmp {
+		case Compare_EqualTo:
 			ret = src == tgt
-		case NotEqual:
+		case Compare_NotEqualTo:
 			ret = src != tgt
-		case LesserThan:
+		case Compare_LesserThan:
 			ret = src < tgt
-		case GreaterThan:
+		case Compare_GreaterThan:
 			ret = src > tgt
-		case GreaterThan | EqualTo:
+		case Compare_GreaterThan | Compare_EqualTo:
 			ret = src >= tgt
-		case LesserThan | EqualTo:
+		case Compare_LesserThan | Compare_EqualTo:
 			ret = src <= tgt
 		default:
-			err = errutil.New("IsText.Is", comp.Is, "unknown operand")
+			err = errutil.New("IsText.Is", cmp, "unknown operand")
 		}
 	}
 	return

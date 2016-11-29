@@ -5,11 +5,21 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-func Try(message string, b rt.BoolEval) rt.Execute {
-	return Choose{If: b,
-		True:  PrintLine{PrintText{T(message)}},
-		False: Error{T(message)}}
-}
+// print the text on success, return it as an error on failure
+// func Try(message string, b rt.BoolEval) rt.Execute {
+// 	return Trial{Choose{If: b,
+// 		True:  PrintLine{PrintText{T(message)}},
+// 		False: Error{T(message)}}}
+// }
+
+// type Trial struct {
+// 	Test rt.BoolEval
+// }
+
+// func (x Trial) Execute(run rt.Runtime) error {
+// 	_, err := x.Test.GetBool(run)
+// 	return err
+// }
 
 // Error satifies all runtime evaluations;
 // in all cases returning an error string provided by "reason".

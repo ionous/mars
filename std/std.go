@@ -4,7 +4,6 @@ import (
 	"github.com/ionous/mars"
 	"github.com/ionous/mars/core"
 	"github.com/ionous/mars/lang"
-	"github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/test"
 	"github.com/ionous/mars/std/compat"
@@ -14,11 +13,11 @@ import (
 func Std() *mars.Package {
 	if std == nil {
 		std = &mars.Package{
-			Name:     "Std",
-			Scripts:  scripts,
-			Tests:    tests,
-			Imports:  mars.Imports(core.Core(), lang.Lang()),
-			Commands: (*StdDL)(nil),
+			Name:         "Std",
+			Scripts:      scripts,
+			Tests:        tests,
+			Dependencies: mars.Dependencies(core.Core(), lang.Lang()),
+			Commands:     (*StdCommands)(nil),
 		}
 	}
 	return std
@@ -26,10 +25,10 @@ func Std() *mars.Package {
 
 var std *mars.Package
 
-var scripts mars.SpecList
+var scripts backend.SpecList
 
 func addScript(_ string, specs ...backend.Spec) {
-	scripts = append(scripts, script.NewScript(specs...))
+	scripts.Specs = append(scripts.Specs, specs...)
 }
 
 var tests []test.Suite
@@ -38,7 +37,7 @@ func addTest(name string, units ...test.Unit) {
 	tests = append(tests, test.NewSuite(name, units...))
 }
 
-type StdDL struct {
+type StdCommands struct {
 	*compat.ScriptRef
 	*compat.ScriptRefList
 	*SaveGame

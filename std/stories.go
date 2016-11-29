@@ -31,7 +31,7 @@ func init() {
 	// globals are transmitted to the client in the default view.
 	s.The("kinds", Called("globals"), Exist())
 	s.The("globals",
-		Called("stories").WithSingularName("story"),
+		Called("stories"), HasSingularName("story"),
 		Have("author", "text"),
 		Have("headline", "text"),
 		AreEither("scored").Or("unscored").Usually("unscored"),
@@ -148,7 +148,7 @@ func init() {
 			test.Expect(IsObj{Parent(g.The("player")), g.The("nothing")}),
 		),
 		test.Setup(t).Try("commencing the story",
-			test.Expect(IsText{g.The("testing").Text("name"), EqualTo, T("testing")}),
+			test.Expect(IsText{g.The("testing").Text("name"), EqualTo{}, T("testing")}),
 			test.Run("commence", g.The("testing")).Match(
 				"testing.",
 				"extra extra by me.",

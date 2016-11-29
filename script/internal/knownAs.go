@@ -3,10 +3,11 @@ package internal
 import (
 	. "github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
+	"github.com/ionous/sashimi/source/types"
 )
 
 type KnownAs struct {
-	Names []string
+	Names types.PlayerInput
 }
 
 // Add additional aliases for the current subject.
@@ -16,6 +17,6 @@ func (f KnownAs) And(name string) KnownAs {
 }
 
 func (f KnownAs) GenFragment(src *S.Statements, top Topic) (err error) {
-	alias := S.AliasFields{string(top.Subject), f.Names}
+	alias := S.AliasFields{top.Subject.String(), f.Names.Strings()}
 	return src.NewAlias(alias, S.UnknownLocation)
 }

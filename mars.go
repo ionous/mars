@@ -9,31 +9,34 @@ import (
 
 type Package struct {
 	Name string
-	// Commands should be a nil pointer to a structure containing pointers to all of the commands in the package.
+	// Commands enumerates all commands in the package
+	// represented by a nil pointer to a structure of command pointers.
 	Commands interface{}
+	// Interfaces enumerates all interfaces in the package
+	// represented by a nil pointer to a structure of interface objects.
+	Interfaces interface{}
 	// Scripts contains all declarations for the package.
-	Scripts SpecList
+	Scripts backend.SpecList
 	// Test contains all test suites for the package.
 	Tests TestList
-	// Imports contains all package dependencies.
-	Imports ImportList
+	// Dependencies contains all package dependencies.
+	Dependencies DependencyList
 }
 
-type ImportList []Import
-type SpecList []backend.Spec
+type DependencyList []Dependency
 type TestList []test.Suite
 
-type Import *Package
+type Dependency *Package
 
-func Scripts(scripts ...backend.Spec) SpecList {
-	return scripts
+func Scripts(scripts ...backend.Spec) backend.SpecList {
+	return backend.SpecList{scripts}
 }
 
 func Tests(tests ...test.Suite) TestList {
 	return tests
 }
 
-func Imports(imports ...Import) ImportList {
+func Dependencies(imports ...Dependency) DependencyList {
 	return imports
 }
 
@@ -47,17 +50,7 @@ func (p *Package) Generate(src *S.Statements) (err error) {
 	return p.genPackage(g)
 }
 
-func (sl SpecList) Generate(src *S.Statements) (err error) {
-	for _, s := range sl {
-		if e := s.Generate(src); e != nil {
-			err = e
-			break
-		}
-	}
-	return
-}
-
-func (i ImportList) genImports(g pkgGen) (err error) {
+func (i DependencyList) genDependencies(g pkgGen) (err error) {
 	for _, p := range i {
 		if !g.rem[p.Name] {
 			g.rem[p.Name] = true
@@ -71,7 +64,7 @@ func (i ImportList) genImports(g pkgGen) (err error) {
 }
 
 func (p *Package) genPackage(g pkgGen) (err error) {
-	if e := p.Imports.genImports(g); e != nil {
+	if e := p.Dependencies.genDependencies(g); e != nil {
 		err = e
 	} else {
 		err = p.Scripts.Generate(g.src)
