@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	addScript("Taking",
+	pkg.AddScript("Taking",
 		The("actors",
 			Can("take it").And("taking it").RequiresOnly("prop"),
 			To("take it", g.ReflectToTarget("report take")),

@@ -2,6 +2,7 @@ package encode
 
 import (
 	"github.com/ionous/sashimi/util/errutil"
+	"github.com/ionous/sashimi/util/sbuf"
 	r "reflect"
 )
 
@@ -15,34 +16,46 @@ type DataBlock struct {
 func ComputeArg(v r.Value) (ret interface{}, err error) {
 	switch k := v.Kind(); k {
 	case r.String:
-		ret = v.String()
+		if s := v.String(); s != "" {
+			ret = s
+		}
+	case r.Bool:
+		ret = v.Bool()
+	case r.Float64:
+		ret = v.Float()
 
 	case r.Slice:
-		var out []interface{}
-		for i, cnt := 0, v.Len(); i < cnt; i++ {
-			if l, e := ComputeArg(v.Index(i)); e != nil {
-				err = e
-			} else {
-				out = append(out, l)
+		if cnt := v.Len(); cnt > 0 {
+			var out []interface{}
+			for i := 0; i < cnt; i++ {
+				if l, e := ComputeArg(v.Index(i)); e != nil {
+					err = errutil.New("error converting", k, "at", i, "because", e)
+				} else {
+					out = append(out, l)
+				}
 			}
+			ret = out
 		}
-		ret = out
 
-	case r.Bool,
-		r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
-		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64,
-		r.Float32, r.Float64:
-		{
-			err = errutil.New("not supported yet", k)
-			// panic(err)
-		}
 	case r.Struct:
-		ret, err = ComputeCmd(v)
+		if r, e := ComputeCmd(v); e != nil {
+			err = errutil.New("error converting", k, "because", e)
+		} else {
+			ret = r
+		}
 
 	case r.Ptr, r.Interface:
-		ret, err = ComputeArg(v.Elem())
+		if !v.IsNil() {
+			if r, e := ComputeArg(v.Elem()); e != nil {
+				err = errutil.New("error converting", k, "because", e)
+			} else {
+				ret = r
+			}
+		}
 		// interesingly: interface storage stores an interface object
 		// which contains the underlying object.
+	default:
+		err = errutil.New("arg not supported", sbuf.Q(k))
 	}
 	return
 }
@@ -64,8 +77,8 @@ func ComputeCmd(src r.Value) (ret DataBlock, err error) {
 		for i := 0; i < srcType.NumField(); i++ {
 			f, v := srcType.Field(i), src.Field(i)
 			if arg, e := ComputeArg(v); e != nil {
-				err = e
-			} else {
+				err = errutil.New("error converting", srcType, "at", f.Name, "because", e)
+			} else if arg != nil {
 				args[f.Name] = arg
 			}
 		}

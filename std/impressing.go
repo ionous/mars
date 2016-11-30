@@ -7,12 +7,12 @@ import (
 )
 
 func init() {
-	addScript("Impressing",
+	pkg.AddScript("Impressing",
 		The("actors",
 			Can("impress").And("impressing").RequiresNothing(),
 			To("impress", g.Say(g.The("actor").Upper(), "is unimpressed."))))
 
-	addTest("Impressing",
+	pkg.AddTest("Impressing",
 		test.Setup(
 			The("actor", Called("the player"), Exists()),
 		).Try("to impress",

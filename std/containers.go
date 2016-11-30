@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	addScript("Containers",
+	pkg.AddScript("Containers",
 		The("openers",
 			Called("containers"),
 			HaveMany("contents", "objects").

@@ -76,7 +76,7 @@ func (p ChangeState) To(state string) ChangeState {
 
 func (p ChangeState) And(state string) ChangeState {
 	id := MakeStringId(state)
-	p.States = append(p.States, rt.State(id))
+	p.States = append(p.States, rt.State{id})
 	return p
 }
 

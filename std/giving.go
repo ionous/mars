@@ -33,7 +33,7 @@ type GivePropPhrase string
 //  "carry out giving something to"
 //  "report an an actor giving something to"
 func init() {
-	addScript("Giving",
+	pkg.AddScript("Giving",
 		// for summarily ( client side ) rejecting items
 		The("actors", AreEither("items receiver").Or("items rejector")),
 
@@ -97,22 +97,22 @@ func init() {
 	)
 
 	// MARS: move all tests to a sub-directory.
-	addTest("Giving",
-		test.Setup(
+	pkg.AddTest("Giving",
+		test.Setup(NewScript(
 			The("actor", Called("the player"), Exists()),
 			The("actor", Called("the firefighter"), Exists()),
-			The("prop", Called("the cat"), Exists()),
+			The("prop", Called("the cat"), Exists())),
 		).Try("giving when not having",
 			test.Parse("give the cat to the firefighter").
 				Match("You aren't holding the cat."),
 		),
-		test.Setup(
+		test.Setup(NewScript(
 			The("actor", Called("the player"), Exists()),
 			The("actor", Called("the firefighter"), Exists()),
 			The("prop", Called("the cat"), Exists()),
 			The("prop", Called("the hat"), Exists()),
 			The("player", Possesses("the cat")),
-			The("player", Wears("the hat")),
+			The("player", Wears("the hat"))),
 		).Try("giving while having failures",
 			test.Parse("give the cat to the player").
 				Match("You can't give to yourself."),

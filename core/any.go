@@ -17,7 +17,7 @@ func (a AnyTrue) Or(choice rt.BoolEval) AnyTrue {
 	return AnyTrue{append(a.Test, choice)}
 }
 
-func (a AnyTrue) GetBool(run rt.Runtime) (okay rt.Bool, err error) {
+func (a AnyTrue) GetBool(run rt.Runtime) (okay bool, err error) {
 	prelim := false
 	for _, b := range a.Test {
 		if ok, e := b.GetBool(run); e != nil {
@@ -30,6 +30,6 @@ func (a AnyTrue) GetBool(run rt.Runtime) (okay rt.Bool, err error) {
 			break
 		}
 	}
-	okay = rt.Bool(prelim)
+	okay = prelim
 	return
 }

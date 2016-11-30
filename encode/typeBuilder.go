@@ -2,7 +2,6 @@ package encode
 
 import (
 	"github.com/ionous/mars"
-	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 	r "reflect"
 )
@@ -18,17 +17,8 @@ func (b *TypeBuilder) Build() TypeBlocks {
 	return b.types
 }
 
-// we have to handle this specially in the lookup,
-// so we might as well handle registering it as well.
-type generic struct {
-	meta.Generic
-}
-
 func NewTypeBuilder() *TypeBuilder {
-	t := &TypeBuilder{gen: make(TypeExists), packages: make(PackageMap)}
-	g := (*generic)(nil)
-	t.addInterfaces(nil, g)
-	return t
+	return &TypeBuilder{gen: make(TypeExists), packages: make(PackageMap)}
 }
 
 type TypeParameters struct {
@@ -40,7 +30,7 @@ type TypeParameters struct {
 
 type TypeBlock struct {
 	Name       string           `json:"name"`
-	Package    *string          `json:"source,omitempty"`
+	Package    *string          `json:"package,omitempty"`
 	Implements *string          `json:"implements,omitempty"`
 	Parameters []TypeParameters `json:"params,omitempty"`
 }

@@ -23,5 +23,5 @@ func init() {
 			g.The("status bar").SetText("left", g.The("room").Upper()),
 		))
 
-	addScript("StatusBar", s)
+	pkg.AddScript("StatusBar", s)
 }

@@ -1,6 +1,7 @@
 package script
 
 import (
+	"github.com/ionous/mars/rt"
 	S "github.com/ionous/sashimi/source"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -13,7 +14,7 @@ func TestSimpleScript(t *testing.T) {
 			Called("rooms"),
 			Have("greeting", "text"),
 		),
-		The("room", Called("world"), Has("greeting", "hello")),
+		The("room", Called("world"), HasText("greeting", rt.Text{"hello"})),
 	)
 	if e := s.Generate(src); assert.NoError(t, e, "failed to build") {
 		assert.Len(t, src.Asserts, 2, "one kind, one instance")

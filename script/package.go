@@ -30,31 +30,30 @@ type ScriptInterfaces struct {
 }
 
 type ScriptCommands struct {
-	*backend.SpecList
+	*internal.AfterEvent
+	*internal.BeforeEvent
 	*internal.CanDoIt
 	*internal.Choices
 	*internal.ClassEnum
 	*internal.ClassProperty
+	*internal.DefaultAction
+	*internal.Exists
 	*internal.HaveOne
 	*internal.HaveMany
 	*internal.ImplyingNothing
 	*internal.ImplyingOne
 	*internal.ImplyingMany
-	*internal.DefaultAction
-	*internal.Exists
-	*internal.PropertyValue
 	*internal.KnownAs
-	*internal.ScriptSubject
-	*internal.ScriptSingular
-	*internal.BeforeEvent
-	*internal.WhenEvent
-	*internal.AfterEvent
-	// GoesToFragment
-	// ListOfItems
-	*internal.ParserPhrase
 	*internal.NounPhrase
+	*internal.NumberValue
+	*internal.ParserPhrase
+	*internal.RefValue
 	*internal.Requires
 	*internal.RequiresOnly
 	*internal.RequiresTwo
 	*internal.RequiresNothing
+	*internal.ScriptSubject
+	*internal.ScriptSingular
+	*internal.TextValue
+	*internal.WhenEvent
 }

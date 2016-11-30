@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	addScript("Examining", // one visible thing
+	pkg.AddScript("Examining", // one visible thing
 		// examine studio: You can't see any such thing; sad face.
 		The("actors",
 			Can("examine it").And("examining it").RequiresOnly("object"),

@@ -9,13 +9,13 @@ type AddNum struct {
 	Augend, Addend rt.NumberEval
 }
 
-func (op AddNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+func (op AddNum) GetNumber(run rt.Runtime) (ret float64, err error) {
 	if a, e := op.Augend.GetNumber(run); e != nil {
 		err = errutil.New("add augend get", e)
 	} else if b, e := op.Addend.GetNumber(run); e != nil {
 		err = errutil.New("add addend get", e)
 	} else {
-		ret = rt.Number(a.Float() + b.Float())
+		ret = a + b
 	}
 	return
 }
@@ -29,7 +29,7 @@ func (op Inc) Execute(run rt.Runtime) (err error) {
 	if v, e := (PropertyNum{op.Name, ref}).GetNumber(run); e != nil {
 		err = errutil.New("inc property get", e)
 	} else {
-		var n rt.Number = v + 1
+		n := rt.Number{v + 1}
 		if e := (Property{op.Name, ref}).SetGeneric(run, n); e != nil {
 			err = errutil.New("inc property set", e)
 		}

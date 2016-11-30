@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	addScript("PuttingItOn", // 1. source
+	pkg.AddScript("PuttingItOn", // 1. source
 		The("actors",
 			// FIX? word-wise this is wrong ( see tickle-it-with, though it is "correct" )
 			Can("put it onto").And("putting it onto").RequiresOne("supporter").AndOne("prop"),

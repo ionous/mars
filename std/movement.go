@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	addScript("Movement",
+	pkg.AddScript("Movement",
 		// 1. A Room (contains) Doors
 		The("openers",
 			Called("doors"),
@@ -55,8 +55,8 @@ func init() {
 		func() (s Script) {
 			for i := 0; i < len(Directions)/2; i++ {
 				a, b := Directions[2*i], Directions[2*i+1]
-				s.The("direction", Called(a), Has("opposite", b))
-				s.The("direction", Called(b), Has("opposite", a))
+				s.The("direction", Called(a), HasText("opposite", T(b)))
+				s.The("direction", Called(b), HasText("opposite", T(a)))
 			}
 			return
 		}(),
@@ -150,8 +150,8 @@ func init() {
 	// FIX: want to map "name" to a property, and if it doesn't exist fall back on split id.
 	// FIX? wonder if you could inject a report of some kind to pull in the description /brief of a door
 	// automatically to match it's other side.
-	s.The("door", Called("curtain"), Has("brief", "A red velvet curtain."))
-	s.The("door", Called("cloakroom-curtain"), Has("brief", "A red velvet curtain."))
+	s.The("door", Called("curtain"), HasText("brief", T("A red velvet curtain.")))
+	s.The("door", Called("cloakroom-curtain"), HasText("brief", T("A red velvet curtain.")))
 
 	move := func(cmd, dest string) test.Trial {
 		return test.Parse(cmd).
@@ -160,7 +160,7 @@ func init() {
 	}
 
 	// test moving around
-	addTest("Moving",
+	pkg.AddTest("Moving",
 		test.Setup(s).Try("moving about",
 			test.Expect(g.The("player").Object("whereabouts").Equals(g.The("lobby"))).
 				Else(g.Say(g.The("player").Object("whereabouts"))),

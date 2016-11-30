@@ -32,7 +32,7 @@ func (faces Interfaces) FindMatching(s r.Type) (ret string, err error) {
 	var found []string
 	for _, n := range faces {
 		u, name := n.face, n.name
-		if n.name != "Generic" && (s.Implements(u) || r.PtrTo(s).Implements(u)) {
+		if s.Implements(u) || r.PtrTo(s).Implements(u) {
 			found = append(found, name)
 		}
 	}

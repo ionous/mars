@@ -43,11 +43,11 @@ func (l *LoopScope) FindValue(name string) (ret meta.Generic, err error) {
 		case name == "@":
 			ret = l.value
 		case strings.EqualFold(name, "@first"):
-			ret = rt.Bool(l.isFirst)
+			ret = rt.Bool{l.isFirst}
 		case strings.EqualFold(name, "@last"):
-			ret = rt.Bool(l.isLast)
+			ret = rt.Bool{l.isLast}
 		case strings.EqualFold(name, "@index"):
-			ret = rt.Number(float64(l.index))
+			ret = rt.Number{float64(l.index)}
 		default:
 			err = errutil.New("Looper, unknown field", name)
 		}

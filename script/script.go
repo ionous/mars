@@ -8,33 +8,39 @@ import (
 )
 
 type Script struct {
-	Name       string
-	Statements backend.SpecList
+	Name  string
+	Specs []backend.Spec
 }
 
 func NewScript(specs ...backend.Spec) Script {
-	return Script{Statements: backend.SpecList{specs}}
+	return Script{Specs: specs}
 }
 
 func (s *Script) Add(specs ...backend.Spec) *Script {
-	s.Statements.Specs = append(s.Statements.Specs, specs...)
+	s.Specs = append(s.Specs, specs...)
 	return s
 }
 
 func (s *Script) The(target string, frags ...backend.Fragment) *Script {
-	s.Statements.Specs = append(s.Statements.Specs, The(target, frags...))
+	s.Specs = append(s.Specs, The(target, frags...))
 	return s
 }
 
 func (s *Script) Understand(input ...string) (ret *ParserIt) {
 	ret = &ParserIt{Input: input}
-	s.Statements.Specs = append(s.Statements.Specs, ret)
+	s.Specs = append(s.Specs, ret)
 	return
 }
 
 // Generate implements Spec
 func (s Script) Generate(src *S.Statements) (err error) {
-	return s.Statements.Generate(src)
+	for _, b := range s.Specs {
+		if e := b.Generate(src); e != nil {
+			err = e
+			break
+		}
+	}
+	return err
 }
 
 //

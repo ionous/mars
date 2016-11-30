@@ -9,7 +9,7 @@ import (
 // FIX: future runtime load, incl
 // listing and selection of save games.
 func init() {
-	addScript("Saving",
+	pkg.AddScript("Saving",
 		// future: maybe a named or enum for require? ( tho an arbitrary string would be  unsafe )
 		// maybe an optional require?
 		The("kinds", Called("globals"), Exist()),

@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	addScript("LookingUnder",
+	pkg.AddScript("LookingUnder",
 		// NOTE: inform has two entries for some actions (looking under as an example, jumping as a counter example):
 		// 1. carry out an actor looking under: if the player
 		// 2. report an actor looking under: if not the player
@@ -33,11 +33,11 @@ func init() {
 				))),
 	)
 
-	addTest("LookUnder",
-		test.Setup(
+	pkg.AddTest("LookUnder",
+		test.Setup(NewScript(
 			The("object", Called("the wardrobe"), Exists()),
 			The("actor", Called("the player"), Exists()),
-			The("actor", Called("the lion"), Exists()),
+			The("actor", Called("the lion"), Exists())),
 		).Try("looking under something",
 			test.Parse("look under the wardrobe").
 				Match("You find nothing of interest."),

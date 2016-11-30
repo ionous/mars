@@ -7,13 +7,13 @@ import (
 )
 
 func init() {
-	addTest("Articles",
-		test.Setup(
+	pkg.AddTest("Articles",
+		test.Setup(NewScript(
 			The("kind", Called("lamp-post"), Exists()),
 			The("kind", Called("soldiers"), Exists(),
-				Has("indefinite article", "some")),
+				HasText("indefinite article", T("some"))),
 			The("kind", Called("Trevor"), Exists(),
-				Is("proper named")),
+				Is("proper named"))),
 		).Try("test articles",
 			// examples from inform7
 			// PHRASE: say "[a (object)]" & say "[an (object)]"

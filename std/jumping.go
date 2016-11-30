@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	addScript("Jumping",
+	pkg.AddScript("Jumping",
 		The("actors",
 			Can("jump").And("jumping").RequiresNothing(),
 			To("jump", g.ReflectToLocation("report jump")),

@@ -13,9 +13,9 @@ func init() {
 
 	t.The("kind",
 		Called("test"),
-		Has("amSet", "original"))
+		HasText("amSet", T("original")))
 
-	addTest("Core Tests",
+	pkg.AddTest("Core Tests",
 		test.Setup(t).Try("changing values",
 			test.Expect(IsValid{Named{"test"}}),
 			test.Expect(IsText{PropertyText{"amSet", Named{"test"}}, EqualTo{}, T("original")}),

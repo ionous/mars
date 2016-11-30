@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	addScript("Desc",
+	pkg.AddScript("Desc",
 		The("objects",
 			Have("description", "text"),
 			Have("brief", "text")),
@@ -49,10 +49,10 @@ func init() {
 		// but not all objects are containers, so it errors
 	)
 
-	addTest("Desc",
+	pkg.AddTest("Desc",
 		test.Setup(
 			The("object", Called("plain ring"), Exists(),
-				Has("brief", "Cast aside, as if worthless, is a plain brass ring.")),
+				HasText("brief", T("Cast aside, as if worthless, is a plain brass ring."))),
 			//"No better than the loops of metal the old women use for fastening curtains."
 		).Try("handling changes description",
 			test.Execute(

@@ -15,7 +15,7 @@ import (
 //  "block showing - says: "the actor is unimpressed""
 // 		why not an explicit report?
 func init() {
-	addScript("Showing",
+	pkg.AddScript("Showing",
 		// 1. source
 		The("actors",
 			Can("show it to").And("showing it to").RequiresOne("actor").AndOne("prop"),

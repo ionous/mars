@@ -10,8 +10,8 @@ func NewSuite(name string, units ...Unit) Suite {
 	return Suite{name, units}
 }
 
-func Setup(setup ...backend.Spec) Unit {
-	return Unit{Setup: backend.SpecList{setup}}
+func Setup(setup backend.Spec) Unit {
+	return Unit{Setup: setup}
 }
 
 func (u Unit) Try(name string, trials ...Trial) Unit {

@@ -7,7 +7,7 @@ import (
 
 // searching: requiring light; FIX: what does searching a room do?
 func init() {
-	addScript("Searching",
+	pkg.AddScript("Searching",
 		The("actors",
 			Can("search it").And("searching it").RequiresOnly("prop"),
 			To("search it", g.ReflectToTarget("report search"))),

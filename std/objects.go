@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	addScript("Objects",
+	pkg.AddScript("Objects",
 		// FIX: hierarchy is a work in progress.
 		// kinds> stories, rooms, objects > actors (> animals),  props(> openers(> doors,containers), supporters, devices)
 

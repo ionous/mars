@@ -24,7 +24,7 @@ import (
 
 /// insert it into, receive insertion, being inserted.
 func init() {
-	addScript("InsertingInto", // 1. source
+	pkg.AddScript("InsertingInto", // 1. source
 		The("actors",
 			// FIX? word-wise this is wrong ( see tickle-it-with, though it is "correct" )
 			Can("insert it into").And("inserting it into").RequiresOne("container").AndOne("prop"),

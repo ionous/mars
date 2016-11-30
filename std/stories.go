@@ -128,22 +128,22 @@ func init() {
 				),
 			}))
 
-	addScript("Stories", s)
+	pkg.AddScript("Stories", s)
 
 	t := NewScript()
 	t.The("story",
 		Called("testing"),
-		Has("author", "me"),
-		Has("headline", "extra extra"))
+		HasText("author", T("me")),
+		HasText("headline", T("extra extra")))
 	t.The("room",
 		Called("the nothing"),
-		Has("printed name", "the nothing"),
-		Has("description", "an empty room"),
+		HasText("printed name", T("the nothing")),
+		HasText("description", T("an empty room")),
 		When("describing").Always(g.StopHere()),
 	)
 	t.The("player", Exists(), In("the nothing"))
 
-	addTest("Stories",
+	pkg.AddTest("Stories",
 		test.Setup(t).Try("player location",
 			test.Expect(IsObj{Parent(g.The("player")), g.The("nothing")}),
 		),

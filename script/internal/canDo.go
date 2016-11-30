@@ -48,11 +48,6 @@ type CanDoPhrase CanDoIt
 type RequiresWhatPhrase CanDoIt
 type RequiresMorePhrase CanDoIt
 
-type ActionAssertion struct {
-	RequiresWhatPhrase
-	Target, Context string
-}
-
 type CanDoIt struct {
 	ActionName types.NamedAction `mars:"can [act]"`
 	EventName  types.NamedEvent  `mars:"and [acting]"`

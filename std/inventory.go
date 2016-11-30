@@ -11,7 +11,7 @@ import (
 // you are wearing:
 // fwiw: Carry out taking inventory have the only good description of response text. (A)
 func init() {
-	addScript("Inventory",
+	pkg.AddScript("Inventory",
 		// "taking inventory" in inform
 		// again, as with some other actions: for players this happens in carry out, for npcs in report.
 		// i'm sure that's useful... somehow....

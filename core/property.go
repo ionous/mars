@@ -21,7 +21,7 @@ type PropertyNumList Property
 type PropertyTextList Property
 type PropertyRefList Property
 
-func (p PropertyNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+func (p PropertyNum) GetNumber(run rt.Runtime) (ret float64, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.NumberEval); !ok {
@@ -32,7 +32,7 @@ func (p PropertyNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	return
 }
 
-func (p PropertyText) GetText(run rt.Runtime) (ret rt.Text, err error) {
+func (p PropertyText) GetText(run rt.Runtime) (ret string, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.TextEval); !ok {

@@ -28,38 +28,38 @@ type ALower struct {
 	Noun rt.ObjEval
 }
 
-func (t TheUpper) GetText(run rt.Runtime) (ret rt.Text, err error) {
+func (t TheUpper) GetText(run rt.Runtime) (ret string, err error) {
 	if s, e := articleNamed(run, t.Noun, "The"); e != nil {
 		err = e
 	} else {
-		ret = rt.Text(s)
+		ret = s
 	}
 	return
 }
 
-func (t TheLower) GetText(run rt.Runtime) (ret rt.Text, err error) {
+func (t TheLower) GetText(run rt.Runtime) (ret string, err error) {
 	if s, e := articleNamed(run, t.Noun, "the"); e != nil {
 		err = e
 	} else {
-		ret = rt.Text(s)
+		ret = s
 	}
 	return
 }
 
-func (t AnUpper) GetText(run rt.Runtime) (ret rt.Text, err error) {
+func (t AnUpper) GetText(run rt.Runtime) (ret string, err error) {
 	if s, e := articleNamed(run, t.Noun, ""); e != nil {
 		err = e
 	} else {
-		ret = rt.Text(lang.Capitalize(s))
+		ret = lang.Capitalize(s)
 	}
 	return
 }
 
-func (t ALower) GetText(run rt.Runtime) (ret rt.Text, err error) {
+func (t ALower) GetText(run rt.Runtime) (ret string, err error) {
 	if s, e := articleNamed(run, t.Noun, ""); e != nil {
 		err = e
 	} else {
-		ret = rt.Text(s)
+		ret = s
 	}
 	return
 }
@@ -72,7 +72,7 @@ func init() {
 		AreEither("singular-named").Or("plural-named"),
 		AreEither("common-named").Or("proper-named"),
 	)
-	addScript("Articles", s)
+	pkg.AddScript("Articles", s)
 }
 
 // You can only just make out the lamp-post.", or "You can only just make out _ Trevor.", or "You can only just make out the soldiers."
@@ -87,7 +87,6 @@ func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, 
 		} else if proper, e := (core.IsState{obj, "proper-named"}.GetBool(run)); e != nil {
 			err = e
 		} else {
-			name := name.String()
 			if proper {
 				ret = lang.Titleize(name)
 			} else {
@@ -95,7 +94,7 @@ func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, 
 					if indefinite, e := (core.GetText{"indefinite article"}.GetText(run)); e != nil {
 						err = e
 					} else {
-						article = indefinite.String()
+						article = indefinite
 						if len(article) == 0 {
 							if plural, e := (core.IsState{obj, "plural-named"}.GetBool(run)); e != nil {
 								err = e

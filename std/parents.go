@@ -43,7 +43,7 @@ func Ancestors(obj rt.ObjEval) rt.ObjListEval {
 	// a search through all relation properties:
 	refs := rt.References{}
 	for _, rel := range []string{"wearer", "owner", "whereabouts", "support", "enclosure"} {
-		refs = append(refs, core.PropertySafeRef{rel, core.GetObj{"@"}})
+		refs.Values = append(refs.Values, core.PropertySafeRef{rel, core.GetObj{"@"}})
 	}
 	return stream.MakeStream{
 		Using: obj,

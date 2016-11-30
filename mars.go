@@ -7,6 +7,19 @@ import (
 	S "github.com/ionous/sashimi/source"
 )
 
+type PackageBuilder struct {
+	Scripts []backend.Spec
+	Tests   []test.Suite
+}
+
+func (pb *PackageBuilder) AddScript(_ string, specs ...backend.Spec) {
+	pb.Scripts = append(pb.Scripts, specs...)
+}
+
+func (pb *PackageBuilder) AddTest(name string, units ...test.Unit) {
+	pb.Tests = append(pb.Tests, test.NewSuite(name, units...))
+}
+
 type Package struct {
 	Name string
 	// Commands enumerates all commands in the package
@@ -16,7 +29,7 @@ type Package struct {
 	// represented by a nil pointer to a structure of interface objects.
 	Interfaces interface{}
 	// Scripts contains all declarations for the package.
-	Scripts backend.SpecList
+	Scripts SpecList
 	// Test contains all test suites for the package.
 	Tests TestList
 	// Dependencies contains all package dependencies.
@@ -25,20 +38,13 @@ type Package struct {
 
 type DependencyList []Dependency
 type TestList []test.Suite
-
-type Dependency *Package
-
-func Scripts(scripts ...backend.Spec) backend.SpecList {
-	return backend.SpecList{scripts}
-}
-
-func Tests(tests ...test.Suite) TestList {
-	return tests
-}
+type SpecList []backend.Spec
 
 func Dependencies(imports ...Dependency) DependencyList {
 	return imports
 }
+
+type Dependency *Package
 
 type pkgGen struct {
 	rem map[string]bool
@@ -67,7 +73,12 @@ func (p *Package) genPackage(g pkgGen) (err error) {
 	if e := p.Dependencies.genDependencies(g); e != nil {
 		err = e
 	} else {
-		err = p.Scripts.Generate(g.src)
+		for _, b := range p.Scripts {
+			if e := b.Generate(g.src); e != nil {
+				err = e
+				break
+			}
+		}
 	}
 	return err
 }

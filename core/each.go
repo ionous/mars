@@ -26,11 +26,11 @@ type IfEach struct {
 	IsFirst, IsLast bool
 }
 
-func (t IfEach) GetBool(run rt.Runtime) (rt.Bool, error) {
+func (t IfEach) GetBool(run rt.Runtime) (bool, error) {
 	var err error
 	b := (t.IsFirst && ifEach(run, "@first", &err)) ||
 		(err == nil && t.IsLast && ifEach(run, "@last", &err))
-	return rt.Bool(b), err
+	return b, err
 }
 
 func ifEach(run rt.Runtime, name string, err *error) (ret bool) {
@@ -41,14 +41,14 @@ func ifEach(run rt.Runtime, name string, err *error) (ret bool) {
 	} else if b, e := eval.GetBool(run); e != nil {
 		*err = e
 	} else {
-		ret = bool(b)
+		ret = b
 	}
 	return
 }
 
 type EachIndex struct{}
 
-func (t EachIndex) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+func (t EachIndex) GetNumber(run rt.Runtime) (ret float64, err error) {
 	if v, e := run.FindValue("@index"); e != nil {
 		err = errutil.New("EachIndex", "not in a l", e)
 	} else if eval, ok := v.(rt.NumberEval); !ok {

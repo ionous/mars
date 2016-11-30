@@ -22,7 +22,7 @@ type ChooseObj struct {
 	True, False rt.ObjEval
 }
 
-func (x Choose) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (x Choose) GetBool(run rt.Runtime) (ret bool, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
@@ -35,12 +35,12 @@ func (x Choose) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 		if next != nil {
 			err = next.Execute(run)
 		}
-		ret = rt.Bool(b)
+		ret = b
 	}
 	return
 }
 
-func (x ChooseNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+func (x ChooseNum) GetNumber(run rt.Runtime) (ret float64, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
@@ -57,7 +57,7 @@ func (x ChooseNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	return
 }
 
-func (x ChooseText) GetText(run rt.Runtime) (ret rt.Text, err error) {
+func (x ChooseText) GetText(run rt.Runtime) (ret string, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {

@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/ionous/mars/rt"
+	"strconv"
 )
 
 type PrintNum struct {
@@ -24,7 +25,7 @@ type PrintLine struct {
 func (x PrintNum) Execute(run rt.Runtime) (err error) {
 	if n, e := x.Num.GetNumber(run); e != nil {
 		err = e
-	} else if s := n.String(); len(s) > 0 {
+	} else if s := strconv.FormatFloat(n, 'g', -1, 64); len(s) > 0 {
 		err = run.Print(s)
 	} else {
 		err = run.Println("<num>")
@@ -36,7 +37,7 @@ func (x PrintText) Execute(run rt.Runtime) (err error) {
 	if s, e := x.Text.GetText(run); e != nil {
 		err = e
 	} else {
-		err = run.Print(s.String())
+		err = run.Print(s)
 	}
 	return err
 }

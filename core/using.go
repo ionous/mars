@@ -34,7 +34,7 @@ type GetBool struct {
 	Name string
 }
 
-func (c GetBool) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (c GetBool) GetBool(run rt.Runtime) (ret bool, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if neval, ok := eval.(rt.BoolEval); !ok {
@@ -52,7 +52,7 @@ type GetNum struct {
 	Name string
 }
 
-func (c GetNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+func (c GetNum) GetNumber(run rt.Runtime) (ret float64, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if neval, ok := eval.(rt.NumberEval); !ok {
@@ -70,7 +70,7 @@ type GetText struct {
 	Name string
 }
 
-func (c GetText) GetText(run rt.Runtime) (ret rt.Text, err error) {
+func (c GetText) GetText(run rt.Runtime) (ret string, err error) {
 	if eval, e := run.FindValue(c.Name); e != nil {
 		err = e
 	} else if teval, ok := eval.(rt.TextEval); !ok {

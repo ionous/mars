@@ -14,7 +14,7 @@ type Suite struct {
 
 type Unit struct {
 	Name   string
-	Setup  backend.SpecList
+	Setup  backend.Spec
 	Trials []Trial
 }
 

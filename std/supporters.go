@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	addScript("Supporters",
+	pkg.AddScript("Supporters",
 		The("props",
 			Called("supporters"),
 			HaveMany("contents", "objects").

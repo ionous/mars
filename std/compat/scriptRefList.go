@@ -26,12 +26,11 @@ type ObjListIsEmpty struct {
 	In rt.ObjListEval
 }
 
-func (op ObjListIsEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (op ObjListIsEmpty) GetBool(run rt.Runtime) (ret bool, err error) {
 	if s, e := op.In.GetObjStream(run); e != nil {
 		err = errutil.New("ObjListContains, couldnt get stream", e)
 	} else {
-		hasNext := s.HasNext()
-		ret = rt.Bool(!hasNext)
+		ret = !s.HasNext()
 	}
 	return
 }
@@ -41,7 +40,7 @@ type ObjListContains struct {
 	Which rt.ObjEval
 }
 
-func (op ObjListContains) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (op ObjListContains) GetBool(run rt.Runtime) (ret bool, err error) {
 	if s, e := op.In.GetObjStream(run); e != nil {
 		err = errutil.New("ObjListContains, couldnt get stream", e)
 	} else if obj, e := op.Which.GetObject(run); e != nil {
@@ -52,7 +51,7 @@ func (op ObjListContains) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 				err = errutil.New("ObjListContains, couldnt get element", e)
 				break
 			} else if obj.Equals(it) {
-				ret = rt.Bool(true)
+				ret = true
 			}
 		}
 	}

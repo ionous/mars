@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	addScript("Doors",
+	pkg.AddScript("Doors",
 		The("openers", //--> openingClosing.go
 			Called("doors"),
 			Exist()),

@@ -4,8 +4,6 @@ import (
 	"github.com/ionous/mars"
 	"github.com/ionous/mars/core"
 	"github.com/ionous/mars/lang"
-	"github.com/ionous/mars/script/backend"
-	"github.com/ionous/mars/script/test"
 	"github.com/ionous/mars/std/compat"
 )
 
@@ -14,8 +12,8 @@ func Std() *mars.Package {
 	if std == nil {
 		std = &mars.Package{
 			Name:         "Std",
-			Scripts:      scripts,
-			Tests:        tests,
+			Scripts:      pkg.Scripts,
+			Tests:        pkg.Tests,
 			Dependencies: mars.Dependencies(core.Core(), lang.Lang()),
 			Commands:     (*StdCommands)(nil),
 		}
@@ -24,18 +22,7 @@ func Std() *mars.Package {
 }
 
 var std *mars.Package
-
-var scripts backend.SpecList
-
-func addScript(_ string, specs ...backend.Spec) {
-	scripts.Specs = append(scripts.Specs, specs...)
-}
-
-var tests []test.Suite
-
-func addTest(name string, units ...test.Unit) {
-	tests = append(tests, test.NewSuite(name, units...))
-}
+var pkg mars.PackageBuilder
 
 type StdCommands struct {
 	*compat.ScriptRef

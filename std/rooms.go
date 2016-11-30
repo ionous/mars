@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	addScript("Rooms",
+	pkg.AddScript("Rooms",
 		// vs. descriptions in "kind"
 		// it seems to make sense for now to have two separate description fields.
 		// rooms like to say their description, while objects like to say their brief initial appearance ( or name, if there's none. )

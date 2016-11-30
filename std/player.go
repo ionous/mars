@@ -6,7 +6,7 @@ import (
 
 // FIX: the player should really be a point of view object.
 func init() {
-	addScript("Player",
+	pkg.AddScript("Player",
 		The("actor",
 			Called("the player"),
 			Exists(),

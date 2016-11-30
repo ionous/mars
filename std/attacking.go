@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	addScript("Attacking",
+	pkg.AddScript("Attacking",
 		The("actors",
 			Can("attack it").And("attacking it").RequiresOnly("object"),
 			To("attack it", g.ReflectToTarget("report attack"))),
@@ -25,7 +25,7 @@ func init() {
 			As("attack it"),
 	)
 
-	// addTest("AttackingTest",
+	// pkg.AddTest("AttackingTest",
 	// 	test.Setup(
 	// 		The("object", Called("the wardrobe"), Exists()),
 	// 		The("actor", Called("the player"), Exists()),

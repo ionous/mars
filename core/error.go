@@ -33,15 +33,15 @@ func (x Error) Execute(run rt.Runtime) (err error) {
 	}
 	return err
 }
-func (x Error) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+func (x Error) GetBool(run rt.Runtime) (ret bool, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
+func (x Error) GetNumber(run rt.Runtime) (ret float64, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetText(run rt.Runtime) (ret rt.Text, err error) {
+func (x Error) GetText(run rt.Runtime) (ret string, err error) {
 	err = x.Execute(run)
 	return
 }

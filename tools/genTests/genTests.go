@@ -16,28 +16,29 @@ type DataBlocks []encode.DataBlock
 // we need more than the spec!
 
 type Suite struct {
-	Name  string
-	Units []Unit
+	Name  string `json:"name,omitempty"`
+	Units []Unit `json:"units,omitempty"`
 }
 
 type Unit struct {
-	Name   string
-	Setup  encode.DataBlock
-	Trials []Trial
+	Name   string           `json:"name,omitempty"`
+	Setup  encode.DataBlock `json:"setup,omitempty"`
+	Trials []Trial          `json:"trials,omitempty"`
 }
 
 type Trial struct {
-	Name      string
-	Imp       Imp
-	Pre, Post DataBlocks
-	Fini      encode.DataBlock
+	Name string           `json:"name,omitempty"`
+	Imp  Imp              `json:"imp"`
+	Pre  DataBlocks       `json:"pre,omitempty"`
+	Post DataBlocks       `json:"post,omitempty"`
+	Fini encode.DataBlock `json:"fini,omitempty"`
 }
 
 type Imp struct {
-	Input   string
-	Match   []string
-	Args    DataBlocks
-	Execute encode.DataBlock
+	Input   string           `json:"input,omitempty"`
+	Match   []string         `json:"match,omitempty"`
+	Args    DataBlocks       `json:"args,omitempty"`
+	Execute encode.DataBlock `json:"exec,omitempty"`
 }
 
 func addSuite(src test.Suite) (ret Suite, err error) {

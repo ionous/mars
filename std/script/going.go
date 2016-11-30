@@ -1,6 +1,7 @@
 package script
 
 import (
+	. "github.com/ionous/mars/core"
 	. "github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
@@ -77,9 +78,9 @@ func (goesTo GoesToFragment) GenFragment(src *S.Statements, top backend.Topic) e
 	s := NewScript(from.makeSite(), to.makeSite())
 
 	// A departure door (has a Understand) arrival door
-	s.The(from.door.str, Has("destination", to.door.str))
+	s.The(from.door.str, HasText("destination", T(to.door.str)))
 	if goesTo.twoWay {
-		s.The(to.door.str, Has("destination", from.door.str))
+		s.The(to.door.str, HasText("destination", T(from.door.str)))
 	}
 	// A Room+Travel Direction (has a Understand) departure door
 	// ( if you do not have an deptature door, one will be created for you. )
@@ -87,10 +88,10 @@ func (goesTo GoesToFragment) GenFragment(src *S.Statements, top backend.Topic) e
 	dir := xDir{goesTo.from.fromDir}
 	if dir.isSpecified() {
 		s.Add(dir.makeDir())
-		s.The(from.room.str, Has(dir.via(), from.door.str))
+		s.The(from.room.str, HasText(dir.via(), T(from.door.str)))
 
 		if goesTo.twoWay {
-			s.The(to.room.str, Has(dir.revVia(), to.door.str))
+			s.The(to.room.str, HasText(dir.revVia(), T(to.door.str)))
 			// FIX? REMOVED dynamic opposite lookup
 			// needs s thought as to how new directions could be added
 			// perhaps some sort of "dependency injection" where we can add evaluations

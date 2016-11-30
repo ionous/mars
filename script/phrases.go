@@ -80,23 +80,28 @@ func HaveMany(name string, class types.NamedClass) internal.PartialRelation {
 	return internal.NewHaveMany(types.NamedProperty(name), class)
 }
 
-// Has asserts the value of an object's property. The property must (eventually) be declared for the class. ( For example, via Have. )
-func Has(property string, values ...interface{}) (ret backend.Fragment) {
-	// we let the compiler checks ( and marshals ) types via a property "Builder".
-	// (ex. enumBuilder, numBuilder, textBuilder, pointerBuilder, and relativeBuilder.)
-	// this is necessary because we use string for both text, obj, and relation values.
-	switch len(values) {
-	case 0:
-		ret = internal.HasChoices(property)
-	case 1:
-		ret = internal.HasPropertyValue(types.NamedProperty(property), values[0])
-	default:
-		// used for table, list definitions
-		// MARS: should tables be reworked? even lists should probably use something more like the rt section uses
-		// for example: HasList{} -- dont be afraid to be specific,
-		ret = internal.HasPropertyValue(types.NamedProperty(property), values)
-	}
-	return ret
+func HasNumber(property string, value rt.NumberEval) (ret backend.Fragment) {
+	return internal.NumberValue{types.NamedProperty(property), value}
+}
+
+func HasText(property string, value rt.TextEval) (ret backend.Fragment) {
+	return internal.TextValue{types.NamedProperty(property), value}
+}
+
+func HasRef(property string, value rt.ObjEval) (ret backend.Fragment) {
+	return internal.RefValue{types.NamedProperty(property), value}
+}
+
+func HasNumberList(property string, value rt.NumListEval) (ret backend.Fragment) {
+	return internal.NumberValues{types.NamedProperty(property), value}
+}
+
+func HasTextList(property string, value rt.TextListEval) (ret backend.Fragment) {
+	return internal.TextValues{types.NamedProperty(property), value}
+}
+
+func HasRefs(property string, value rt.ObjListEval) (ret backend.Fragment) {
+	return internal.RefValues{types.NamedProperty(property), value}
 }
 
 // Can asserts a new verb for the targeted noun.

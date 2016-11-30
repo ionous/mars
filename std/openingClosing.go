@@ -8,7 +8,7 @@ import (
 
 // (note: the action uses props, so that stories can make any prop behave similar to an g.The("opener"). )
 func init() {
-	addScript("OpeningClosing",
+	pkg.AddScript("OpeningClosing",
 		The("props",
 			Called("openers"),
 			AreEither("open").Or("closed"),

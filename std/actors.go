@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	addScript("Actors",
+	pkg.AddScript("Actors",
 		// hrmm.... implies actors are takeable.
 		The("objects",
 			Called("actors"),

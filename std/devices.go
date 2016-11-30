@@ -8,7 +8,7 @@ import (
 
 // "Represents a machine or contrivance of some kind which can be switched on or off."
 func init() {
-	addScript("Devices",
+	pkg.AddScript("Devices",
 		// FIX: having problems with a lack of parts
 		The("objects",
 			AreEither("operable").Or("inoperable").Usually("inoperable")),

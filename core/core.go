@@ -5,8 +5,6 @@ import (
 	"github.com/ionous/mars/core/stream"
 	"github.com/ionous/mars/inbuilt"
 	"github.com/ionous/mars/script"
-	"github.com/ionous/mars/script/backend"
-	"github.com/ionous/mars/script/test"
 )
 
 // Core contains all of mar's built-in commands and primitives.
@@ -15,8 +13,8 @@ func Core() *mars.Package {
 		core = &mars.Package{
 			Name: "Core",
 			// MARS, FIX: move "kinds" declaration to a custom backend script?
-			Scripts:      scripts,
-			Tests:        tests,
+			Scripts:      pkg.Scripts,
+			Tests:        pkg.Tests,
 			Dependencies: mars.Dependencies(inbuilt.Inbuilt(), script.Package()),
 			Commands:     (*CoreCommands)(nil),
 			Interfaces:   (*CoreInterfaces)(nil),
@@ -26,18 +24,7 @@ func Core() *mars.Package {
 }
 
 var core *mars.Package
-
-var scripts backend.SpecList
-
-func addScript(_ string, specs ...backend.Spec) {
-	scripts.Specs = append(scripts.Specs, specs...)
-}
-
-var tests []test.Suite
-
-func addTest(name string, units ...test.Unit) {
-	tests = append(tests, test.NewSuite(name, units...))
-}
+var pkg mars.PackageBuilder
 
 type CoreInterfaces struct {
 	CompareTo

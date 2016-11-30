@@ -1,22 +1,24 @@
 package rt
 
+import "github.com/ionous/sashimi/util/ident"
+
 type Execute interface {
 	Execute(Runtime) error
 }
 type BoolEval interface {
-	GetBool(Runtime) (Bool, error)
+	GetBool(Runtime) (bool, error)
 }
 type NumberEval interface {
-	GetNumber(Runtime) (Number, error)
+	GetNumber(Runtime) (float64, error)
 }
 type TextEval interface {
-	GetText(Runtime) (Text, error)
+	GetText(Runtime) (string, error)
 }
 type ObjEval interface {
 	GetObject(Runtime) (Object, error)
 }
 type StateEval interface {
-	GetState(Runtime) (State, error)
+	GetState(Runtime) (ident.Id, error)
 }
 type NumListEval interface {
 	GetNumberStream(Runtime) (NumberStream, error)

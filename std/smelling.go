@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	addScript("Smelling",
+	pkg.AddScript("Smelling",
 		The("actors",
 			Can("smell").And("smelling").RequiresNothing(),
 			To("smell", g.ReflectToLocation("report smell")),

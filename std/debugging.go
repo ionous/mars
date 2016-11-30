@@ -12,7 +12,7 @@ import (
 
 func init() {
 	// FIX: a special AddDebugScript? that only gets activated with special command line parameters?
-	addScript("Debugging", debugScript())
+	pkg.AddScript("Debugging", debugScript())
 
 	t := NewScript()
 	t.The("room",
@@ -24,7 +24,7 @@ func init() {
 	t.The("prop", Called("the key"), Exists())
 	t.The("player", Possesses("the key"))
 
-	addTest("Debugging",
+	pkg.AddTest("Debugging",
 		test.Setup(t).
 			Try("parent of",
 				test.Parse("parent of player").Match("The player => Somewhere"),

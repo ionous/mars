@@ -22,7 +22,7 @@ import (
 // To override: report listening rule response (A) is "New text.".
 //
 func init() {
-	addScript("Listening",
+	pkg.AddScript("Listening",
 		The("actors",
 			Can("listen").And("listening").RequiresNothing(),
 			To("listen", g.ReflectToLocation("report listen"))),

@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	addScript("Kissing",
+	pkg.AddScript("Kissing",
 		// kissing
 		The("actors",
 			Can("kiss it").And("kissing it").RequiresOnly("object"),

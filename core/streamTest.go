@@ -14,15 +14,15 @@ func init() {
 		Have("rank", "num"))
 
 	t.The("test",
-		Called("C"), Has("rank", 1))
+		Called("C"), HasNumber("rank", N(1)))
 	t.The("test",
-		Called("A"), Has("rank", 4))
+		Called("A"), HasNumber("rank", N(4)))
 	t.The("test",
-		Called("B"), Has("rank", 2))
+		Called("B"), HasNumber("rank", N(2)))
 	t.The("test",
-		Called("D"), Has("rank", 3))
+		Called("D"), HasNumber("rank", N(3)))
 
-	addTest("Sort",
+	pkg.AddTest("Sort",
 		test.Setup(t).Try("sorted",
 			test.Execute(Say(
 				stream.KeySort{"name", stream.ClassStream{Name: "tests"}})).

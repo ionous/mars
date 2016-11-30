@@ -3,37 +3,24 @@ package lang
 import (
 	"github.com/ionous/mars"
 	"github.com/ionous/mars/core"
-	"github.com/ionous/mars/script/backend"
-	"github.com/ionous/mars/script/test"
 )
 
 // Lang provides common language based string manipulations.
 func Lang() *mars.Package {
-	if pkg == nil {
-		pkg = &mars.Package{
+	if lp == nil {
+		lp = &mars.Package{
 			Name:         "Lang",
-			Scripts:      scripts,
-			Tests:        tests,
+			Scripts:      pkg.Scripts,
+			Tests:        pkg.Tests,
 			Dependencies: mars.Dependencies(core.Core()),
 			Commands:     (*LangCommands)(nil),
 		}
 	}
-	return pkg
+	return lp
 }
 
-var pkg *mars.Package
-
-var scripts backend.SpecList
-
-func addScript(_ string, specs ...backend.Spec) {
-	scripts.Specs = append(scripts.Specs, specs...)
-}
-
-var tests []test.Suite
-
-func addTest(name string, units ...test.Unit) {
-	tests = append(tests, test.NewSuite(name, units...))
-}
+var lp *mars.Package
+var pkg mars.PackageBuilder
 
 type LangCommands struct {
 	*TheUpper
