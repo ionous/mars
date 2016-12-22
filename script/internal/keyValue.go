@@ -29,7 +29,7 @@ func (f TextValue) GenFragment(src *S.Statements, top Topic) error {
 
 type RefValue struct {
 	Property types.NamedProperty
-	Value    rt.ObjEval
+	Value    string
 }
 
 func (f RefValue) GenFragment(src *S.Statements, top Topic) error {
@@ -57,12 +57,12 @@ func (f TextValues) GenFragment(src *S.Statements, top Topic) error {
 	return src.NewKeyValue(fields, S.UnknownLocation)
 }
 
-type RefValues struct {
-	Property types.NamedProperty
-	Values   rt.ObjListEval
-}
+// type RefValues struct {
+// 	Property types.NamedProperty
+// 	Values   []string
+// }
 
-func (f RefValues) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.KeyValueFields{top.Subject.String(), f.Property.String(), f.Values}
-	return src.NewKeyValue(fields, S.UnknownLocation)
-}
+// func (f RefValues) GenFragment(src *S.Statements, top Topic) error {
+// 	fields := S.KeyValueFields{top.Subject.String(), f.Property.String(), f.Values}
+// 	return src.NewKeyValue(fields, S.UnknownLocation)
+// }

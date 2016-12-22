@@ -15,7 +15,7 @@ type SaveGame struct {
 func (op SaveGame) Execute(run rt.Runtime) (err error) {
 	if autosave, e := op.AutoSave.GetBool(run); e != nil {
 		err = e
-	} else if msg, ok := play.SaveCurrentGame(run, bool(autosave)); true {
+	} else if msg, ok := play.SaveCurrentGame(run, autosave.Value); true {
 		run := scope.Make(run, scope.NewValue(T(msg)), run)
 		if ok {
 			err = op.Saved.Execute(run)

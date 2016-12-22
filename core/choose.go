@@ -22,12 +22,12 @@ type ChooseObj struct {
 	True, False rt.ObjEval
 }
 
-func (x Choose) GetBool(run rt.Runtime) (ret bool, err error) {
+func (x Choose) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
 		var next rt.Execute
-		if b {
+		if b.Value {
 			next = x.True
 		} else {
 			next = x.False
@@ -40,12 +40,12 @@ func (x Choose) GetBool(run rt.Runtime) (ret bool, err error) {
 	return
 }
 
-func (x ChooseNum) GetNumber(run rt.Runtime) (ret float64, err error) {
+func (x ChooseNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
 		var next rt.NumberEval
-		if b {
+		if b.Value {
 			next = x.True
 		} else {
 			next = x.False
@@ -57,12 +57,12 @@ func (x ChooseNum) GetNumber(run rt.Runtime) (ret float64, err error) {
 	return
 }
 
-func (x ChooseText) GetText(run rt.Runtime) (ret string, err error) {
+func (x ChooseText) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
 		var next rt.TextEval
-		if b {
+		if b.Value {
 			next = x.True
 		} else {
 			next = x.False
@@ -79,7 +79,7 @@ func (x ChooseObj) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 		err = e
 	} else {
 		var next rt.ObjEval
-		if b {
+		if b.Value {
 			next = x.True
 		} else {
 			next = x.False

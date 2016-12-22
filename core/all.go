@@ -10,17 +10,17 @@ type AllTrue struct {
 	Test []rt.BoolEval
 }
 
-func (a AllTrue) GetBool(run rt.Runtime) (okay bool, err error) {
+func (a AllTrue) GetBool(run rt.Runtime) (okay rt.Bool, err error) {
 	prelim := true
 	for _, b := range a.Test {
 		if ok, e := b.GetBool(run); e != nil {
 			err = e
 			break // see also any.
-		} else if !ok {
+		} else if !ok.Value {
 			prelim = false
 			break
 		}
 	}
-	okay = prelim
+	okay = rt.Bool{prelim}
 	return
 }

@@ -1,7 +1,6 @@
 package rt
 
 import (
-	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/ident"
 	"strconv"
 )
@@ -16,14 +15,9 @@ func (b Bool) GetBool(Runtime) (Bool, error) {
 	return b, nil
 }
 
-// GetValue implements interface AnyValue.
-func (b Bool) GetValue(Runtime) (meta.Generic, error) {
-	return b, nil
-}
-
 // String uses strconv.FormatBool.
 func (b Bool) String() string {
-	return strconv.FormatBool(bool(b.Value))
+	return strconv.FormatBool(b.Value)
 }
 
 // Number provides a dl float primitive.
@@ -32,12 +26,7 @@ type Number struct {
 }
 
 // GetNumber implements NumberEval providing the dl with a literal number type.
-func (n Number) GetNumber(Runtime) (float64, error) {
-	return n.Value, nil
-}
-
-// GetValue implements interface AnyValue.
-func (n Number) GetValue(Runtime) (meta.Generic, error) {
+func (n Number) GetNumber(Runtime) (Number, error) {
 	return n, nil
 }
 
@@ -48,7 +37,7 @@ func (n Number) Int() int {
 
 // Float converts to native float.
 func (n Number) Float() float64 {
-	return float64(n.Value)
+	return n.Value
 }
 
 // String returns a nicely formatted float, with no decimal point when possible.
@@ -62,12 +51,7 @@ type Text struct {
 }
 
 // GetText implements interface TextEval.
-func (s Text) GetText(Runtime) (string, error) {
-	return s.Value, nil
-}
-
-// GetValue implements interface AnyValue.
-func (s Text) GetValue() (interface{}, error) {
+func (s Text) GetText(Runtime) (Text, error) {
 	return s, nil
 }
 
@@ -78,24 +62,20 @@ func (s Text) String() string {
 
 // State provides a dl enumerated value primitive.
 type State struct {
-	Value ident.Id
+	Value string
 }
 
 // GetState implements StateEval; providing the dl with a literal enum type.
-func (s State) GetState(Runtime) (ident.Id, error) {
-	return s.Value, nil
-}
-
-// GetValue implements interface AnyValue.
-func (s State) GetValue(Runtime) (meta.Generic, error) {
+func (s State) GetState(Runtime) (State, error) {
 	return s, nil
 }
 
-func (s State) Id() ident.Id {
-	return s.Value
+func (s State) GetId() ident.Id {
+	// MARS: a non-serializing cached value?
+	return ident.MakeId(s.Value)
 }
 
 // String returns the underlying ident.Id string.
 func (s State) String() string {
-	return string(s.Value)
+	return s.Value
 }

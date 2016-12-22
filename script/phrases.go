@@ -23,11 +23,11 @@ var Our = The
 // Called asserts the existence of a class or instance.
 // For example, The("room", Called("home"))
 func Called(subject string) internal.ScriptSubject {
-	return internal.SetSubject(subject)
+	return internal.ScriptSubject{types.NamedSubject(subject)}
 }
 
-func HasSingularName(subject string) internal.ScriptSingular {
-	return internal.SetSingularName(subject)
+func HasSingularName(subject types.NamedClass) internal.ScriptSingular {
+	return internal.ScriptSingular{subject}
 }
 
 // Exists is an optional fragment for making otherwise empty statements more readable.
@@ -55,7 +55,7 @@ func AreEither(firstChoice string) internal.EitherChoice {
 // Is asserts one or more states of one or more enumerations.
 // The enumerations must (eventually) be declared for the target's class. ( For example, via AreEither, or AreOneOf, )
 func Is(choice string, choices ...string) internal.Choices {
-	return internal.HasChoices(append(choices, choice)...)
+	return internal.Choices{append(choices, choice)}
 }
 
 // IsKnownAs declares an alias for the current subject.
@@ -67,7 +67,7 @@ func IsKnownAs(name string, names ...string) internal.KnownAs {
 // Have asserts the existance of a property for all instances of a given class.
 // For relations, use HaveOne or HaveMany.
 func Have(name string, class types.NamedClass) backend.Fragment {
-	return internal.NewClassProperty(types.NamedProperty(name), class)
+	return internal.ClassProperty{types.NamedProperty(name), class}
 }
 
 // HaveOne establishes a one-to-one, or one-to-many relation.
@@ -88,9 +88,15 @@ func HasText(property string, value rt.TextEval) (ret backend.Fragment) {
 	return internal.TextValue{types.NamedProperty(property), value}
 }
 
-func HasRef(property string, value rt.ObjEval) (ret backend.Fragment) {
+// fix? ref as string because property builder
+func HasRef(property string, value string) (ret backend.Fragment) {
 	return internal.RefValue{types.NamedProperty(property), value}
 }
+
+// fix? there is no ref list, only a series of single refs
+// func HasRefs(property string, values ...string) (ret backend.Fragment) {
+// 	return internal.RefValues{types.NamedProperty(property), values}
+// }
 
 func HasNumberList(property string, value rt.NumListEval) (ret backend.Fragment) {
 	return internal.NumberValues{types.NamedProperty(property), value}
@@ -100,18 +106,14 @@ func HasTextList(property string, value rt.TextListEval) (ret backend.Fragment) 
 	return internal.TextValues{types.NamedProperty(property), value}
 }
 
-func HasRefs(property string, value rt.ObjListEval) (ret backend.Fragment) {
-	return internal.RefValues{types.NamedProperty(property), value}
-}
-
 // Can asserts a new verb for the targeted noun.
 func Can(verb types.NamedAction) internal.CanDoPhrase {
-	return internal.NewCanDo(verb)
+	return internal.CanDoPhrase{ActionName: verb}
 }
 
 // To assigns runtime statements to a default action handler.
 func To(action types.NamedAction, call rt.Execute, calls ...rt.Execute) backend.Fragment {
-	return internal.NewDefaultAction(action, internal.JoinCallbacks(call, calls))
+	return internal.DefaultAction{action, internal.JoinCallbacks(call, calls)}
 }
 
 // Before actions are implemented as capturing event listeners which allow them to run prior to the default actions of the passed event.

@@ -25,7 +25,7 @@ type PrintLine struct {
 func (x PrintNum) Execute(run rt.Runtime) (err error) {
 	if n, e := x.Num.GetNumber(run); e != nil {
 		err = e
-	} else if s := strconv.FormatFloat(n, 'g', -1, 64); len(s) > 0 {
+	} else if s := strconv.FormatFloat(n.Value, 'g', -1, 64); len(s) > 0 {
 		err = run.Print(s)
 	} else {
 		err = run.Println("<num>")

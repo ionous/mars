@@ -85,7 +85,7 @@ func (os *objectSorter) sort(oa *rt.Object, ob *rt.Object) (ret bool, err error)
 			} else if b, e := vb.GetNumber(run); e != nil {
 				err = errutil.New("couldnt get pb number", e)
 			} else {
-				ret = a < b
+				ret = a.Value < b.Value
 			}
 		case meta.TextProperty:
 			if va, ok := pa.GetGeneric().(rt.TextEval); !ok {
@@ -97,7 +97,7 @@ func (os *objectSorter) sort(oa *rt.Object, ob *rt.Object) (ret bool, err error)
 			} else if b, e := vb.GetText(run); e != nil {
 				err = errutil.New("couldnt get pb text", e)
 			} else {
-				ret = a < b
+				ret = a.Value < b.Value
 			}
 		default:
 			err = errutil.New("invalid property type", pa.GetName(), pa.GetType())

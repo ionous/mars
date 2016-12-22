@@ -55,8 +55,8 @@ func init() {
 		func() (s Script) {
 			for i := 0; i < len(Directions)/2; i++ {
 				a, b := Directions[2*i], Directions[2*i+1]
-				s.The("direction", Called(a), HasText("opposite", T(b)))
-				s.The("direction", Called(b), HasText("opposite", T(a)))
+				s.The("direction", Called(a), HasRef("opposite", b))
+				s.The("direction", Called(b), HasRef("opposite", a))
 			}
 			return
 		}(),

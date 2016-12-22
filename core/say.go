@@ -20,7 +20,7 @@ type Buffer struct {
 	Buffer rt.Execute
 }
 
-func (m Buffer) GetText(run rt.Runtime) (ret string, err error) {
+func (m Buffer) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	var out bytes.Buffer
 	defer run.PopOutput()
 	run.PushOutput(&out)
@@ -28,7 +28,7 @@ func (m Buffer) GetText(run rt.Runtime) (ret string, err error) {
 	if e := m.Buffer.Execute(run); e != nil {
 		err = e
 	} else {
-		ret = out.String()
+		ret = rt.Text{out.String()}
 	}
 	return
 }

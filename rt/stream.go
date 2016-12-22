@@ -2,11 +2,11 @@ package rt
 
 type NumberStream interface {
 	HasNext() bool
-	GetNext() (float64, error)
+	GetNext() (Number, error)
 }
 type TextStream interface {
 	HasNext() bool
-	GetNext() (string, error)
+	GetNext() (Text, error)
 }
 type ObjectStream interface {
 	HasNext() bool

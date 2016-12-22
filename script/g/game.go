@@ -5,6 +5,7 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/std/compat"
 	"github.com/ionous/sashimi/meta"
+	"github.com/ionous/sashimi/source/types"
 )
 
 func Say(args ...interface{}) rt.Execute {
@@ -12,7 +13,7 @@ func Say(args ...interface{}) rt.Execute {
 }
 
 func The(s string) compat.ScriptRef {
-	return compat.ScriptRef{core.Named{s}}
+	return compat.ScriptRef{core.Name(s)}
 }
 
 func StopHere() rt.Execute {
@@ -31,5 +32,5 @@ func Go(all ...rt.Execute) rt.Execute {
 }
 
 func Call(act string, args ...meta.Generic) core.GoCall {
-	return core.GoCall{core.MakeStringId(act), args}
+	return core.GoCall{types.NamedAction(act), args}
 }

@@ -1,9 +1,7 @@
 package compat
 
 import (
-	// . "github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
-	// "github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 )
 
@@ -26,11 +24,12 @@ type ObjListIsEmpty struct {
 	In rt.ObjListEval
 }
 
-func (op ObjListIsEmpty) GetBool(run rt.Runtime) (ret bool, err error) {
+func (op ObjListIsEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if s, e := op.In.GetObjStream(run); e != nil {
 		err = errutil.New("ObjListContains, couldnt get stream", e)
 	} else {
-		ret = !s.HasNext()
+		ok := !s.HasNext()
+		ret = rt.Bool{ok}
 	}
 	return
 }
@@ -40,7 +39,7 @@ type ObjListContains struct {
 	Which rt.ObjEval
 }
 
-func (op ObjListContains) GetBool(run rt.Runtime) (ret bool, err error) {
+func (op ObjListContains) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if s, e := op.In.GetObjStream(run); e != nil {
 		err = errutil.New("ObjListContains, couldnt get stream", e)
 	} else if obj, e := op.Which.GetObject(run); e != nil {
@@ -51,7 +50,7 @@ func (op ObjListContains) GetBool(run rt.Runtime) (ret bool, err error) {
 				err = errutil.New("ObjListContains, couldnt get element", e)
 				break
 			} else if obj.Equals(it) {
-				ret = true
+				ret = rt.Bool{true}
 			}
 		}
 	}

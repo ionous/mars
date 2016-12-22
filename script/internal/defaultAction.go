@@ -13,10 +13,6 @@ type DefaultAction struct {
 	Calls  []rt.Execute
 }
 
-func NewDefaultAction(action types.NamedAction, calls []rt.Execute) Fragment {
-	return DefaultAction{action, calls}
-}
-
 func (to DefaultAction) GenFragment(src *S.Statements, top Topic) error {
 	fields := S.RunFields{top.Subject.String(), to.Action.String(), to.Calls, E.TargetPhase}
 	return src.NewActionHandler(fields, S.UnknownLocation)

@@ -38,11 +38,11 @@ type IsEmpty struct {
 	Text rt.TextEval
 }
 
-func (empty IsEmpty) GetBool(run rt.Runtime) (ret bool, err error) {
+func (empty IsEmpty) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if t, e := empty.Text.GetText(run); e != nil {
 		err = errutil.New("IsEmpty.Text", e)
-	} else {
-		ret = !(len(t) > 0)
+	} else if len(t.Value) == 0 {
+		ret = True()
 	}
 	return
 }
@@ -52,11 +52,11 @@ type IsNot struct {
 	Negate rt.BoolEval
 }
 
-func (neg IsNot) GetBool(run rt.Runtime) (ret bool, err error) {
+func (neg IsNot) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if tgt, e := neg.Negate.GetBool(run); e != nil {
 		err = errutil.New("IsNot.Negate", e)
 	} else {
-		ret = !tgt
+		ret = rt.Bool{!tgt.Value}
 	}
 	return
 }
@@ -66,11 +66,11 @@ type IsValid struct {
 	Ref rt.ObjEval
 }
 
-func (exists IsValid) GetBool(run rt.Runtime) (ret bool, err error) {
+func (exists IsValid) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if obj, e := exists.Ref.GetObject(run); e != nil {
-		ret = false // if the object doesnt exist, then it's invalid
+		ret = False() // if the object doesnt exist, then it's invalid
 	} else {
-		ret = obj.Exists() // if the object is empty, then it's invalid
+		ret = rt.Bool{obj.Exists()} // if the object is empty, then it's invalid
 	}
 	return
 }
@@ -80,12 +80,12 @@ type IsFromClass struct {
 	Class string
 }
 
-func (op IsFromClass) GetBool(run rt.Runtime) (ret bool, err error) {
+func (op IsFromClass) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if obj, e := op.Ref.GetObject(run); e != nil {
 		err = e
 	} else {
 		choice := MakeStringId(op.Class)
-		ret = run.AreCompatible(obj.GetParentClass(), choice)
+		ret = rt.Bool{run.AreCompatible(obj.GetParentClass(), choice)}
 	}
 	return
 }
@@ -97,21 +97,23 @@ type IsNum struct {
 	Tgt rt.NumberEval
 }
 
-func (comp IsNum) GetBool(run rt.Runtime) (ret bool, err error) {
+func (comp IsNum) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if src, e := comp.Src.GetNumber(run); e != nil {
 		err = errutil.New("IsNum.Src", e)
 	} else if tgt, e := comp.Tgt.GetNumber(run); e != nil {
 		err = errutil.New("IsNum.Tgt", e)
 	} else {
-		d := src - tgt
+		d := src.Value - tgt.Value
+		var ok bool
 		switch cmp := comp.Is.Compare(); {
 		case d == 0:
-			ret = (cmp & Compare_EqualTo) != 0
+			ok = (cmp & Compare_EqualTo) != 0
 		case d < 0:
-			ret = (cmp & Compare_LesserThan) != 0
+			ok = (cmp & Compare_LesserThan) != 0
 		case d > 0:
-			ret = (cmp & Compare_GreaterThan) != 0
+			ok = (cmp & Compare_GreaterThan) != 0
 		}
+		ret = rt.Bool{ok}
 	}
 	return
 }
@@ -123,28 +125,30 @@ type IsText struct {
 	Tgt rt.TextEval
 }
 
-func (comp IsText) GetBool(run rt.Runtime) (ret bool, err error) {
+func (comp IsText) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if src, e := comp.Src.GetText(run); e != nil {
 		err = errutil.New("IsText.Src", e)
 	} else if tgt, e := comp.Tgt.GetText(run); e != nil {
 		err = errutil.New("IsText.Tgt", e)
 	} else {
+		var ok bool
 		switch cmp := comp.Is.Compare(); cmp {
 		case Compare_EqualTo:
-			ret = src == tgt
+			ok = src.Value == tgt.Value
 		case Compare_NotEqualTo:
-			ret = src != tgt
+			ok = src.Value != tgt.Value
 		case Compare_LesserThan:
-			ret = src < tgt
+			ok = src.Value < tgt.Value
 		case Compare_GreaterThan:
-			ret = src > tgt
+			ok = src.Value > tgt.Value
 		case Compare_GreaterThan | Compare_EqualTo:
-			ret = src >= tgt
+			ok = src.Value >= tgt.Value
 		case Compare_LesserThan | Compare_EqualTo:
-			ret = src <= tgt
+			ok = src.Value <= tgt.Value
 		default:
 			err = errutil.New("IsText.Is", cmp, "unknown operand")
 		}
+		ret = rt.Bool{ok}
 	}
 	return
 }
@@ -155,13 +159,14 @@ type IsObj struct {
 	Src, Tgt rt.ObjEval
 }
 
-func (op IsObj) GetBool(run rt.Runtime) (ret bool, err error) {
+func (op IsObj) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if a, e := op.Src.GetObject(run); e != nil {
 		err = errutil.New("IsObj.Src", e)
 	} else if tgt, e := op.Tgt.GetObject(run); e != nil {
 		err = errutil.New("IsObj.Tgt", e)
 	} else {
-		ret = a.GetId().Equals(tgt.GetId())
+		ok := a.GetId().Equals(tgt.GetId())
+		ret = rt.Bool{ok}
 	}
 	return
 }
@@ -172,7 +177,7 @@ type IsState struct {
 	State string
 }
 
-func (op IsState) GetBool(run rt.Runtime) (ret bool, err error) {
+func (op IsState) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if obj, e := op.Ref.GetObject(run); e != nil {
 		err = errutil.New("IsState.Ref", e)
 	} else {
@@ -184,7 +189,8 @@ func (op IsState) GetBool(run rt.Runtime) (ret bool, err error) {
 		} else if curr, e := eval.GetState(run); e != nil {
 			err = errutil.New("IsState", obj, "property", prop, "get state", e)
 		} else {
-			ret = curr == choice
+			ok := choice == curr.GetId()
+			ret = rt.Bool{ok}
 		}
 	}
 	return

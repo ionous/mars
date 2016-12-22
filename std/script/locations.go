@@ -5,52 +5,86 @@ import (
 	S "github.com/ionous/sashimi/source"
 )
 
-// ListOfItems intended for use in a The() phrase.
-type ListOfItems struct {
-	list  string
-	items []string
-}
-
 // And allows the continuation of items
-func (my ListOfItems) And(name string) ListOfItems {
-	my.items = append(my.items, name)
-	return my
-}
+// func (l *ItemList) And(name string) ListOfItems {
+// 	l.Items = append(l.Items, name)
+// 	return l
+// }
 
 // In gives the current object the room for its whereabouts
-func In(room string) ListOfItems {
-	return ListOfItems{"whereabouts", []string{room}}
+func In(noun string) InLocation {
+	return InLocation{noun}
 }
 
-// Contains gives the current supporter the passed prop as contents.
-func Supports(prop string) ListOfItems {
-	return ListOfItems{"contents", []string{prop}}
+type InLocation struct {
+	Location string `mars:";noun"`
+}
+
+func (l InLocation) GenFragment(src *S.Statements, top Topic) error {
+	return genList(src, top, "whereabouts", []string{l.Location})
+}
+
+// Supports gives the current supporter the passed prop as contents.
+// In gives the current object the room for its whereabouts
+func Supports(noun string) SupportsContents {
+	return SupportsContents{[]string{noun}}
+}
+
+type SupportsContents struct {
+	Contents []string `mars:";nouns"`
+}
+
+func (l SupportsContents) GenFragment(src *S.Statements, top Topic) error {
+	return genList(src, top, "contents", l.Contents)
 }
 
 // Contains gives the current container the passed prop as contents.
-func Contains(prop string) ListOfItems {
-	return ListOfItems{"contents", []string{prop}}
+func Contains(noun string) ContainsContents {
+	return ContainsContents{[]string{noun}}
+}
+
+type ContainsContents struct {
+	Contents []string `mars:";nouns"`
+}
+
+func (l ContainsContents) GenFragment(src *S.Statements, top Topic) error {
+	return genList(src, top, "contents", l.Contents)
 }
 
 // Possesses gives the current subject the passed prop as inventory.
-func Possesses(prop string) ListOfItems {
-	return ListOfItems{"inventory", []string{prop}}
+func Possesses(noun string) PossessesInventory {
+	return PossessesInventory{[]string{noun}}
+}
+
+type PossessesInventory struct {
+	Inventory []string `mars:";nouns"`
+}
+
+func (l PossessesInventory) GenFragment(src *S.Statements, top Topic) error {
+	return genList(src, top, "inventory", l.Inventory)
 }
 
 // Wears gives the current subject the passed article of clothing.
-func Wears(prop string) ListOfItems {
-	return ListOfItems{"clothing", []string{prop}}
+func Wears(noun string) WearsClothing {
+	return WearsClothing{[]string{noun}}
 }
 
-// GenFragment implements script.backend Fragment
-func (my ListOfItems) GenFragment(src *S.Statements, top Topic) (err error) {
-	list := my.list
-	for _, item := range my.items {
+type WearsClothing struct {
+	Clothing []string `mars:";nouns"`
+}
+
+func (l WearsClothing) GenFragment(src *S.Statements, top Topic) error {
+	return genList(src, top, "clothing", l.Clothing)
+}
+
+// genList implements script.backend Fragment
+func genList(src *S.Statements, top Topic, list string, items []string) (err error) {
+	for _, item := range items {
 		fields := S.KeyValueFields{top.Subject.String(), list, item}
 		if e := src.NewKeyValue(fields, S.UnknownLocation); e != nil {
 			err = e
 			break
 		}
 	}
-	return err
+	return
 }

@@ -6,20 +6,20 @@ import (
 )
 
 // print the text on success, return it as an error on failure
-// func Try(message string, b rt.BoolEval) rt.Execute {
-// 	return Trial{Choose{If: b,
-// 		True:  PrintLine{PrintText{T(message)}},
-// 		False: Error{T(message)}}}
-// }
+func Try(message string, b rt.BoolEval) rt.Execute {
+	return Trial{Choose{If: b,
+		True:  PrintLine{PrintText{T(message)}},
+		False: Error{T(message)}}}
+}
 
-// type Trial struct {
-// 	Test rt.BoolEval
-// }
+type Trial struct {
+	Test rt.BoolEval
+}
 
-// func (x Trial) Execute(run rt.Runtime) error {
-// 	_, err := x.Test.GetBool(run)
-// 	return err
-// }
+func (x Trial) Execute(run rt.Runtime) error {
+	_, err := x.Test.GetBool(run)
+	return err
+}
 
 // Error satifies all runtime evaluations;
 // in all cases returning an error string provided by "reason".
@@ -33,15 +33,15 @@ func (x Error) Execute(run rt.Runtime) (err error) {
 	}
 	return err
 }
-func (x Error) GetBool(run rt.Runtime) (ret bool, err error) {
+func (x Error) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetNumber(run rt.Runtime) (ret float64, err error) {
+func (x Error) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	err = x.Execute(run)
 	return
 }
-func (x Error) GetText(run rt.Runtime) (ret string, err error) {
+func (x Error) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	err = x.Execute(run)
 	return
 }

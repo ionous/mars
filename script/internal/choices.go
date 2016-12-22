@@ -6,10 +6,6 @@ import (
 	"github.com/ionous/sashimi/source/types"
 )
 
-func HasChoices(choices ...string) Choices {
-	return Choices{choices}
-}
-
 type Choices struct {
 	Choices types.NamedChoices `mars:"has"`
 }

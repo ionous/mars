@@ -10,10 +10,6 @@ import (
 // FIX: hacky, maybe should be HaveMany() instead.
 const ListKind = " list"
 
-func NewClassProperty(n types.NamedProperty, k types.NamedClass) Fragment {
-	return ClassProperty{n, k}
-}
-
 type ClassProperty struct {
 	Name types.NamedProperty // property field name
 	Kind types.NamedClass    // property kind: primitive or user class

@@ -30,6 +30,7 @@ type ScriptInterfaces struct {
 }
 
 type ScriptCommands struct {
+	*Script
 	*internal.AfterEvent
 	*internal.BeforeEvent
 	*internal.CanDoIt
@@ -52,8 +53,8 @@ type ScriptCommands struct {
 	*internal.RequiresOnly
 	*internal.RequiresTwo
 	*internal.RequiresNothing
-	*internal.ScriptSubject
 	*internal.ScriptSingular
+	*internal.ScriptSubject
 	*internal.TextValue
 	*internal.WhenEvent
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/ionous/mars/core"
 	"github.com/ionous/mars/lang"
 	"github.com/ionous/mars/std/compat"
+	"github.com/ionous/mars/std/script"
 )
 
 // Package std contains the basic objects and actions used for for sashimi-style games. It fulfills a role similar to the Inform7 standard library.
@@ -27,5 +28,14 @@ var pkg mars.PackageBuilder
 type StdCommands struct {
 	*compat.ScriptRef
 	*compat.ScriptRefList
+	*compat.ObjListIsEmpty
+	*compat.ObjListContains
 	*SaveGame
+	*script.GoesToFragment
+	*script.InLocation
+	*script.SupportsContents
+	*script.ContainsContents
+	*script.PossessesInventory
+	*script.WearsClothing
+	*DoorHack
 }

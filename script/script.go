@@ -8,7 +8,7 @@ import (
 )
 
 type Script struct {
-	Name  string
+	Name  types.NamedScript
 	Specs []backend.Spec
 }
 
@@ -26,10 +26,10 @@ func (s *Script) The(target string, frags ...backend.Fragment) *Script {
 	return s
 }
 
-func (s *Script) Understand(input ...string) (ret *ParserIt) {
-	ret = &ParserIt{Input: input}
-	s.Specs = append(s.Specs, ret)
-	return
+func (s *Script) Understand(input ...string) ParserHelper {
+	p := ParserHelper{&internal.ParserPhrase{Input: input}}
+	s.Specs = append(s.Specs, p.ptr)
+	return p
 }
 
 // Generate implements Spec
@@ -43,19 +43,16 @@ func (s Script) Generate(src *S.Statements) (err error) {
 	return err
 }
 
-//
-type ParserIt internal.ParserPhrase
+// ParserHelper customize a parser phrase created via Script.Understand.
+type ParserHelper struct {
+	ptr *internal.ParserPhrase
+}
 
-func (p *ParserIt) And(input string) *ParserIt {
-	p.Input = append(p.Input, input)
+func (p ParserHelper) And(input string) ParserHelper {
+	p.ptr.Input = append(p.ptr.Input, input)
 	return p
 }
 
-func (p *ParserIt) As(what types.NamedAction) {
-	p.What = what
-}
-
-func (p *ParserIt) Generate(src *S.Statements) error {
-	alias := S.AliasFields{p.What.String(), p.Input.Strings()}
-	return src.NewAlias(alias, S.UnknownLocation)
+func (p ParserHelper) As(what types.NamedAction) {
+	p.ptr.What = what
 }

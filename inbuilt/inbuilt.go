@@ -11,6 +11,7 @@ func Inbuilt() *mars.Package {
 		inbuilt = &mars.Package{
 			Name:       "Inbuilt",
 			Interfaces: (*InbuiltInterfaces)(nil),
+			Commands:   (*InbuiltCommands)(nil),
 		}
 	}
 	return inbuilt
@@ -28,4 +29,15 @@ type InbuiltInterfaces struct {
 	rt.NumListEval
 	rt.TextListEval
 	rt.ObjListEval
+}
+
+type InbuiltCommands struct {
+	*rt.Bool
+	*rt.Text
+	*rt.State
+	*rt.Number
+	*rt.Reference
+	*rt.Numbers
+	*rt.Texts
+	*rt.References
 }

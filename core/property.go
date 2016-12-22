@@ -3,13 +3,14 @@ package core
 import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
+	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/sbuf"
 )
 
 // Property refers to a field within an object.
 type Property struct {
-	Field string
+	Field types.NamedProperty
 	Ref   rt.ObjEval
 }
 
@@ -21,7 +22,7 @@ type PropertyNumList Property
 type PropertyTextList Property
 type PropertyRefList Property
 
-func (p PropertyNum) GetNumber(run rt.Runtime) (ret float64, err error) {
+func (p PropertyNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.NumberEval); !ok {
@@ -32,7 +33,7 @@ func (p PropertyNum) GetNumber(run rt.Runtime) (ret float64, err error) {
 	return
 }
 
-func (p PropertyText) GetText(run rt.Runtime) (ret string, err error) {
+func (p PropertyText) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	if p, g, e := Property(p).GetGeneric(run); e != nil {
 		err = e
 	} else if v, ok := g.(rt.TextEval); !ok {
@@ -98,7 +99,7 @@ func (p PropertyRefList) GetObjStream(run rt.Runtime) (ret rt.ObjectStream, err 
 func (p Property) GetGeneric(run rt.Runtime) (retprop meta.Property, retvalue meta.Generic, err error) {
 	if obj, e := p.Ref.GetObject(run); e != nil {
 		err = e
-	} else if prop, ok := obj.FindProperty(p.Field); !ok {
+	} else if prop, ok := obj.FindProperty(p.Field.String()); !ok {
 		err = errutil.New("object property", sbuf.Q(p.Field), "not found in", sbuf.Q(obj))
 	} else {
 		retprop, retvalue = prop, prop.GetGeneric()
@@ -109,7 +110,7 @@ func (p Property) GetGeneric(run rt.Runtime) (retprop meta.Property, retvalue me
 func (p Property) SetGeneric(run rt.Runtime, g meta.Generic) (err error) {
 	if obj, e := p.Ref.GetObject(run); e != nil {
 		err = e
-	} else if prop, ok := obj.FindProperty(p.Field); !ok {
+	} else if prop, ok := obj.FindProperty(p.Field.String()); !ok {
 		err = errutil.New("object property not found", obj, Property(p).Field)
 	} else {
 		err = prop.SetGeneric(g)

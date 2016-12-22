@@ -41,17 +41,17 @@ func Through(door string) GoesFromFragment {
 
 // ConnectsTo establishes a two-way connection between the room From() and the passed destination.
 func (goesFrom GoesFromFragment) ConnectsTo(room string) GoesToFragment {
-	return GoesToFragment{from: goesFrom, toRoom: room, twoWay: true}
+	return GoesToFragment{FromDir: goesFrom.fromDir, FromDoor: goesFrom.fromDoor, ToRoom: room, TwoWay: true}
 }
 
 // ArrivesAt establishes a one-way connection between the room From() and the passed destination.
 func (goesFrom GoesFromFragment) ArrivesAt(room string) GoesToFragment {
-	return GoesToFragment{from: goesFrom, toRoom: room}
+	return GoesToFragment{FromDir: goesFrom.fromDir, FromDoor: goesFrom.fromDoor, ToRoom: room}
 }
 
 // Door specifies an optional door to arrive at in the destination room.
 func (goesTo GoesToFragment) Door(door string) backend.Fragment {
-	goesTo.toDoor = door
+	goesTo.ToDoor = door
 	return goesTo
 }
 
@@ -65,33 +65,34 @@ type GoesFromFragment struct {
 
 // GoesToFragment intended for use in a The() phrase.
 type GoesToFragment struct {
-	from           GoesFromFragment
-	toRoom, toDoor string
-	twoWay         bool
+	FromDir        string
+	FromDoor       string
+	ToRoom, ToDoor string
+	TwoWay         bool
 }
 
 // GenFragment implements script.backend Fragment
 func (goesTo GoesToFragment) GenFragment(src *S.Statements, top backend.Topic) error {
-	from := newFromSite(top.Subject.String(), goesTo.from.fromDoor, goesTo.from.fromDir)
-	to := newToSite(goesTo.toRoom, goesTo.toDoor, goesTo.from.fromDir)
+	from := newFromSite(top.Subject.String(), goesTo.FromDoor, goesTo.FromDir)
+	to := newToSite(goesTo.ToRoom, goesTo.ToDoor, goesTo.FromDir)
 
 	s := NewScript(from.makeSite(), to.makeSite())
 
 	// A departure door (has a Understand) arrival door
-	s.The(from.door.str, HasText("destination", T(to.door.str)))
-	if goesTo.twoWay {
-		s.The(to.door.str, HasText("destination", T(from.door.str)))
+	s.The(from.door.str, HasRef("destination", to.door.str))
+	if goesTo.TwoWay {
+		s.The(to.door.str, HasRef("destination", from.door.str))
 	}
 	// A Room+Travel Direction (has a Understand) departure door
 	// ( if you do not have an deptature door, one will be created for you. )
 
-	dir := xDir{goesTo.from.fromDir}
+	dir := xDir{goesTo.FromDir}
 	if dir.isSpecified() {
 		s.Add(dir.makeDir())
-		s.The(from.room.str, HasText(dir.via(), T(from.door.str)))
+		s.The(from.room.str, HasRef(dir.via(), from.door.str))
 
-		if goesTo.twoWay {
-			s.The(to.room.str, HasText(dir.revVia(), T(to.door.str)))
+		if goesTo.TwoWay {
+			s.The(to.room.str, HasRef(dir.revVia(), to.door.str))
 			// FIX? REMOVED dynamic opposite lookup
 			// needs s thought as to how new directions could be added
 			// perhaps some sort of "dependency injection" where we can add evaluations

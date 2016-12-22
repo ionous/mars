@@ -5,11 +5,6 @@ type Numbers struct {
 	Values []float64
 }
 
-// GetValue implements interface AnyValue.
-func (l Numbers) GetValue() (interface{}, error) {
-	return l, nil
-}
-
 func (l Numbers) GetNumberStream(Runtime) (NumberStream, error) {
 	return &NumberIt{list: l.Values}, nil
 }
@@ -23,11 +18,11 @@ func (it *NumberIt) HasNext() bool {
 	return it.idx < len(it.list)
 }
 
-func (it *NumberIt) GetNext() (ret float64, err error) {
+func (it *NumberIt) GetNext() (ret Number, err error) {
 	if !it.HasNext() {
 		err = StreamExceeded("Numbers")
 	} else {
-		ret = it.list[it.idx]
+		ret = Number{it.list[it.idx]}
 		it.idx++
 	}
 	return
@@ -36,11 +31,6 @@ func (it *NumberIt) GetNext() (ret float64, err error) {
 // Texts provides an array literal for strings.
 type Texts struct {
 	Values []string
-}
-
-// GetValue implements interface AnyValue.
-func (l Texts) GetValue() (interface{}, error) {
-	return l, nil
 }
 
 func (l Texts) GetTextStream(Runtime) (TextStream, error) {
@@ -56,11 +46,11 @@ func (it *TextIt) HasNext() bool {
 	return it.idx < len(it.list)
 }
 
-func (it *TextIt) GetNext() (ret string, err error) {
+func (it *TextIt) GetNext() (ret Text, err error) {
 	if !it.HasNext() {
 		err = StreamExceeded("Texts")
 	} else {
-		ret = it.list[it.idx]
+		ret = Text{it.list[it.idx]}
 		it.idx++
 	}
 	return
@@ -71,10 +61,6 @@ type References struct {
 	Values []ObjEval
 }
 
-// GetValue implements interface AnyValue.
-func (l References) GetValue() (interface{}, error) {
-	return l, nil
-}
 func (l References) GetObjStream(run Runtime) (ObjectStream, error) {
 	return &RefIt{run: run, list: l.Values}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/scope"
 	. "github.com/ionous/mars/script"
+	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/lang"
 )
 
@@ -28,7 +29,7 @@ type ALower struct {
 	Noun rt.ObjEval
 }
 
-func (t TheUpper) GetText(run rt.Runtime) (ret string, err error) {
+func (t TheUpper) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	if s, e := articleNamed(run, t.Noun, "The"); e != nil {
 		err = e
 	} else {
@@ -37,7 +38,7 @@ func (t TheUpper) GetText(run rt.Runtime) (ret string, err error) {
 	return
 }
 
-func (t TheLower) GetText(run rt.Runtime) (ret string, err error) {
+func (t TheLower) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	if s, e := articleNamed(run, t.Noun, "the"); e != nil {
 		err = e
 	} else {
@@ -46,20 +47,21 @@ func (t TheLower) GetText(run rt.Runtime) (ret string, err error) {
 	return
 }
 
-func (t AnUpper) GetText(run rt.Runtime) (ret string, err error) {
-	if s, e := articleNamed(run, t.Noun, ""); e != nil {
+func (t AnUpper) GetText(run rt.Runtime) (ret rt.Text, err error) {
+	if txt, e := articleNamed(run, t.Noun, ""); e != nil {
 		err = e
 	} else {
-		ret = lang.Capitalize(s)
+		s := lang.Capitalize(txt.Value)
+		ret = rt.Text{s}
 	}
 	return
 }
 
-func (t ALower) GetText(run rt.Runtime) (ret string, err error) {
-	if s, e := articleNamed(run, t.Noun, ""); e != nil {
+func (t ALower) GetText(run rt.Runtime) (ret rt.Text, err error) {
+	if txt, e := articleNamed(run, t.Noun, ""); e != nil {
 		err = e
 	} else {
-		ret = s
+		ret = txt
 	}
 	return
 }
@@ -76,7 +78,7 @@ func init() {
 }
 
 // You can only just make out the lamp-post.", or "You can only just make out _ Trevor.", or "You can only just make out the soldiers."
-func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, err error) {
+func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret rt.Text, err error) {
 	if obj, e := noun.GetObject(run); e != nil {
 		err = e
 	} else {
@@ -87,21 +89,21 @@ func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, 
 		} else if proper, e := (core.IsState{obj, "proper-named"}.GetBool(run)); e != nil {
 			err = e
 		} else {
-			if proper {
-				ret = lang.Titleize(name)
+			if proper.Value {
+				ret = rt.Text{lang.Titleize(name.Value)}
 			} else {
 				if len(article) == 0 {
-					if indefinite, e := (core.GetText{"indefinite article"}.GetText(run)); e != nil {
+					if indefinite, e := (core.GetText{types.NamedProperty("indefinite article")}.GetText(run)); e != nil {
 						err = e
 					} else {
-						article = indefinite
+						article = indefinite.Value
 						if len(article) == 0 {
 							if plural, e := (core.IsState{obj, "plural-named"}.GetBool(run)); e != nil {
 								err = e
 							} else {
-								if plural {
+								if plural.Value {
 									article = "some"
-								} else if lang.StartsWithVowel(name) {
+								} else if lang.StartsWithVowel(name.Value) {
 									article = "an"
 								} else {
 									article = "a"
@@ -112,7 +114,7 @@ func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret string, 
 				}
 				// if not, its probably an error.
 				if len(article) > 0 {
-					ret = article + " " + name
+					ret = rt.Text{article + " " + name.Value}
 				}
 			}
 		}

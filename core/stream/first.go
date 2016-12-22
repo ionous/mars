@@ -52,7 +52,7 @@ func (f *First) match(run rt.Runtime) (ret bool, err error) {
 	} else {
 		if b, e := f.Matching.GetBool(run); e != nil {
 			err = e
-		} else if b {
+		} else if b.Value {
 			ret = true
 		}
 	}

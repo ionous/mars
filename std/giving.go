@@ -11,15 +11,17 @@ import (
 
 // Give, a shortcut for giving.
 func Give(prop string) GivePropPhrase {
-	return GivePropPhrase(prop)
+	return GivePropPhrase{prop}
 }
 
 func (prop GivePropPhrase) To(actor string) rt.Execute {
 	// added indirection so we can transform props after the rules of taking/giving have run
-	return g.The(actor).Go("acquire it", g.The(string(prop)))
+	return g.The(actor).Go("acquire it", g.The(prop.Prop))
 }
 
-type GivePropPhrase string
+type GivePropPhrase struct {
+	Prop string
+}
 
 // all infom giving rules:
 // 	"applies to one carried thing and one visible thing."

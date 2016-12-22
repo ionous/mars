@@ -7,10 +7,6 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-func NewCanDo(action types.NamedAction) CanDoPhrase {
-	return CanDoPhrase{ActionName: action}
-}
-
 func (c CanDoPhrase) And(doing types.NamedEvent) RequiresWhatPhrase {
 	c.EventName = doing
 	return RequiresWhatPhrase(c)
