@@ -13,7 +13,26 @@ type DataBlock struct {
 	Args ArgMap `json:"args,omitempty"`
 }
 
-func ComputeArg(v r.Value) (ret interface{}, err error) {
+func (args ArgMap) ComputeArgs(at r.Type, av r.Value) (err error) {
+	for i := 0; i < at.NumField(); i++ {
+		ft, fv := at.Field(i), av.Field(i)
+		// keep adding to this structure as if all of the fields were directly embedded.
+		if ft.Anonymous {
+			if e := args.ComputeArgs(ft.Type, fv); e != nil {
+				err = e
+				break
+			}
+		} else if arg, e := args.ComputeArg(fv); e != nil {
+			err = errutil.New("error converting", fv, "at", ft.Name, "because", e)
+			break
+		} else if arg != nil {
+			args[ft.Name] = arg
+		}
+	}
+	return
+}
+
+func (args ArgMap) ComputeArg(v r.Value) (ret interface{}, err error) {
 	switch k := v.Kind(); k {
 	case r.String:
 		if s := v.String(); s != "" {
@@ -28,8 +47,9 @@ func ComputeArg(v r.Value) (ret interface{}, err error) {
 		if cnt := v.Len(); cnt > 0 {
 			var out []interface{}
 			for i := 0; i < cnt; i++ {
-				if l, e := ComputeArg(v.Index(i)); e != nil {
+				if l, e := args.ComputeArg(v.Index(i)); e != nil {
 					err = errutil.New("error converting", k, "at", i, "because", e)
+					break
 				} else {
 					out = append(out, l)
 				}
@@ -38,15 +58,17 @@ func ComputeArg(v r.Value) (ret interface{}, err error) {
 		}
 
 	case r.Struct:
+
 		if r, e := ComputeCmd(v); e != nil {
 			err = errutil.New("error converting", k, "because", e)
 		} else {
 			ret = r
+
 		}
 
 	case r.Ptr, r.Interface:
 		if !v.IsNil() {
-			if r, e := ComputeArg(v.Elem()); e != nil {
+			if r, e := args.ComputeArg(v.Elem()); e != nil {
 				err = errutil.New("error converting", k, "because", e)
 			} else {
 				ret = r
@@ -61,27 +83,25 @@ func ComputeArg(v r.Value) (ret interface{}, err error) {
 }
 
 func Compute(src interface{}) (ret DataBlock, err error) {
-	if src != nil {
+	if src == nil {
+		err = errutil.New("nothing to compute")
+	} else {
 		ret, err = ComputeCmd(r.ValueOf(src))
 	}
 	return
 }
 
 func ComputeCmd(src r.Value) (ret DataBlock, err error) {
-	srcType, args := src.Type(), make(ArgMap)
+	//
+	args := make(ArgMap)
+	srcType := src.Type()
 	if srcType.Kind() != r.Struct {
 		err = errutil.New("error", srcType, "is not a struct")
+	} else if e := args.ComputeArgs(srcType, src); e != nil {
+		err = e
 	} else {
 		ret.Name = srcType.Name()
 		ret.Args = args
-		for i := 0; i < srcType.NumField(); i++ {
-			f, v := srcType.Field(i), src.Field(i)
-			if arg, e := ComputeArg(v); e != nil {
-				err = errutil.New("error converting", srcType, "at", f.Name, "because", e)
-			} else if arg != nil {
-				args[f.Name] = arg
-			}
-		}
 	}
 	return
 }

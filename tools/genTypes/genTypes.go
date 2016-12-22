@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/ionous/mars/encode"
 	"github.com/ionous/mars/std"
+	"os"
 )
 
 func Marshall(b encode.TypeBlocks) ([]byte, error) {
@@ -12,14 +14,9 @@ func Marshall(b encode.TypeBlocks) ([]byte, error) {
 }
 
 func main() {
-	//story := flag.String("story", "", "select the story to play.")
-	// verbose := flag.Bool("verbose", false, "prints log output when true.")
-	// 	text := flag.Bool("text", false, "uses the simpler text console when true.")
-	// 	dump := flag.Bool("dump", false, "dump the model.")
-	// 	load := flag.Bool("load", false, "load the story save game.")
-	// 	flag.Parse()
-	// flag.PrintDefaults()
 	b := encode.NewTypeBuilder()
+	dst := flag.String("file", "", "export destination.")
+	flag.Parse()
 
 	// we get all of the other packages via dependencies
 	if e := b.AddPackage(std.Std()); e != nil {
@@ -29,7 +26,18 @@ func main() {
 		if m, e := Marshall(tb); e != nil {
 			fmt.Println("error:", e)
 		} else {
-			fmt.Println(string(m))
+			w := os.Stdout
+			if *dst != "" {
+				fmt.Println("writing to", *dst)
+				if f, e := os.Create(*dst); e != nil {
+					fmt.Println("error", e)
+					return
+				} else {
+					w = f
+					defer f.Close()
+				}
+			}
+			fmt.Fprintln(w, string(m))
 		}
 	}
 }

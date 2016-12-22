@@ -21,7 +21,7 @@ func main() {
 			script.Understand("look|l at {{something}}").As("test"),
 		},
 	}
-	if cmd, e := encode.ComputeCmd(r.ValueOf(d)); e != nil {
+	if cmd, e := encode.Compute(d); e != nil {
 		fmt.Println("error", e)
 	} else if m, e := Marshall(cmd); e != nil {
 		fmt.Println("error", e)
