@@ -26,8 +26,8 @@ func (l InLocation) GenFragment(src *S.Statements, top Topic) error {
 
 // Supports gives the current supporter the passed prop as contents.
 // In gives the current object the room for its whereabouts
-func Supports(noun string) SupportsContents {
-	return SupportsContents{[]string{noun}}
+func Supports(nouns ...string) SupportsContents {
+	return SupportsContents{nouns}
 }
 
 type SupportsContents struct {
@@ -39,8 +39,8 @@ func (l SupportsContents) GenFragment(src *S.Statements, top Topic) error {
 }
 
 // Contains gives the current container the passed prop as contents.
-func Contains(noun string) ContainsContents {
-	return ContainsContents{[]string{noun}}
+func Contains(nouns ...string) ContainsContents {
+	return ContainsContents{nouns}
 }
 
 type ContainsContents struct {
@@ -52,8 +52,8 @@ func (l ContainsContents) GenFragment(src *S.Statements, top Topic) error {
 }
 
 // Possesses gives the current subject the passed prop as inventory.
-func Possesses(noun string) PossessesInventory {
-	return PossessesInventory{[]string{noun}}
+func Possesses(nouns ...string) PossessesInventory {
+	return PossessesInventory{nouns}
 }
 
 type PossessesInventory struct {
@@ -65,8 +65,8 @@ func (l PossessesInventory) GenFragment(src *S.Statements, top Topic) error {
 }
 
 // Wears gives the current subject the passed article of clothing.
-func Wears(noun string) WearsClothing {
-	return WearsClothing{[]string{noun}}
+func Wears(nouns ...string) WearsClothing {
+	return WearsClothing{nouns}
 }
 
 type WearsClothing struct {
