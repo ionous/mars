@@ -7,6 +7,7 @@ import (
 	"github.com/ionous/mars/encode"
 	"github.com/ionous/mars/std"
 	"os"
+	"strings"
 )
 
 func Marshall(b encode.TypeBlocks) ([]byte, error) {
@@ -37,7 +38,8 @@ func main() {
 					defer f.Close()
 				}
 			}
-			fmt.Fprintln(w, string(m))
+			s := "var allTypes =" + strings.Replace(string(m), "Generic", "ObjEval", -1)
+			fmt.Fprintln(w, s)
 		}
 	}
 }
