@@ -14,7 +14,7 @@ type Suite struct {
 
 type Unit struct {
 	Name   string
-	Setup  backend.Spec
+	Setup  backend.Declaration
 	Trials []Trial
 }
 
@@ -47,7 +47,7 @@ func (t Trial) Test(try Trytime) (err error) {
 	} else if e := t.Post.Test(try); e != nil {
 		err = e
 		if t.Fini != nil {
-			if s, e := try.Execute(t.Fini); e != nil {
+			if s, e := try.Execute(rt.MakeStatements(t.Fini)); e != nil {
 				panic(e)
 			} else {
 				err = errutil.New(err, strings.Join(s, ";"))

@@ -21,8 +21,9 @@ var endTurn = Using{
 
 var updateStatusBar = Choose{
 	If: g.The("story").Is("scored"),
-	True: g.The("status bar").SetText("right",
-		MakeText(GetNum{"score"}, "/", GetNum{"turn count"})),
+	True: g.Go(
+		g.The("status bar").SetText("right",
+			MakeText(GetNum{"score"}, "/", GetNum{"turn count"}))),
 }
 
 // System actions
@@ -55,7 +56,7 @@ func init() {
 		Before("ending the turn").Always(
 			Choose{
 				If:   g.The("story").Is("completed"),
-				True: g.StopHere(),
+				True: g.Go(g.StopHere()),
 			}),
 		To("end turn", endTurn),
 		After("ending the story").Always(endTurn),
@@ -72,7 +73,7 @@ func init() {
 					g.The("story").Go("describe the first room", g.TheObject()),
 					g.The("story").IsNow("playing"),
 				),
-				Else: Error{T("The player is nowhere.")},
+				Else: g.Go(Error{"The player is nowhere."}),
 			}),
 	)
 
@@ -88,8 +89,8 @@ func init() {
 				g.TheObject().IsNow("completed"),
 				Choose{
 					If: g.TheObject().Is("scored"),
-					True: g.Say(
-						"In that game you scored", GetNum{"score"}, "out of a possible", GetNum{"maximum score"}, "in", AddNum{GetNum{"turn count"}, I(1)}, "turns"),
+					True: g.Go(
+						g.Say("In that game you scored", GetNum{"score"}, "out of a possible", GetNum{"maximum score"}, "in", AddNum{GetNum{"turn count"}, I(1)}, "turns")),
 				}),
 		}))
 

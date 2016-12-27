@@ -127,7 +127,7 @@ type xSite struct {
 	door xDoor
 }
 
-func (x xSite) makeSite() backend.Spec {
+func (x xSite) makeSite() backend.Declaration {
 	s := NewScript(
 		The("room", Called(x.room.str), Exists()),
 		The("door", Called(x.door.str), In(x.room.str), Exists()))
@@ -154,7 +154,7 @@ func (x xDir) isSpecified() bool {
 	return len(x.str) > 0
 }
 
-func (x xDir) makeDir() backend.Spec {
+func (x xDir) makeDir() backend.Declaration {
 	return The("direction", Called(x.str), Exists())
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 // The targets a noun for new assertions.
-func The(target string, fragments ...backend.Fragment) backend.Spec {
+func The(target string, fragments ...backend.Fragment) backend.Declaration {
 	return internal.NounPhrase{types.NamedSubject(target), fragments}
 }
 
@@ -81,29 +81,29 @@ func HaveMany(name string, class types.NamedClass) internal.PartialRelation {
 }
 
 func HasNumber(property string, value rt.NumberEval) (ret backend.Fragment) {
-	return internal.NumberValue{types.NamedProperty(property), value}
+	return internal.NumberValue{property, value}
 }
 
 func HasText(property string, value rt.TextEval) (ret backend.Fragment) {
-	return internal.TextValue{types.NamedProperty(property), value}
+	return internal.TextValue{property, value}
 }
 
 // fix? ref as string because property builder
 func HasRef(property string, value string) (ret backend.Fragment) {
-	return internal.RefValue{types.NamedProperty(property), value}
+	return internal.RefValue{property, value}
 }
 
 // fix? there is no ref list, only a series of single refs
 // func HasRefs(property string, values ...string) (ret backend.Fragment) {
-// 	return internal.RefValues{types.NamedProperty(property), values}
+// 	return internal.RefValues{property, values}
 // }
 
 func HasNumberList(property string, value rt.NumListEval) (ret backend.Fragment) {
-	return internal.NumberValues{types.NamedProperty(property), value}
+	return internal.NumberValues{property, value}
 }
 
 func HasTextList(property string, value rt.TextListEval) (ret backend.Fragment) {
-	return internal.TextValues{types.NamedProperty(property), value}
+	return internal.TextValues{property, value}
 }
 
 // Can asserts a new verb for the targeted noun.

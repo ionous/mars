@@ -35,8 +35,8 @@ func init() {
 			To("report listen",
 				Choose{
 					If:    g.The("player").Equals(g.The("action.Target")),
-					True:  g.Say("You hear nothing unexpected."),
-					False: g.Say(g.The("actor").Upper(), "listens."),
+					True:  g.Go(g.Say("You hear nothing unexpected.")),
+					False: g.Go(g.Say(g.The("actor").Upper(), "listens.")),
 				})),
 		Understand("listen to {{something}}").And("listen {{something}}").As("listen to"),
 		Understand("listen").As("listen"),

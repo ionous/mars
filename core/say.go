@@ -7,8 +7,7 @@ import (
 
 // Say shortcut runs a bunch of statements and "collects" them via PrintLine
 func Say(all ...interface{}) rt.Execute {
-	txt := Print(all...)
-	return PrintLine{txt}
+	return PrintLine{Print(all...)}
 }
 
 func MakeText(all ...interface{}) rt.TextEval {
@@ -17,7 +16,7 @@ func MakeText(all ...interface{}) rt.TextEval {
 }
 
 type Buffer struct {
-	Buffer rt.Execute
+	Buffer rt.Statements
 }
 
 func (m Buffer) GetText(run rt.Runtime) (ret rt.Text, err error) {
@@ -25,7 +24,7 @@ func (m Buffer) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	defer run.PopOutput()
 	run.PushOutput(&out)
 	//
-	if e := m.Buffer.Execute(run); e != nil {
+	if e := m.Buffer.ExecuteList(run); e != nil {
 		err = e
 	} else {
 		ret = rt.Text{out.String()}
@@ -33,7 +32,7 @@ func (m Buffer) GetText(run rt.Runtime) (ret rt.Text, err error) {
 	return
 }
 
-func Print(all ...interface{}) rt.Execute {
+func Print(all ...interface{}) rt.Statements {
 	sayWhat := []rt.Execute{}
 	for _, a := range all {
 		switch val := a.(type) {
@@ -51,17 +50,17 @@ func Print(all ...interface{}) rt.Execute {
 		case rt.ObjEval:
 			sayWhat = append(sayWhat, PrintObj{val})
 		case rt.NumListEval:
-			l := ForEachNum{In: val, Go: PrintNum{GetNum{"@"}}}
+			l := ForEachNum{In: val, Go: rt.MakeStatements(PrintNum{GetNum{"@"}})}
 			sayWhat = append(sayWhat, l)
 		case rt.TextListEval:
-			l := ForEachText{In: val, Go: PrintText{GetText{"@"}}}
+			l := ForEachText{In: val, Go: rt.MakeStatements(PrintText{GetText{"@"}})}
 			sayWhat = append(sayWhat, l)
 		case rt.ObjListEval:
-			l := ForEachObj{In: val, Go: PrintObj{GetObj{"@"}}}
+			l := ForEachObj{In: val, Go: rt.MakeStatements(PrintObj{GetObj{"@"}})}
 			sayWhat = append(sayWhat, l)
 		default:
 			panic("say what?")
 		}
 	}
-	return ExecuteList{sayWhat}
+	return rt.MakeStatements(sayWhat...)
 }

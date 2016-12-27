@@ -11,8 +11,9 @@ import (
 // FIX: these should be script functions
 // script functions should be
 func PlayerLearns(fact string) rt.BoolEval {
-	return Choose{If: IsNot{IsState{RawId(fact), "recollected"}},
-		True: Change(RawId(fact)).To("recollected"),
+	return Choose{
+		If:    IsState{RawId(fact), "recollected"},
+		False: rt.MakeStatements(Change(RawId(fact)).To("recollected")),
 	}
 }
 

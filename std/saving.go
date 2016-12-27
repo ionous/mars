@@ -30,8 +30,8 @@ func init() {
 			To("save it",
 				SaveGame{
 					AutoSave: g.The("save-setting").Equals(g.The("auto-save")),
-					Saved:    g.Say("saved", GetText{"@"}),
-					Failed:   g.Say("couldnt save", GetText{"@"}),
+					Saved:    g.Go(g.Say("saved", GetText{"@"})),
+					Failed:   g.Go(g.Say("couldnt save", GetText{"@"})),
 				}),
 		),
 		Understand("save").As("save via input"),

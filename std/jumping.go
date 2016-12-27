@@ -22,8 +22,8 @@ func init() {
 				// seems... strange. why report if if its silent?
 				Choose{
 					If:    g.The("player").Equals(g.The("action.Target")),
-					True:  g.Say("You jump on the spot."),
-					False: g.Say(g.The("action.Target").Upper(), "jumps on the spot."),
+					True:  g.Go(g.Say("You jump on the spot.")),
+					False: g.Go(g.Say(g.The("action.Target").Upper(), "jumps on the spot.")),
 				})),
 
 		Understand("jump|skip|hop").As("jump"),

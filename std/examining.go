@@ -28,8 +28,8 @@ func init() {
 			To("print details",
 				Choose{
 					If:    IsEmpty{g.The("object").Text("description")},
-					False: g.Say(g.The("object").Text("description")),
-					True:  g.The("object").Go("print name"),
+					False: g.Go(g.Say(g.The("object").Text("description"))),
+					True:  g.Go(g.The("object").Go("print name")),
 				},
 			)),
 
@@ -38,16 +38,16 @@ func init() {
 				Choose{
 					If: Any(g.The("container").Is("open"),
 						g.The("container").Is("transparent")),
-					True: ForEachObj{
+					True: g.Go(ForEachObj{
 						In: g.The("container").ObjectList("contents"),
 						Go: g.Go(
 							Choose{
 								If:   GetBool{"@first"},
-								True: g.Say("In", g.The("container").Lower(), ":"),
+								True: g.Go(g.Say("In", g.The("container").Lower(), ":")),
 							},
 							g.TheObject().Go("print description"),
 						),
-					},
+					}),
 				},
 			),
 		),
@@ -61,8 +61,9 @@ func init() {
 				ForEachObj{
 					In: g.The("supporter").ObjectList("contents"),
 					Go: g.Go(
-						Choose{If: GetBool{"@first"},
-							True: g.Say("On", g.The("supporter").Lower(), ":"),
+						Choose{
+							If:   GetBool{"@first"},
+							True: g.Go(g.Say("On", g.The("supporter").Lower(), ":")),
 						},
 						g.TheObject().Go("print description"),
 					),

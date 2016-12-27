@@ -17,6 +17,7 @@ func Std() *mars.Package {
 			Tests:        pkg.Tests,
 			Dependencies: mars.Dependencies(core.Core(), lang.Lang()),
 			Commands:     (*StdCommands)(nil),
+			Interfaces:   (*StdInterfaces)(nil),
 		}
 	}
 	return std
@@ -24,6 +25,10 @@ func Std() *mars.Package {
 
 var std *mars.Package
 var pkg mars.PackageBuilder
+
+type StdInterfaces struct {
+	OwnerRelation
+}
 
 type StdCommands struct {
 	*compat.ScriptRef
@@ -38,4 +43,11 @@ type StdCommands struct {
 	*script.PossessesInventory
 	*script.WearsClothing
 	*DoorHack
+	*AssignParent
+	// OwnerRelation
+	*Wearer
+	*Owner
+	*Whereabouts
+	*Support
+	*Enclosure
 }

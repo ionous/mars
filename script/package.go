@@ -23,7 +23,7 @@ var script *mars.Package
 
 // https://github.com/ungerik/pkgreflect: could be used via go generate
 type ScriptInterfaces struct {
-	backend.Spec
+	backend.Declaration
 	backend.Fragment
 	internal.ActionRequirements
 	internal.ReverseRelation

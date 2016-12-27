@@ -24,7 +24,7 @@ func Carrier(r compat.ScriptRef) compat.ScriptRef {
 }
 
 // Enclosure returns the first room, closed container, or empty parent.
-func Enclosure(obj rt.ObjEval) compat.ScriptRef {
+func EnclosureOf(obj rt.ObjEval) compat.ScriptRef {
 	return compat.ScriptRef{
 		stream.First{
 			In: Ancestors(obj),

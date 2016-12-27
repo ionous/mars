@@ -10,21 +10,19 @@ import (
 
 type Using struct {
 	Object    rt.ObjEval
-	Run, Else rt.Execute
+	Run, Else rt.Statements
 }
 
 func (c Using) Execute(run rt.Runtime) (err error) {
 	if obj, e := c.Object.GetObject(run); e != nil {
 		err = e
 	} else if !obj.Exists() {
-		if c.Else != nil {
-			if e := c.Else.Execute(run); e != nil {
-				err = e
-			}
+		if e := c.Else.ExecuteList(run); e != nil {
+			err = e
 		}
 	} else {
 		run := scope.Make(run, scope.NewObjectScope(obj), run)
-		if e := c.Run.Execute(run); e != nil {
+		if e := c.Run.ExecuteList(run); e != nil {
 			err = e
 		}
 	}

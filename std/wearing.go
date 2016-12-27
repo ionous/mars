@@ -15,7 +15,7 @@ func Clothe(actor string) ClothePhrase {
 }
 
 func (p ClothePhrase) With(clothing string) rt.Execute {
-	return AssignParent(g.The(clothing), "wearer", p.actor)
+	return AssignParent{g.The(clothing), Wearer{}, p.actor}
 }
 
 type ClothePhrase struct {
@@ -36,12 +36,12 @@ func init() {
 			Can("report wear").And("reporting wear").RequiresOnly("actor"),
 			To("report wear",
 				Choose{
-					If:    g.The("prop").Is("wearable"),
-					False: g.Say("That's not something you can wear."),
+					If: g.The("prop").Is("wearable"),
+					False: g.Go(
+						g.Say("That's not something you can wear.")),
 					True: g.Go(
 						Clothe("actor").With("prop"),
-						g.Say("Now", g.The("actor").Lower(), "is wearing", g.The("prop").Lower(), "."),
-					),
+						g.Say("Now", g.The("actor").Lower(), "is wearing", g.The("prop").Lower(), ".")),
 				}),
 		),
 		Understand("wear|don {{something}}").

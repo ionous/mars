@@ -8,8 +8,9 @@ import (
 // print the text on success, return it as an error on failure
 func Try(message string, b rt.BoolEval) rt.Execute {
 	return Trial{Choose{If: b,
-		True:  PrintLine{PrintText{T(message)}},
-		False: Error{T(message)}}}
+		True:  rt.MakeStatements(PrintText{T(message)}, PrintLine{}),
+		False: rt.MakeStatements(Error{message}),
+	}}
 }
 
 type Trial struct {
@@ -23,15 +24,10 @@ func (x Trial) Execute(run rt.Runtime) error {
 
 // Error satifies all runtime evaluations;
 // in all cases returning an error string provided by "reason".
-type Error struct{ Reason rt.TextEval }
+type Error struct{ Reason string }
 
-func (x Error) Execute(run rt.Runtime) (err error) {
-	if s, e := x.Reason.GetText(run); e != nil {
-		err = errutil.New("error processing error", e)
-	} else {
-		err = errutil.New(s)
-	}
-	return err
+func (x Error) Execute(run rt.Runtime) error {
+	return errutil.New(x.Reason)
 }
 func (x Error) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	err = x.Execute(run)

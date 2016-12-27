@@ -8,12 +8,12 @@ import (
 )
 
 type PackageBuilder struct {
-	Scripts []backend.Spec
+	Scripts []backend.Declaration
 	Tests   []test.Suite
 }
 
-func (pb *PackageBuilder) AddScript(_ string, specs ...backend.Spec) {
-	pb.Scripts = append(pb.Scripts, specs...)
+func (pb *PackageBuilder) AddScript(_ string, decls ...backend.Declaration) {
+	pb.Scripts = append(pb.Scripts, decls...)
 }
 
 func (pb *PackageBuilder) AddTest(name string, units ...test.Unit) {
@@ -38,7 +38,7 @@ type Package struct {
 
 type DependencyList []Dependency
 type TestList []test.Suite
-type SpecList []backend.Spec
+type SpecList []backend.Declaration
 
 func Dependencies(imports ...Dependency) DependencyList {
 	return imports

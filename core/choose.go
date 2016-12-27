@@ -4,7 +4,7 @@ import "github.com/ionous/mars/rt"
 
 type Choose struct {
 	If          rt.BoolEval
-	True, False rt.Execute
+	True, False rt.Statements
 }
 
 type ChooseNum struct {
@@ -26,16 +26,13 @@ func (x Choose) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 	if b, e := x.If.GetBool(run); e != nil {
 		err = e
 	} else {
-		var next rt.Execute
+		var next rt.Statements
 		if b.Value {
 			next = x.True
 		} else {
 			next = x.False
 		}
-		if next != nil {
-			err = next.Execute(run)
-		}
-		ret = b
+		ret, err = b, next.ExecuteList(run)
 	}
 	return
 }

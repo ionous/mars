@@ -2,10 +2,8 @@ package std
 
 import (
 	. "github.com/ionous/mars/core"
-	"github.com/ionous/mars/rt"
 	. "github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/g"
-	"github.com/ionous/mars/std/compat"
 )
 
 func init() {
@@ -30,24 +28,16 @@ func init() {
 
 		The("rooms",
 			Can("report the view").And("reporting the view").RequiresNothing(),
-
 			After("reporting the view").Always(
-				g.Go(Change(g.The("room")).To("visited")),
+				Change(g.The("room")).To("visited"),
 			),
 			To("report the view",
-				g.Go(ViewRoom(g.The("room"))),
+				g.Say(g.The("room").Text("name")),
+				g.Say(g.The("room").Text("description")),
+				ForEachObj{
+					In: g.The("room").ObjectList("contents"),
+					Go: g.Go(g.TheObject().Go("print description")),
+				},
 			)),
-	)
-}
-
-// FUTURE? interestingly, while we wouldnt be able to encode them without special work, the contents of the phrases are fixed: we could have After("reporting").Execute(Phrase). maybe "standard" phrases could put themselves in some sort of wrapper? around the model? tho not quite sure howd that work.
-func ViewRoom(obj compat.ScriptRef) rt.Execute {
-	return g.Go(
-		g.Say(obj.Text("name")),
-		g.Say(obj.Text("description")),
-		ForEachObj{
-			In: obj.ObjectList("contents"),
-			Go: g.TheObject().Go("print description"),
-		},
 	)
 }

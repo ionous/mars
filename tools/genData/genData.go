@@ -16,7 +16,7 @@ func Marshall(cmd encode.DataBlock) ([]byte, error) {
 func main() {
 	var d = script.Script{
 		Name: "MyScript",
-		Statements: []backend.Spec{
+		Statements: []backend.Declaration{
 			//script.The("kinds", script.Can("test").And("testing").RequiresTwo("things")),
 			script.Understand("look|l at {{something}}").As("test"),
 		},

@@ -25,12 +25,15 @@ func init() {
 			Can("report look under").And("reporting look under").RequiresOnly("actor"),
 			To("report look under",
 				g.Say(Choose{
-					If:   g.The("action.Target").Equals(g.The("player")),
-					True: g.Say("You find nothing of interest."),
-					False: g.Say(
-						g.The("action.Target").Upper(), "looks under", g.The("action.Source").Lower(), "."),
-				},
-				))),
+					If: g.The("action.Target").Equals(g.The("player")),
+					True: g.Go(
+						g.Say("You find nothing of interest."),
+					),
+					False: g.Go(
+						g.Say(
+							g.The("action.Target").Upper(), "looks under", g.The("action.Source").Lower(), "."),
+					),
+				}))),
 	)
 
 	pkg.AddTest("LookUnder",

@@ -27,9 +27,7 @@ func TheObject() compat.ScriptRef {
 }
 
 // Go shortcut runs a bunch of statements
-func Go(all ...rt.Execute) rt.Execute {
-	return core.ExecuteList{all}
-}
+var Go = rt.MakeStatements
 
 func Call(act string, args ...meta.Generic) core.GoCall {
 	return core.GoCall{types.NamedAction(act), args}

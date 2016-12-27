@@ -70,8 +70,8 @@ func init() {
 					Object: DoorHack{
 						g.The("actor").Object("whereabouts"),
 						g.The("action.Target")},
-					Run:  g.The("actor").Go("go through it", g.TheObject()),
-					Else: g.Say("You can't move that direction."),
+					Run:  g.Go(g.The("actor").Go("go through it", g.TheObject())),
+					Else: g.Go(g.Say("You can't move that direction.")),
 				},
 			)),
 		The("actors",
@@ -84,22 +84,25 @@ func init() {
 				Using{
 					// the destination of a door is another door
 					Object: g.The("door").Object("destination"),
-					Run: Using{
-						// the whereabouts of the door, is the room
-						Object: g.TheObject().Object("whereabouts"),
-						Run: Choose{
-							If: g.The("door").Is("closed"),
-							True: Choose{
-								If:    g.The("door").Is("locked"),
-								True:  g.The("door").Go("report locked", g.The("actor")),
-								False: g.The("door").Go("report currently closed", g.The("actor")),
-							},
-							False: g.Go( // FIX: player property change?
-								// at the very least a move action.
-								Move(g.The("actor")).To(g.TheObject()),
-								g.TheObject().Go("report the view")),
-						},
-					},
+					Run: g.Go(
+						Using{
+							// the whereabouts of the door, is the room
+							Object: g.TheObject().Object("whereabouts"),
+							Run: g.Go(
+								Choose{
+									If: g.The("door").Is("closed"),
+									True: g.Go(
+										Choose{
+											If:    g.The("door").Is("locked"),
+											True:  g.Go(g.The("door").Go("report locked", g.The("actor"))),
+											False: g.Go(g.The("door").Go("report currently closed", g.The("actor"))),
+										}),
+									False: g.Go( // FIX: player property change?
+										// at the very least a move action.
+										Move(g.The("actor")).To(g.TheObject()),
+										g.TheObject().Go("report the view")),
+								}),
+						}),
 				},
 			),
 			Can("report currently closed").

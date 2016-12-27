@@ -66,12 +66,10 @@ type CoreCommands struct {
 	*IfEach
 	*EachIndex
 	// exec
-	*ExecuteList
 	*StopNow
 	*Error
 	*Trial
 	*DoNothing
-	*Fails
 	// gocall.go
 	*GoCall
 	// numEval

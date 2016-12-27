@@ -75,16 +75,16 @@ func Describe(obj compat.ScriptRef) rt.Execute {
 		True: g.Go(
 			Choose{
 				If:   obj.Is("handled"),
-				True: obj.Go("print name"),
+				True: g.Go(obj.Go("print name")),
 				False:
 				// MARS: first of / reduce instead of choose?
 				// couldnt print name would have to get name
 				// but thats what we want anyway.
-				Choose{
+				g.Go(Choose{
 					If:    IsEmpty{obj.Text("brief")},
-					False: g.Say(obj.Text("brief")),
-					True:  obj.Go("print name"),
-				},
+					False: g.Go(g.Say(obj.Text("brief"))),
+					True:  g.Go(obj.Go("print name")),
+				}),
 			},
 			obj.Go("print contents"),
 		),

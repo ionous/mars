@@ -44,7 +44,7 @@ func debugScript() (s Script) {
 		To("debug direct parent",
 			Using{
 				Object: g.The("action.target"),
-				Run:    g.Say(g.TheObject().Upper(), "=>", lang.TheUpper{Parent(g.TheObject())}),
+				Run:    g.Go(g.Say(g.TheObject().Upper(), "=>", lang.TheUpper{Parent(g.TheObject())})),
 			},
 		))
 	s.The("actors",
@@ -52,12 +52,12 @@ func debugScript() (s Script) {
 		To("debug ancestors",
 			Using{
 				Object: g.The("action.target"),
-				Run: g.Say(g.TheObject().Upper(),
+				Run: g.Go(g.Say(g.TheObject().Upper(),
 					ForEachObj{
 						In:   Ancestors(g.TheObject()),
 						Go:   Print("=>", g.TheObject().Upper()),
 						Else: Print("has no parents!"),
-					}),
+					})),
 			},
 		))
 	// FIX: sometimes parent of -- matches unexpected objects

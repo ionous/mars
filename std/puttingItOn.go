@@ -72,7 +72,7 @@ func Put(prop rt.ObjEval) PutOntoPhrase {
 
 func (p PutOntoPhrase) Onto(supporter rt.ObjEval) rt.Execute {
 	// FIX: validate that the supporter is a supporter?
-	return AssignParent(p.prop, "support", supporter)
+	return AssignParent{p.prop, Support{}, supporter}
 }
 
 type PutOntoPhrase struct {

@@ -10,11 +10,11 @@ func Move(what rt.ObjEval) MoveToPhrase {
 }
 
 func (move MoveToPhrase) To(where rt.ObjEval) rt.Execute {
-	return AssignParent(move.what, "whereabouts", where)
+	return AssignParent{move.what, Whereabouts{}, where}
 }
 
 func (move MoveToPhrase) OutOfWorld() rt.Execute {
-	return AssignParent(move.what, "whereabouts", core.Nothing())
+	return AssignParent{move.what, Whereabouts{}, core.Nothing()}
 }
 
 type MoveToPhrase struct {

@@ -21,8 +21,8 @@ func init() {
 			Can("report smell").And("reporting smell").RequiresOnly("actor"),
 			To("report smell", Choose{
 				If:    g.The("player").Equals(g.The("action.Target")),
-				True:  g.Say("You smell nothing unexpected."),
-				False: g.Say(g.The("action.Target").Upper(), "sniffs."),
+				True:  g.Go(g.Say("You smell nothing unexpected.")),
+				False: g.Go(g.Say(g.The("action.Target").Upper(), "sniffs.")),
 			}),
 		),
 

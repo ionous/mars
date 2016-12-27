@@ -13,7 +13,7 @@ func (p ParserPartial) And(s string) ParserPartial {
 }
 
 // MARS: its eems this would read better with the event name than the action name...
-func (p ParserPartial) As(s types.NamedAction) backend.Spec {
+func (p ParserPartial) As(s types.NamedAction) backend.Declaration {
 	return ParserPhrase{types.PlayerInput(p), s}
 }
 

@@ -17,28 +17,22 @@ func init() {
 		// i'm sure that's useful... somehow....
 		The("actors",
 			Can("report inventory").And("reporting inventory").RequiresNothing(),
-			To("report inventory", invList("clothing", "inventory")),
+			To("report inventory", invList("clothing"), invList("inventory")),
 		),
 
 		// FIX: for some reason, the order must be biggest match to smallest, the other way doesnt work.
 		Understand("inventory|inv|i").As("report inventory"),
 	)
 }
-func invList(source ...string) ExecuteList {
-	var ret []rt.Execute
-	for _, s := range source {
-		ret = append(ret,
-			ForEachObj{
-				In:   g.The("actor").ObjectList(s),
-				Else: g.Say(s, ": none."),
-				Go: g.Go(
-					Choose{If: GetBool{"@first"},
-						True: g.Say(s, ":"),
-					},
-					g.TheObject().Go("print name"),
-				),
+func invList(s string) (ret rt.Execute) {
+	return ForEachObj{
+		In:   g.The("actor").ObjectList(s),
+		Else: g.Go(g.Say(s, ": none.")),
+		Go: g.Go(
+			Choose{
+				If:   GetBool{"@first"},
+				True: g.Go(g.Say(s, ":")),
 			},
-		)
+			g.TheObject().Go("print name")),
 	}
-	return ExecuteList{ret}
 }

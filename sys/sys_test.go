@@ -27,7 +27,7 @@ func Run(t *testing.T, a ...rt.Execute) {
 
 	// Create an encoder and send some values.
 	if err := enc.Encode(a); assert.NoError(t, err, "encode") {
-		var x ExecuteList
+		var x Statements
 		if err := dec.Decode(&x); assert.NoError(t, err, "decode") {
 			// Create a decoder and receive some values.
 			if err := x.Execute(run); assert.NoError(t, err, "execute") {

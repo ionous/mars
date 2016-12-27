@@ -29,20 +29,24 @@ func init() {
 			Can("be opened by").And("being opened by").RequiresOnly("actor"),
 			To("be opened by",
 				Choose{
-					If:    g.The("prop").Is("hinged"),
-					False: g.The("prop").Go("report unopenable", g.The("actor")),
-					True: Choose{
-						If:   g.The("prop").Is("locked"),
-						True: g.The("prop").Go("report locked", g.The("actor")),
-						False: Choose{
-							If:   g.The("prop").Is("open"),
-							True: g.The("prop").Go("report already open", g.The("actor")),
+					If: g.The("prop").Is("hinged"),
+					False: g.Go(
+						g.The("prop").Go("report unopenable", g.The("actor"))),
+					True: g.Go(
+						Choose{
+							If: g.The("prop").Is("locked"),
+							True: g.Go(
+								g.The("prop").Go("report locked", g.The("actor"))),
 							False: g.Go(
-								Change(g.The("prop")).To("open"),
-								g.The("prop").Go("report now open", g.The("actor")),
-							),
-						},
-					},
+								Choose{
+									If: g.The("prop").Is("open"),
+									True: g.Go(
+										g.The("prop").Go("report already open", g.The("actor"))),
+									False: g.Go(
+										Change(g.The("prop")).To("open"),
+										g.The("prop").Go("report now open", g.The("actor"))),
+								}),
+						}),
 				},
 			),
 			Can("report locked").And("reporting locked").RequiresOnly("actor"),
@@ -64,16 +68,20 @@ func init() {
 				// if the noun doesnt not enclose the actor
 				// list the contents of the noun, as a sentence, tersely, not listing concealed items;
 				// FIX? not all openers are opaque/transparent, and not all openers have contents.
-				Choose{If: g.The("opener").Is("opaque"),
-					True: ForEachObj{
-						In: g.The("opener").ObjectList("contents"),
-						Go: g.Go(
-							Choose{If: GetBool{"@first"},
-								True: g.Say("In", g.The("opener").Lower(), ":"),
-							},
-							g.Call("print description", GetObj{"@"}),
-						),
-					},
+				Choose{
+					If: g.The("opener").Is("opaque"),
+					True: g.Go(
+						ForEachObj{
+							In: g.The("opener").ObjectList("contents"),
+							Go: g.Go(
+								Choose{
+									If: GetBool{"@first"},
+									True: g.Go(
+										g.Say("In", g.The("opener").Lower(), ":")),
+								},
+								g.Call("print description", GetObj{"@"}),
+							),
+						}),
 				},
 			),
 		),
@@ -88,16 +96,18 @@ func init() {
 			Can("be closed by").And("being closed by").RequiresOnly("actor"),
 			To("be closed by",
 				Choose{
-					If:    g.The("prop").Is("hinged"),
-					False: g.The("prop").Go("report not closeable", g.The("actor")),
-					True: Choose{ // FIX: locked?
-						If:   g.The("prop").Is("closed"),
-						True: g.The("prop").Go("report already closed", g.The("actor")),
-						False: g.Go(
-							g.The("prop").IsNow("closed"),
-							g.The("prop").Go("report now closed", g.The("actor")),
-						),
-					},
+					If: g.The("prop").Is("hinged"),
+					False: g.Go(
+						g.The("prop").Go("report not closeable", g.The("actor"))),
+					True: g.Go(
+						Choose{ // FIX: locked?
+							If: g.The("prop").Is("closed"),
+							True: g.Go(
+								g.The("prop").Go("report already closed", g.The("actor"))),
+							False: g.Go(
+								g.The("prop").IsNow("closed"),
+								g.The("prop").Go("report now closed", g.The("actor"))),
+						}),
 				},
 			),
 			Can("report not closeable").And("reporting not closeable").RequiresOnly("actor"),

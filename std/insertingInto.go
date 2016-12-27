@@ -82,10 +82,9 @@ func init() {
 		// 3. context
 		The("props",
 			Can("be inserted").And("being inserted").RequiresOne("actor").AndOne("container"),
-			To("be inserted", g.Go(
+			To("be inserted",
 				g.Say("You insert", g.The("action.Source").Lower(), "into", g.The("action.Context").Lower(), "."),
 				Insert(g.The("action.Source")).Into(g.The("action.Context")),
-			),
 			)),
 		// input: actor, container, prop
 		Understand("put|insert {{something else}} in|inside|into {{something}}").
@@ -99,7 +98,7 @@ func Insert(what rt.ObjEval) InsertIntoPhrase {
 }
 
 func (ins InsertIntoPhrase) Into(where rt.ObjEval) rt.Execute {
-	return AssignParent(ins.what, "enclosure", where)
+	return AssignParent{ins.what, Enclosure{}, where}
 }
 
 type InsertIntoPhrase struct {

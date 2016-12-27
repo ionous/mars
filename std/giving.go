@@ -46,7 +46,7 @@ func init() {
 		The("props",
 			Can("be acquired").And("being acquired").RequiresOnly("actor"),
 			To("be acquired",
-				AssignParent(g.The("prop"), "owner", g.The("actor")),
+				AssignParent{g.The("prop"), Owner{}, g.The("actor")},
 			)),
 
 		// 1. source

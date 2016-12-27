@@ -10,7 +10,7 @@ func NewSuite(name string, units ...Unit) Suite {
 	return Suite{name, units}
 }
 
-func Setup(setup backend.Spec) Unit {
+func Setup(setup backend.Declaration) Unit {
 	return Unit{Setup: setup}
 }
 
@@ -32,8 +32,8 @@ func Run(action string, args ...meta.Generic) Trial {
 	return Trial{Imp: Imp{Input: action, Args: args}}
 }
 
-func Execute(x rt.Execute) Trial {
-	return Trial{Imp: Imp{Execute: x}}
+func Execute(x ...rt.Execute) Trial {
+	return Trial{Imp: Imp{Execute: rt.MakeStatements(x...)}}
 }
 
 func Expect(expect ...rt.BoolEval) Trial {

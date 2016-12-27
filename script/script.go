@@ -7,16 +7,17 @@ import (
 	"github.com/ionous/sashimi/source/types"
 )
 
+// FIX: might be better as an array rather than a struct
+// needs an appropriate story container
 type Script struct {
-	Name  types.NamedScript
-	Specs []backend.Spec
+	Specs []backend.Declaration
 }
 
-func NewScript(specs ...backend.Spec) Script {
+func NewScript(specs ...backend.Declaration) Script {
 	return Script{Specs: specs}
 }
 
-func (s *Script) Add(specs ...backend.Spec) *Script {
+func (s *Script) Add(specs ...backend.Declaration) *Script {
 	s.Specs = append(s.Specs, specs...)
 	return s
 }
@@ -32,7 +33,7 @@ func (s *Script) Understand(input ...string) ParserHelper {
 	return p
 }
 
-// Generate implements Spec
+// Generate implements Declaration
 func (s Script) Generate(src *S.Statements) (err error) {
 	for _, b := range s.Specs {
 		if e := b.Generate(src); e != nil {

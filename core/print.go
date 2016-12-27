@@ -17,9 +17,8 @@ type PrintObj struct {
 	Obj rt.ObjEval
 }
 
-// PrintLine
 type PrintLine struct {
-	Strings rt.Execute
+	Block rt.Statements
 }
 
 func (x PrintNum) Execute(run rt.Runtime) (err error) {
@@ -53,7 +52,7 @@ func (x PrintObj) Execute(run rt.Runtime) (err error) {
 
 // Execute a little machine to add spaces between words, but not before punctuation.
 func (p PrintLine) Execute(run rt.Runtime) (err error) {
-	err = p.Strings.Execute(run)
+	err = p.Block.ExecuteList(run)
 	if err == nil {
 		err = run.Println()
 	}

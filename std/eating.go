@@ -20,8 +20,8 @@ func init() {
 			To("report eat",
 				Choose{
 					If:    g.The("prop").Is("inedible"),
-					True:  g.Say("That's not something you can eat."),
-					False: g.The("actor").Go("impress"),
+					True:  g.Go(g.Say("That's not something you can eat.")),
+					False: g.Go(g.The("actor").Go("impress")),
 				}),
 		),
 		Understand("eat {{something}}").As("eat it"),

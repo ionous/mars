@@ -17,7 +17,7 @@ func init() {
 			Can("report attack").And("reporting attack").RequiresOnly("actor"),
 			To("report attack", Choose{
 				If:   g.Our("player").Equals(g.Our("actor")),
-				True: g.Say("Violence isn't the answer."),
+				True: g.Go(g.Say("Violence isn't the answer.")),
 			})),
 
 		Understand("attack|break|smash|hit|fight|torture {{something}}").

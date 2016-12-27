@@ -9,17 +9,17 @@ import (
 
 type ForEachNum struct {
 	In       rt.NumListEval
-	Go, Else rt.Execute
+	Go, Else rt.Statements
 }
 
 type ForEachText struct {
 	In       rt.TextListEval
-	Go, Else rt.Execute
+	Go, Else rt.Statements
 }
 
 type ForEachObj struct {
 	In       rt.ObjListEval
-	Go, Else rt.Execute
+	Go, Else rt.Statements
 }
 
 type IfEach struct {
@@ -63,10 +63,8 @@ func (f ForEachNum) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetNumberStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
-		if f.Else != nil {
-			if e := f.Else.Execute(run); e != nil {
-				err = errutil.New("failed each num else", e)
-			}
+		if e := f.Else.ExecuteList(run); e != nil {
+			err = errutil.New("failed each num else", e)
 		}
 	} else {
 		for l := scope.NewLooper(it); l.HasNext(); {
@@ -75,7 +73,7 @@ func (f ForEachNum) Execute(run rt.Runtime) (err error) {
 				break
 			} else {
 				run := scope.Make(run, l.NextScope(v), run)
-				if e := f.Go.Execute(run); e != nil {
+				if e := f.Go.ExecuteList(run); e != nil {
 					err = errutil.New("failed each num go", v, e)
 					break
 				}
@@ -89,10 +87,8 @@ func (f ForEachText) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetTextStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
-		if f.Else != nil {
-			if e := f.Else.Execute(run); e != nil {
-				err = errutil.New("failed each text else", e)
-			}
+		if e := f.Else.ExecuteList(run); e != nil {
+			err = errutil.New("failed each text else", e)
 		}
 	} else {
 		for l := scope.NewLooper(it); l.HasNext(); {
@@ -101,7 +97,7 @@ func (f ForEachText) Execute(run rt.Runtime) (err error) {
 				break
 			} else {
 				run := scope.Make(run, l.NextScope(v), run)
-				if e := f.Go.Execute(run); e != nil {
+				if e := f.Go.ExecuteList(run); e != nil {
 					err = errutil.New("failed each text go", v, e)
 					break
 				}
@@ -115,10 +111,8 @@ func (f ForEachObj) Execute(run rt.Runtime) (err error) {
 	if it, e := f.In.GetObjStream(run); e != nil {
 		err = e
 	} else if !it.HasNext() {
-		if f.Else != nil {
-			if e := f.Else.Execute(run); e != nil {
-				err = errutil.New("failed each obj else", e)
-			}
+		if e := f.Else.ExecuteList(run); e != nil {
+			err = errutil.New("failed each obj else", e)
 		}
 	} else {
 		for i, l := 0, scope.NewLooper(it); l.HasNext(); i++ {
@@ -127,7 +121,7 @@ func (f ForEachObj) Execute(run rt.Runtime) (err error) {
 				break
 			} else {
 				sub := scope.Make(run, l.NextScope(obj), scope.NewObjectScope(obj), run)
-				if e := f.Go.Execute(sub); e != nil {
+				if e := f.Go.ExecuteList(sub); e != nil {
 					err = errutil.New("failed each obj go", obj, e)
 					break
 				}

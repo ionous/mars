@@ -14,15 +14,15 @@ type Imp struct {
 	Input   string
 	Match   []string
 	Args    []meta.Generic
-	Execute rt.Execute
+	Execute rt.Statements
 }
 
 func (t Imp) Run(try Trytime) (err error) {
-	if t.Input != "" && t.Execute != nil {
+	if t.Input != "" && !t.Execute.Empty() {
 		err = errutil.New("test implementation has both parser input and raw execute statements specified", t.Input)
 	} else {
 		var out []string
-		if t.Execute != nil {
+		if !t.Execute.Empty() {
 			if res, e := try.Execute(t.Execute); e != nil {
 				err = errutil.New("test implementation failed execute", e)
 			} else {

@@ -48,15 +48,18 @@ func init() {
 			To("report switched on",
 				Choose{
 					If:    g.The("action.source").Is("operable"),
-					False: g.The("action.source").Go("report inoperable"),
-					True: Choose{
-						If:   g.The("action.source").Is("switched on"),
-						True: g.The("action.source").Go("report already on", g.The("actor")),
-						False: g.Go(
-							g.The("action.source").IsNow("switched on"),
-							g.The("action.source").Go("report now on", g.The("actor")),
-						),
-					},
+					False: g.Go(g.The("action.source").Go("report inoperable")),
+					True: g.Go(
+						Choose{
+							If: g.The("action.source").Is("switched on"),
+							True: g.Go(
+								g.The("action.source").Go("report already on", g.The("actor")),
+							),
+							False: g.Go(
+								g.The("action.source").IsNow("switched on"),
+								g.The("action.source").Go("report now on", g.The("actor")),
+							),
+						}),
 				}),
 			Can("report already on").And("reporting already on").RequiresOnly("actor"),
 			To("report already on",
@@ -78,8 +81,10 @@ func init() {
 			Can("report switch off").And("reporting switch off").RequiresNothing(),
 			To("report switch off",
 				Choose{
-					If:   g.The("device").Is("switched off"),
-					True: g.The("device").Go("report already off", g.The("actor")),
+					If: g.The("device").Is("switched off"),
+					True: g.Go(
+						g.The("device").Go("report already off", g.The("actor")),
+					),
 					False: g.Go(
 						g.The("device").IsNow("switched off"),
 						g.The("device").Go("report now off", g.The("actor")),
@@ -91,9 +96,9 @@ func init() {
 				g.Say("It's already off."), //[regarding the noun]?
 			),
 			Can("report now off").And("reporting now off").RequiresOnly("actor"),
-			To("report now off", g.Go(
+			To("report now off",
 				g.Say("Now", g.The("device").Lower(), "is off."),
-			))),
+			)),
 
 		// understandings:
 		// note: inform has "template Understand" here --
