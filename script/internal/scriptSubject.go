@@ -9,13 +9,13 @@ import (
 )
 
 type ScriptSubject struct {
-	Subject types.NamedSubject `mars:"called [subject]"` // name of the class or instance being declared
+	Subject string `mars:"called [subject]"` // name of the class or instance being declared
 }
 
 func (c ScriptSubject) GenFragment(src *S.Statements, top Topic) error {
 	// FIX: this is only half measure --
 	// really it needs to split into words, then compare the first article.
-	name := strings.TrimSpace(top.Subject.String())
+	name := strings.TrimSpace(top.Subject)
 	article, bare := lang.SliceArticle(name)
 	opt := map[string]string{
 		"article":   article,
@@ -30,7 +30,7 @@ type ScriptSingular struct {
 }
 
 func (c ScriptSingular) GenFragment(src *S.Statements, top Topic) error {
-	name := top.Subject.String()
+	name := top.Subject
 	_, bare := lang.SliceArticle(name)
 	opt := map[string]string{
 		"singular name": c.Singular.String(),

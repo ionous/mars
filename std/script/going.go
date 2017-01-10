@@ -73,7 +73,7 @@ type GoesToFragment struct {
 
 // GenFragment implements script.backend Fragment
 func (goesTo GoesToFragment) GenFragment(src *S.Statements, top backend.Topic) error {
-	from := newFromSite(top.Subject.String(), goesTo.FromDoor, goesTo.FromDir)
+	from := newFromSite(top.Subject, goesTo.FromDoor, goesTo.FromDir)
 	to := newToSite(goesTo.ToRoom, goesTo.ToDoor, goesTo.FromDir)
 
 	s := NewScript(from.makeSite(), to.makeSite())

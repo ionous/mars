@@ -14,6 +14,6 @@ type DefaultAction struct {
 }
 
 func (to DefaultAction) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.RunFields{top.Subject.String(), to.Action.String(), to.Calls, E.TargetPhase}
+	fields := S.RunFields{top.Subject, to.Action.String(), to.Calls, E.TargetPhase}
 	return src.NewActionHandler(fields, S.UnknownLocation)
 }

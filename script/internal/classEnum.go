@@ -28,7 +28,7 @@ func (f ClassEnum) Usually(choice types.NamedChoice) ClassEnum {
 
 func (f ClassEnum) GenFragment(src *S.Statements, top Topic) (err error) {
 	name := f.Choices[0] //-property
-	enum := S.EnumFields{top.Subject.String(), name, f.Choices.Strings()}
+	enum := S.EnumFields{top.Subject, name, f.Choices.Strings()}
 	if len(f.UsualChoice) > 0 {
 		for i, v := range f.Choices {
 			if strings.EqualFold(v, f.UsualChoice.String()) {

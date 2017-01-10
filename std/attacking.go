@@ -2,7 +2,6 @@ package std
 
 import (
 	. "github.com/ionous/mars/core"
-	. "github.com/ionous/mars/lang"
 	. "github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/g"
 )

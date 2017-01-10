@@ -68,7 +68,6 @@ type CoreCommands struct {
 	// exec
 	*StopNow
 	*Error
-	*Trial
 	*DoNothing
 	// gocall.go
 	*GoCall

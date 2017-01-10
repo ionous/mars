@@ -3,8 +3,9 @@ package core
 import "github.com/ionous/mars/rt"
 
 type Choose struct {
-	If          rt.BoolEval
-	True, False rt.Statements
+	If    rt.BoolEval   `mars:"test if"`
+	True  rt.Statements `mars:"true: "`
+	False rt.Statements `mars:"false: "`
 }
 
 type ChooseNum struct {
@@ -20,21 +21,6 @@ type ChooseText struct {
 type ChooseObj struct {
 	If          rt.BoolEval
 	True, False rt.ObjEval
-}
-
-func (x Choose) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
-	if b, e := x.If.GetBool(run); e != nil {
-		err = e
-	} else {
-		var next rt.Statements
-		if b.Value {
-			next = x.True
-		} else {
-			next = x.False
-		}
-		ret, err = b, next.ExecuteList(run)
-	}
-	return
 }
 
 func (x ChooseNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
@@ -89,7 +75,17 @@ func (x ChooseObj) GetObject(run rt.Runtime) (ret rt.Object, err error) {
 }
 
 // Execute evals, eats the returns
-func (x Choose) Execute(run rt.Runtime) error {
-	_, e := x.GetBool(run)
-	return e
+func (x Choose) Execute(run rt.Runtime) (err error) {
+	if b, e := x.If.GetBool(run); e != nil {
+		err = e
+	} else {
+		var next rt.Statements
+		if b.Value {
+			next = x.True
+		} else {
+			next = x.False
+		}
+		err = next.ExecuteList(run)
+	}
+	return
 }

@@ -13,7 +13,8 @@ type Runtime interface {
 	ScopePath() ScopePath
 	//
 	Print(...interface{}) error
-	Println(...interface{}) error
+	StartLine()
+	EndLine()
 
 	// scope allows us to inject a new scope
 	// MARS im not satisfied with this --  ex. what about a new print?

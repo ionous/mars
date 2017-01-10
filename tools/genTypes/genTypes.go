@@ -1,17 +1,27 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/ionous/mars/encode"
+	"github.com/ionous/mars/facts"
 	"github.com/ionous/mars/std"
 	"os"
-	"strings"
 )
 
-func Marshall(b encode.TypeBlocks) ([]byte, error) {
-	return json.MarshalIndent(b, "", " ")
+func Marshall(src encode.TypeBlocks) (ret string, err error) {
+	b := new(bytes.Buffer)
+	enc := json.NewEncoder(b)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", " ")
+	if e := enc.Encode(src); e != nil {
+		err = e
+	} else {
+		ret = b.String()
+	}
+	return
 }
 
 func main() {
@@ -21,6 +31,8 @@ func main() {
 
 	// we get all of the other packages via dependencies
 	if e := b.AddPackage(std.Std()); e != nil {
+		fmt.Println("error:", e)
+	} else if e := b.AddPackage(facts.Facts()); e != nil {
 		fmt.Println("error:", e)
 	} else {
 		tb := b.Build()
@@ -38,7 +50,7 @@ func main() {
 					defer f.Close()
 				}
 			}
-			s := "var allTypes =" + strings.Replace(string(m), "Generic", "ObjEval", -1)
+			s := "var allTypes =" + m
 			fmt.Fprintln(w, s)
 		}
 	}

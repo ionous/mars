@@ -3,6 +3,7 @@ package encode
 import (
 	"github.com/ionous/mars"
 	"github.com/ionous/sashimi/util/errutil"
+	"net/url"
 	r "reflect"
 	"strings"
 )
@@ -23,11 +24,9 @@ func NewTypeBuilder() *TypeBuilder {
 }
 
 type TypeParameters struct {
-	Name      string  `json:"name"`
-	Phrase    *string `json:"phrase,omitempty"`
-	Uses      string  `json:"uses"`
-	UsesArray *bool   `json:"usesArray,omitempty"`
-	PrimType  *string `json:"primType,omitempty"`
+	Name   string  `json:"name"`
+	Phrase *string `json:"phrase,omitempty"`
+	Uses   string  `json:"uses"`
 }
 
 type TypeBlock struct {
@@ -70,11 +69,12 @@ func (b *TypeBuilder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err 
 			f := s.Field(i)
 			tp := TypeParameters{}
 			tp.Name = f.Name
+			var primType string
 			if tags := f.Tag.Get("mars"); tags != "" {
 				phraseType := strings.Split(tags, ";")
 				tp.Phrase = newString(phraseType[0])
 				if cnt := len(phraseType); cnt == 2 {
-					tp.PrimType = newString(phraseType[1])
+					primType = phraseType[1]
 				}
 			}
 			//
@@ -83,68 +83,51 @@ func (b *TypeBuilder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err 
 					err = e
 					break
 				}
-			} else if uses, isArray, e := b.addParam(p, f.Type); e != nil {
-				err = errutil.New("couldn't add field", f.Name, e)
-				break
 			} else {
-				if uses == "Id" {
-					uses = "string" //for now.
+				kinds := make(url.Values)
+				if uses, e := b.addParam(p, f.Type, kinds); e != nil {
+					err = errutil.New("couldn't add field", f.Name, e)
+					break
+				} else {
+					if primType != "" {
+						kinds.Set("type", primType)
+					}
+					if len(kinds) != 0 {
+						uses = uses + "?" + kinds.Encode()
+
+					}
+					tp.Uses = uses
+					ps.ps = append(ps.ps, tp)
 				}
-				tp.Uses = uses
-				if isArray {
-					tp.UsesArray = newBool(true)
-				}
-				ps.ps = append(ps.ps, tp)
 			}
 		}
 	}
 	return
 }
 
-func (b *TypeBuilder) addParam(p *mars.Package, s r.Type) (uses string, isArray bool, err error) {
-	uses = s.Name()
-	switch kind := s.Kind(); kind {
+func (b *TypeBuilder) addParam(p *mars.Package, s r.Type, kinds url.Values) (uses string, err error) {
+	switch n, k := s.Name(), s.Kind(); k {
 	case r.String, r.Bool, r.Float64:
-		err = b.addPrim(s)
+		uses = k.String()
+		if n != uses {
+			kinds.Add("type", n)
+		}
+
 	case r.Array, r.Slice:
-		elem := s.Elem()
-		uses, isArray = elem.Name(), true
-		if sk := elem.Kind(); sk == r.Struct {
-			err = b.addStruct(p, elem)
-		} else if sk != r.Interface {
-			err = b.addPrim(elem)
-		}
-	case
-		r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
-		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64,
-		r.Float32:
-		{
-			err = errutil.New("not supported yet", kind)
-		}
+		uses, err = b.addParam(p, s.Elem(), kinds)
+		kinds.Add("array", "true")
+
 	case r.Interface:
-		if !b.faces.Contains(s) {
-			err = errutil.New("has unknown interface", s)
+		// FIX: for now.
+		if n == "Generic" {
+			uses = "ObjEval"
+		} else if b.faces.Contains(s) {
+			uses = n
+		} else {
+			err = errutil.New("has unknown interface", n)
 		}
 	default:
-		err = errutil.New("has unsupported", kind)
-	}
-
-	return
-}
-
-func (b *TypeBuilder) addPrim(s r.Type) (err error) {
-	if !b.gen[s] {
-		b.gen[s] = true
-		name, knd := s.Name(), s.Kind().String()
-		var impl *string
-		if name != knd {
-			impl = newString(knd)
-		}
-		tb := TypeBlock{
-			Name:       name,
-			Implements: impl,
-		}
-		b.types = append(b.types, tb)
+		err = errutil.New("has unsupported", k)
 	}
 	return
 }

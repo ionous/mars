@@ -77,7 +77,7 @@ func (f Relative) Genifer(s *S.Statements, top Topic, this Relation, other Rever
 	// uses the subject, ex. gremlins, and the field, ex. pets: gremlins-pets-relation
 	srcHint, srcRel := this.GetRelation()
 	srcName, srcTarget := srcRel.Property.String(), srcRel.Class.String()
-	srcClass, srcHint := top.Subject.String(), srcHint|S.RelativeSource
+	srcClass, srcHint := top.Subject, srcHint|S.RelativeSource
 	//
 	via := strings.Join([]string{srcClass, srcName, "relation"}, "-")
 	srel := S.RelativeProperty{srcClass, srcName, srcTarget, via, srcHint}

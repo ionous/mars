@@ -3,16 +3,15 @@ package internal
 import (
 	. "github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
-	"github.com/ionous/sashimi/source/types"
 )
 
 type Choices struct {
-	Choices types.NamedChoices `mars:"has"`
+	Is []string `mars: is [...]";choices"`
 }
 
 func (f Choices) GenFragment(src *S.Statements, top Topic) (err error) {
-	for _, choice := range f.Choices {
-		fields := S.ChoiceFields{top.Subject.String(), choice}
+	for _, choice := range f.Is {
+		fields := S.ChoiceFields{top.Subject, choice}
 		if e := src.NewChoice(fields, S.UnknownLocation); e != nil {
 			err = e
 			break
@@ -22,6 +21,6 @@ func (f Choices) GenFragment(src *S.Statements, top Topic) (err error) {
 }
 
 func (f Choices) And(choice string) Choices {
-	f.Choices = append(f.Choices, choice)
+	f.Is = append(f.Is, choice)
 	return f
 }

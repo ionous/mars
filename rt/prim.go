@@ -47,7 +47,7 @@ func (n Number) String() string {
 
 // Text provides a dl string primitive.
 type Text struct {
-	Value string
+	Value string `mars:";text"`
 }
 
 // GetText implements interface TextEval.

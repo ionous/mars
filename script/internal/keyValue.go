@@ -12,7 +12,7 @@ type NumberValue struct {
 }
 
 func (f NumberValue) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.KeyValueFields{top.Subject.String(), f.Property, f.Number}
+	fields := S.KeyValueFields{top.Subject, f.Property, f.Number}
 	return src.NewKeyValue(fields, S.UnknownLocation)
 }
 
@@ -22,7 +22,7 @@ type TextValue struct {
 }
 
 func (f TextValue) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.KeyValueFields{top.Subject.String(), f.Property, f.Text}
+	fields := S.KeyValueFields{top.Subject, f.Property, f.Text}
 	return src.NewKeyValue(fields, S.UnknownLocation)
 }
 
@@ -32,7 +32,7 @@ type RefValue struct {
 }
 
 func (f RefValue) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.KeyValueFields{top.Subject.String(), f.Property, f.Noun}
+	fields := S.KeyValueFields{top.Subject, f.Property, f.Noun}
 	return src.NewKeyValue(fields, S.UnknownLocation)
 }
 
@@ -42,7 +42,7 @@ type NumberValues struct {
 }
 
 func (f NumberValues) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.KeyValueFields{top.Subject.String(), f.Property, f.Numbers}
+	fields := S.KeyValueFields{top.Subject, f.Property, f.Numbers}
 	return src.NewKeyValue(fields, S.UnknownLocation)
 }
 
@@ -52,7 +52,7 @@ type TextValues struct {
 }
 
 func (f TextValues) GenFragment(src *S.Statements, top Topic) error {
-	fields := S.KeyValueFields{top.Subject.String(), f.Property, f.Strings}
+	fields := S.KeyValueFields{top.Subject, f.Property, f.Strings}
 	return src.NewKeyValue(fields, S.UnknownLocation)
 }
 
@@ -62,6 +62,6 @@ func (f TextValues) GenFragment(src *S.Statements, top Topic) error {
 // }
 
 // func (f RefValues) GenFragment(src *S.Statements, top Topic) error {
-// 	fields := S.KeyValueFields{top.Subject.String(), f.Property, f.Values}
+// 	fields := S.KeyValueFields{top.Subject, f.Property, f.Values}
 // 	return src.NewKeyValue(fields, S.UnknownLocation)
 // }

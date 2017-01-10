@@ -6,8 +6,13 @@ import (
 )
 
 // Say shortcut runs a bunch of statements and "collects" them via PrintLine
-func Say(all ...interface{}) rt.Execute {
-	return PrintLine{Print(all...)}
+func Say(all ...interface{}) (ret rt.Execute) {
+	if len(all) == 1 {
+		ret = Print(all...)[0]
+	} else {
+		ret = PrintLine{Print(all...)}
+	}
+	return
 }
 
 func MakeText(all ...interface{}) rt.TextEval {

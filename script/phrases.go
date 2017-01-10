@@ -9,7 +9,7 @@ import (
 
 // The targets a noun for new assertions.
 func The(target string, fragments ...backend.Fragment) backend.Declaration {
-	return internal.NounPhrase{types.NamedSubject(target), fragments}
+	return internal.NounPhrase{target, fragments}
 }
 
 // Understand builds statements for parsing player input.
@@ -23,7 +23,7 @@ var Our = The
 // Called asserts the existence of a class or instance.
 // For example, The("room", Called("home"))
 func Called(subject string) internal.ScriptSubject {
-	return internal.ScriptSubject{types.NamedSubject(subject)}
+	return internal.ScriptSubject{subject}
 }
 
 func HasSingularName(subject types.NamedClass) internal.ScriptSingular {
@@ -117,19 +117,16 @@ func To(action types.NamedAction, call rt.Execute, calls ...rt.Execute) backend.
 }
 
 // Before actions are implemented as capturing event listeners which allow them to run prior to the default actions of the passed event.
-func Before(event types.NamedEvent) internal.EventPartial {
-	ev := &internal.BeforeEvent{}
-	return internal.NewEvent(event, ev, &ev.EventPhrase)
+func Before(event string) internal.EventPartial {
+	return internal.NewEvent(event, internal.BeforeEvent{})
 }
 
 // After actions are queued to run after the default actions for the passed event have completed.
-func After(event types.NamedEvent) internal.EventPartial {
-	ev := &internal.AfterEvent{}
-	return internal.NewEvent(event, ev, &ev.EventPhrase)
+func After(event string) internal.EventPartial {
+	return internal.NewEvent(event, internal.AfterEvent{})
 }
 
 // When actions are implemented as bubbling event handlers. This allows them to run sandwiched between the "before actions" and the default actions of the passed event.
-func When(event types.NamedEvent) internal.EventPartial {
-	ev := &internal.WhenEvent{}
-	return internal.NewEvent(event, ev, &ev.EventPhrase)
+func When(event string) internal.EventPartial {
+	return internal.NewEvent(event, internal.WhenEvent{})
 }

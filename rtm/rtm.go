@@ -12,6 +12,8 @@ type Rtm struct {
 	model  meta.Model
 	output OutputStack
 	scope  ScopeStack
+	// should use the stack for this
+	lineWait bool
 }
 
 func (rtm *Rtm) Runtime() rt.Runtime {

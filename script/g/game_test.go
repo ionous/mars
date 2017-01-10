@@ -37,15 +37,14 @@ func TestForEach(t *testing.T) {
 	}
 	buf.Reset()
 
-	x := Go(
-		c.ForEachText{
+	x := c.PrintLine{
+		Go(c.ForEachText{
 			In:   ts,
 			Go:   Go(c.PrintText{c.GetText{"@"}}),
 			Else: Go(c.Error{"should have run"}),
-		},
-		c.PrintLine{},
-	)
-	if e := x.ExecuteList(run); assert.NoError(t, e, "execute") {
+		}),
+	}
+	if e := x.Execute(run); assert.NoError(t, e, "execute") {
 		if !assert.Equal(t, "hello there world\n", buf.String(), "one one line") {
 			t.FailNow()
 		}

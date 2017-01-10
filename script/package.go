@@ -27,6 +27,7 @@ type ScriptInterfaces struct {
 	backend.Fragment
 	internal.ActionRequirements
 	internal.ReverseRelation
+	internal.EventTiming
 }
 
 type ScriptCommands struct {
@@ -39,6 +40,7 @@ type ScriptCommands struct {
 	*internal.ClassProperty
 	*internal.DefaultAction
 	*internal.Exists
+	*internal.HandleEvent
 	*internal.HaveOne
 	*internal.HaveMany
 	*internal.ImplyingNothing

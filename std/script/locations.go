@@ -17,7 +17,7 @@ func In(noun string) InLocation {
 }
 
 type InLocation struct {
-	Location string `mars:";noun"`
+	Location string `mars:"is in [location];noun"`
 }
 
 func (l InLocation) GenFragment(src *S.Statements, top Topic) error {
@@ -80,7 +80,7 @@ func (l WearsClothing) GenFragment(src *S.Statements, top Topic) error {
 // genList implements script.backend Fragment
 func genList(src *S.Statements, top Topic, list string, items []string) (err error) {
 	for _, item := range items {
-		fields := S.KeyValueFields{top.Subject.String(), list, item}
+		fields := S.KeyValueFields{top.Subject, list, item}
 		if e := src.NewKeyValue(fields, S.UnknownLocation); e != nil {
 			err = e
 			break

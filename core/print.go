@@ -6,15 +6,15 @@ import (
 )
 
 type PrintNum struct {
-	Num rt.NumberEval
+	Num rt.NumberEval `mars:"print [num]"`
 }
 
 type PrintText struct {
-	Text rt.TextEval
+	Text rt.TextEval `mars:"print [text]"`
 }
 
 type PrintObj struct {
-	Obj rt.ObjEval
+	Obj rt.ObjEval `mars:"print [obj]"`
 }
 
 type PrintLine struct {
@@ -27,7 +27,7 @@ func (x PrintNum) Execute(run rt.Runtime) (err error) {
 	} else if s := strconv.FormatFloat(n.Value, 'g', -1, 64); len(s) > 0 {
 		err = run.Print(s)
 	} else {
-		err = run.Println("<num>")
+		err = run.Print("<num>")
 	}
 	return err
 }
@@ -50,11 +50,9 @@ func (x PrintObj) Execute(run rt.Runtime) (err error) {
 	return err
 }
 
-// Execute a little machine to add spaces between words, but not before punctuation.
 func (p PrintLine) Execute(run rt.Runtime) (err error) {
+	run.StartLine()
 	err = p.Block.ExecuteList(run)
-	if err == nil {
-		err = run.Println()
-	}
+	run.EndLine()
 	return
 }

@@ -7,19 +7,10 @@ import (
 
 // print the text on success, return it as an error on failure
 func Try(message string, b rt.BoolEval) rt.Execute {
-	return Trial{Choose{If: b,
-		True:  rt.MakeStatements(PrintText{T(message)}, PrintLine{}),
+	return Choose{If: b,
+		True:  rt.MakeStatements(PrintText{T(message)}),
 		False: rt.MakeStatements(Error{message}),
-	}}
-}
-
-type Trial struct {
-	Test rt.BoolEval
-}
-
-func (x Trial) Execute(run rt.Runtime) error {
-	_, err := x.Test.GetBool(run)
-	return err
+	}
 }
 
 // Error satifies all runtime evaluations;

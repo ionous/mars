@@ -7,41 +7,41 @@ import (
 	"github.com/ionous/sashimi/source/types"
 )
 
-type EventPhrase struct {
-	Events types.NamedEvents `mars:"the [events]"`
-	Calls  []rt.Execute      `mars:"always"`
+type EventTiming interface {
+	GetOptions() S.ListenOptions
 }
 
-type BeforeEvent struct {
-	EventPhrase
-}
-type AfterEvent struct {
-	EventPhrase
-}
-type WhenEvent struct {
-	EventPhrase
+type BeforeEvent struct{}
+
+type AfterEvent struct{}
+
+type WhenEvent struct{}
+
+type HandleEvent struct {
+	Run    EventTiming  `mars:"[handle event]"`
+	Events []string     `mars:"[events]"`
+	Calls  []rt.Execute `mars:"always:"`
 }
 
-func (ev *BeforeEvent) GenFragment(src *S.Statements, top Topic) error {
-	return ev.GenEvents(src, top, S.ListenTargetOnly|S.ListenCapture)
+func (_ BeforeEvent) GetOptions() S.ListenOptions {
+	return S.ListenTargetOnly | S.ListenCapture
 }
 
-func (ev *AfterEvent) GenFragment(src *S.Statements, top Topic) error {
-	return ev.GenEvents(src, top, S.ListenTargetOnly|S.ListenCapture|S.ListenRunAfter)
+func (_ AfterEvent) GetOptions() S.ListenOptions {
+	return S.ListenTargetOnly | S.ListenCapture | S.ListenRunAfter
 }
 
-func (ev *WhenEvent) GenFragment(src *S.Statements, top Topic) error {
-	return ev.GenEvents(src, top, S.ListenTargetOnly)
+func (_ WhenEvent) GetOptions() S.ListenOptions {
+	return S.ListenTargetOnly
 }
 
 type EventPartial struct {
-	fragment Fragment
-	data     *EventPhrase
+	data *HandleEvent
 }
 
-func NewEvent(evt types.NamedEvent, f Fragment, p *EventPhrase) EventPartial {
-	p.Events = types.NamedEvents{evt.String()}
-	return EventPartial{f, p}
+func NewEvent(evt string, t EventTiming) EventPartial {
+	events := []string{evt}
+	return EventPartial{&HandleEvent{t, events, nil}}
 }
 
 func (p EventPartial) Or(event types.NamedEvent) EventPartial {
@@ -51,12 +51,13 @@ func (p EventPartial) Or(event types.NamedEvent) EventPartial {
 
 func (p EventPartial) Always(cb rt.Execute, cbs ...rt.Execute) Fragment {
 	p.data.Calls = JoinCallbacks(cb, cbs)
-	return p.fragment
+	return p.data
 }
 
-func (p *EventPhrase) GenEvents(src *S.Statements, top Topic, opt S.ListenOptions) (err error) {
+func (p *HandleEvent) GenFragment(src *S.Statements, top Topic) (err error) {
+	opt := p.Run.GetOptions()
 	for _, evt := range p.Events {
-		fields := S.ListenFields{top.Subject.String(), evt, p.Calls, opt}
+		fields := S.ListenFields{top.Subject, evt, p.Calls, opt}
 		if e := src.NewEventHandler(fields, S.UnknownLocation); e != nil {
 			err = e
 			break

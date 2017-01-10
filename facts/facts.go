@@ -9,12 +9,20 @@ import (
 )
 
 // FIX: these should be script functions
-// script functions should be
-func PlayerLearns(fact string) rt.BoolEval {
-	return Choose{
-		If:    IsState{RawId(fact), "recollected"},
-		False: rt.MakeStatements(Change(RawId(fact)).To("recollected")),
+type PlayerLearns struct {
+	Fact string
+}
+
+func (x PlayerLearns) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
+	if a, e := (IsState{RawId(x.Fact), "recollected"}.GetBool(run)); e != nil {
+		err = e
+	} else {
+		ret = a
+		if a.Value {
+			err = Change(RawId(x.Fact)).To("recollected").Execute(run)
+		}
 	}
+	return
 }
 
 func PlayerRecollects(fact string) rt.BoolEval {
@@ -44,6 +52,7 @@ type FactInterfaces struct {
 }
 
 type FactCommands struct {
+	*PlayerLearns
 }
 
 func init() {

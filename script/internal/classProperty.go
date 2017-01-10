@@ -17,7 +17,7 @@ type ClassProperty struct {
 
 func (c ClassProperty) GenFragment(src *S.Statements, top Topic) error {
 	isMany, kind := c.listKind()
-	fields := S.PropertyFields{top.Subject.String(), c.Name.String(), kind, isMany}
+	fields := S.PropertyFields{top.Subject, c.Name.String(), kind, isMany}
 	return src.NewProperty(fields, S.UnknownLocation)
 }
 
