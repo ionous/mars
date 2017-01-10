@@ -60,12 +60,10 @@ func (args ArgMap) ComputeArg(v r.Value) (ret interface{}, err error) {
 		}
 
 	case r.Struct:
-
 		if r, e := ComputeCmd(v); e != nil {
 			err = errutil.New("error converting", k, "because", e)
 		} else {
 			ret = r
-
 		}
 
 	case r.Ptr, r.Interface:
@@ -84,21 +82,28 @@ func (args ArgMap) ComputeArg(v r.Value) (ret interface{}, err error) {
 	return
 }
 
+func Computes(src interface{}) (ret []DataBlock, err error) {
+	if src != nil {
+		if c, e := ComputeCmd(r.ValueOf(src)); e != nil {
+			err = e
+		} else {
+			ret = append(ret, c)
+		}
+	}
+	return
+}
 func Compute(src interface{}) (ret DataBlock, err error) {
-	if src == nil {
-		err = errutil.New("nothing to compute")
-	} else {
+	if src != nil {
 		ret, err = ComputeCmd(r.ValueOf(src))
 	}
 	return
 }
 
 func ComputeCmd(src r.Value) (ret DataBlock, err error) {
-	//
 	args := make(ArgMap)
 	srcType := src.Type()
 	if srcType.Kind() != r.Struct {
-		err = errutil.New("error", srcType, "is not a struct")
+		err = errutil.New(srcType, "is not a struct")
 	} else if e := args.ComputeArgs(srcType, src); e != nil {
 		err = e
 	} else {

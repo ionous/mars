@@ -29,18 +29,14 @@ type Package struct {
 	// represented by a nil pointer to a structure of interface objects.
 	Interfaces interface{}
 	// Scripts contains all declarations for the package.
-	Scripts SpecList
+	Scripts []backend.Declaration
 	// Test contains all test suites for the package.
-	Tests TestList
+	Tests []test.Suite
 	// Dependencies contains all package dependencies.
-	Dependencies DependencyList
+	Dependencies []Dependency
 }
 
-type DependencyList []Dependency
-type TestList []test.Suite
-type SpecList []backend.Declaration
-
-func Dependencies(imports ...Dependency) DependencyList {
+func Dependencies(imports ...Dependency) []Dependency {
 	return imports
 }
 
@@ -56,7 +52,7 @@ func (p *Package) Generate(src *S.Statements) (err error) {
 	return p.genPackage(g)
 }
 
-func (i DependencyList) genDependencies(g pkgGen) (err error) {
+func genDependencies(g pkgGen, i []Dependency) (err error) {
 	for _, p := range i {
 		if !g.rem[p.Name] {
 			g.rem[p.Name] = true
@@ -70,7 +66,7 @@ func (i DependencyList) genDependencies(g pkgGen) (err error) {
 }
 
 func (p *Package) genPackage(g pkgGen) (err error) {
-	if e := p.Dependencies.genDependencies(g); e != nil {
+	if e := genDependencies(g, p.Dependencies); e != nil {
 		err = e
 	} else {
 		for _, b := range p.Scripts {

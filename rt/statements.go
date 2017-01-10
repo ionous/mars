@@ -1,7 +1,7 @@
 package rt
 
 // Statements is a block of single statement declarations.
-// NOTE: it is not a command in and of itself, but only used by other commands. this delibrartely excludes anonymous blocks from scripts to decrease noise for scripters.
+// NOTE: it is not a command in and of itself, but only used by other commands. this intentionally excludes anonymous blocks from scripts to decrease noise for scripters.
 type Statements []Execute
 
 func MakeStatements(calls ...Execute) Statements {

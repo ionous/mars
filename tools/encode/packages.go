@@ -8,6 +8,18 @@ import (
 type PackageMap map[*mars.Package]bool
 type PackageList []*mars.Package
 
+func (m PackageMap) AddPackages(ps ...*mars.Package) (ret PackageList, err error) {
+	for _, p := range ps {
+		if l, e := m.AddPackage(p); e != nil {
+			err = e
+			break
+		} else {
+			ret = append(ret, l...)
+		}
+	}
+	return
+}
+
 // AddPackage adds p and its dependencies to the PackageMap, returning a list of all new packages it sees. The list can be empty if the passed package has been seen before.
 func (m PackageMap) AddPackage(p *mars.Package) (ret PackageList, err error) {
 	if !m[p] {

@@ -8,19 +8,24 @@ import (
 	"strings"
 )
 
-type TypeEncoder struct {
-	types    TypeBlocks
-	faces    Interfaces
+type TypeRecorder struct {
+	allFaces Interfaces
 	gen      TypeExists
-	packages PackageMap
 }
 
-func (b *TypeEncoder) Build() TypeBlocks {
-	return b.types
-}
+func (b *TypeRecorder) addTypes(p *mars.Package) (ret []TypeBlock, err error) {
+	if b.gen == nil {
+		b.gen = make(TypeExists)
+	}
 
-func NewTypeEncoder() *TypeEncoder {
-	return &TypeEncoder{gen: make(TypeExists), packages: make(PackageMap)}
+	if faceTypes, e := b.addInterfaces(p, p.Interfaces); e != nil {
+		err = e
+	} else if cmdTypes, e := b.addCommands(p, p.Commands); e != nil {
+		err = e
+	} else {
+		ret = append(faceTypes, cmdTypes...)
+	}
+	return
 }
 
 type TypeParameters struct {
@@ -29,7 +34,6 @@ type TypeParameters struct {
 	Uses   string  `json:"uses"`
 }
 
-type TypeBlocks []TypeBlock
 type TypeBlock struct {
 	Name       string           `json:"name"`
 	Implements *string          `json:"implements,omitempty"`
@@ -38,12 +42,6 @@ type TypeBlock struct {
 
 type TypeExists map[r.Type]bool
 
-func packageName(p *mars.Package) (ret *string) {
-	if p != nil {
-		ret = newString(p.Name)
-	}
-	return
-}
 func newString(s string) (ret *string) {
 	if s != "" {
 		ret = new(string)
@@ -61,7 +59,7 @@ type Parameters struct {
 	ps []TypeParameters
 }
 
-func (b *TypeEncoder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err error) {
+func (b *TypeRecorder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err error) {
 	if s.Kind() != r.Struct {
 		err = errutil.New("couldn't add params of", s)
 	} else {
@@ -105,7 +103,7 @@ func (b *TypeEncoder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err 
 	return
 }
 
-func (b *TypeEncoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (uses string, err error) {
+func (b *TypeRecorder) addParam(p *mars.Package, s r.Type, kinds url.Values) (uses string, err error) {
 	switch n, k := s.Name(), s.Kind(); k {
 	case r.String, r.Bool, r.Float64:
 		uses = k.String()
@@ -121,7 +119,7 @@ func (b *TypeEncoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (use
 		// FIX: for now.
 		if n == "Generic" {
 			uses = "ObjEval"
-		} else if b.faces.Contains(s) {
+		} else if b.allFaces.Contains(s) {
 			uses = n
 		} else {
 			err = errutil.New("has unknown interface", n)
@@ -133,26 +131,24 @@ func (b *TypeEncoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (use
 }
 
 // meeds a bit of recursion.
-func (b *TypeEncoder) addStruct(p *mars.Package, s r.Type) (err error) {
+func (b *TypeRecorder) addStruct(p *mars.Package, s r.Type) (ret *TypeBlock, err error) {
 	if !b.gen[s] {
 		if s.Kind() != r.Struct {
 			err = errutil.New("not a struct type", s)
 		} else {
 			b.gen[s] = true
-			if face, e := b.faces.FindMatching(s); e != nil {
+			if face, e := b.allFaces.FindMatching(s); e != nil {
 				err = e
 			} else {
 				ps := Parameters{}
 				if e := b.addParams(p, s, &ps); e != nil {
 					err = e
 				} else {
-					tb := TypeBlock{
+					ret = &TypeBlock{
 						Name:       s.Name(),
-						Package:    packageName(p),
 						Implements: newString(face),
 						Parameters: ps.ps,
 					}
-					b.types = append(b.types, tb)
 				}
 			}
 		}
@@ -160,68 +156,46 @@ func (b *TypeEncoder) addStruct(p *mars.Package, s r.Type) (err error) {
 	return
 }
 
-func (b *TypeEncoder) addInterface(p *mars.Package, t r.Type) (err error) {
+func (b *TypeRecorder) addInterface(p *mars.Package, t r.Type) (ret *TypeBlock, err error) {
 	if !b.gen[t] {
 		b.gen[t] = true
 		name := t.Name()
-		tb := TypeBlock{
+		b.allFaces = append(b.allFaces, InterfaceRecord{name, t})
+		ret = &TypeBlock{
 			Name:       name,
-			Package:    packageName(p),
-			Implements: newString("interface")}
-		b.types = append(b.types, tb)
-		b.faces = append(b.faces, InterfaceRecord{name, t})
-	}
-	return
-}
-
-func (b *TypeEncoder) AddPackage(p *mars.Package) (err error) {
-	if e := b.addPackage(p); e != nil {
-		err = errutil.New("couldn't add package", p.Name, e)
-	}
-	return
-}
-
-func (b *TypeEncoder) addPackage(p *mars.Package) (err error) {
-	// l contains all new dependent packages
-	if l, e := b.packages.AddPackage(p); e != nil {
-		err = e
-	} else {
-		for _, dep := range l {
-			if e := b.addInterfaces(dep, dep.Interfaces); e != nil {
-				err = e
-				break
-			} else if e := b.addCommands(dep, dep.Commands); e != nil {
-				err = e
-				break
-			}
+			Implements: newString("interface"),
 		}
 	}
 	return
 }
 
-func (b *TypeEncoder) addCommands(p *mars.Package, cmds interface{}) (err error) {
+func (b *TypeRecorder) addCommands(p *mars.Package, cmds interface{}) (ret []TypeBlock, err error) {
 	if cmds != nil {
 		ref := r.TypeOf(cmds).Elem()
 		for i, fields := 0, ref.NumField(); i < fields; i++ {
 			f := ref.Field(i)
 			elem := f.Type.Elem()
-			if e := b.addStruct(p, elem); e != nil {
+			if newType, e := b.addStruct(p, elem); e != nil {
 				err = errutil.New("error adding command", f.Name, e)
 				break
+			} else if newType != nil {
+				ret = append(ret, *newType)
 			}
 		}
 	}
 	return
 }
 
-func (b *TypeEncoder) addInterfaces(p *mars.Package, faces interface{}) (err error) {
-	if faces != nil {
-		ref := r.TypeOf(faces).Elem()
+func (b *TypeRecorder) addInterfaces(p *mars.Package, allFaces interface{}) (ret []TypeBlock, err error) {
+	if allFaces != nil {
+		ref := r.TypeOf(allFaces).Elem()
 		for i, fields := 0, ref.NumField(); i < fields; i++ {
 			f := ref.Field(i)
-			if e := b.addInterface(p, f.Type); e != nil {
+			if newType, e := b.addInterface(p, f.Type); e != nil {
 				err = errutil.New("error adding interface", f.Name, e)
 				break
+			} else if newType != nil {
+				ret = append(ret, *newType)
 			}
 		}
 	}

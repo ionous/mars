@@ -1,10 +1,8 @@
 package encode
 
 import (
-	"github.com/ionous/mars"
-	"github.com/ionous/mars/encode"
+	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/script/test"
-	"github.com/ionous/mars/std"
 	"github.com/ionous/sashimi/meta"
 	"github.com/ionous/sashimi/util/errutil"
 )
@@ -17,24 +15,24 @@ type Suite struct {
 }
 
 type Unit struct {
-	Name   string    `json:"name,omitempty"`
-	Setup  DataBlock `json:"setup,omitempty"`
-	Trials []Trial   `json:"trials,omitempty"`
+	Name   string     `json:"name,omitempty"`
+	Setup  DataBlocks `json:"setup,omitempty"`
+	Trials []Trial    `json:"trials,omitempty"`
 }
 
 type Trial struct {
 	Name string     `json:"name,omitempty"`
-	Imp  Imp        `json:"imp"`
+	Imp  *Imp       `json:"imp,omitempty"`
 	Pre  DataBlocks `json:"pre,omitempty"`
 	Post DataBlocks `json:"post,omitempty"`
-	Fini DataBlock  `json:"fini,omitempty"`
+	Fini DataBlocks `json:"fini,omitempty"`
 }
 
 type Imp struct {
 	Input   string     `json:"input,omitempty"`
 	Match   []string   `json:"match,omitempty"`
 	Args    DataBlocks `json:"args,omitempty"`
-	Execute DataBlock  `json:"exec,omitempty"`
+	Execute DataBlocks `json:"exec,omitempty"`
 }
 
 func addSuite(src test.Suite) (ret Suite, err error) {
@@ -59,7 +57,7 @@ func addUnits(src []test.Unit) (ret []Unit, err error) {
 }
 
 func addUnit(src test.Unit) (ret Unit, err error) {
-	if newSetup, e := Compute(src.Setup); e != nil {
+	if newSetup, e := Computes(src.Setup); e != nil {
 		err = errutil.New("couldnt add setup", e)
 	} else if newTrials, e := addTrials(src.Trials); e != nil {
 		err = e
@@ -88,7 +86,7 @@ func addTrial(src test.Trial) (ret Trial, err error) {
 		err = e
 	} else if post, e := addConditions(src.Post); e != nil {
 		err = e
-	} else if fini, e := Compute(src.Fini); e != nil {
+	} else if fini, e := Computes(src.Fini); e != nil {
 		err = e
 	} else {
 		ret = Trial{src.Name, imp, pre, post, fini}
@@ -108,13 +106,13 @@ func addConditions(src test.Conditions) (ret DataBlocks, err error) {
 	return
 }
 
-func addImp(src test.Imp) (ret Imp, err error) {
+func addImp(src test.Imp) (ret *Imp, err error) {
 	if args, e := addArgs(src.Args); e != nil {
 		err = e
-	} else if cmd, e := Compute(src.Execute); e != nil {
+	} else if cmds, e := addStatements(src.Execute); e != nil {
 		err = e
-	} else {
-		ret = Imp{src.Input, src.Match, args, cmd}
+	} else if len(cmds) > 0 || len(args) > 0 || len(src.Match) > 0 || src.Input != "" {
+		ret = &Imp{src.Input, src.Match, args, cmds}
 	}
 	return
 }
@@ -131,16 +129,25 @@ func addArgs(src []meta.Generic) (ret DataBlocks, err error) {
 	return
 }
 
-func addSuites(p *mars.Package) (ret []Suite, err error) {
-	if cnt := len(p.Tests); cnt > 0 {
-		fmt.Println("package", p.Name, "adding", cnt, "tests")
-		for _, src := range p.Tests {
-			if s, e := addSuite(src); e != nil {
-				err = e
-				break
-			} else {
-				ret = append(ret, s)
-			}
+func addStatements(src []rt.Execute) (ret DataBlocks, err error) {
+	for _, a := range src {
+		if cmd, e := Compute(a); e != nil {
+			err = e
+			break
+		} else {
+			ret = append(ret, cmd)
+		}
+	}
+	return
+}
+
+func addSuites(tests []test.Suite) (ret []Suite, err error) {
+	for _, src := range tests {
+		if s, e := addSuite(src); e != nil {
+			err = e
+			break
+		} else {
+			ret = append(ret, s)
 		}
 	}
 	return

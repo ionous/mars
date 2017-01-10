@@ -33,7 +33,8 @@ func (s *Script) Understand(input ...string) ParserHelper {
 	return p
 }
 
-// Generate implements Declaration
+// Generate implements Declaration for script.
+// ( but it might be better if parents did this more manually. )
 func (s Script) Generate(src *S.Statements) (err error) {
 	for _, b := range s.Specs {
 		if e := b.Generate(src); e != nil {

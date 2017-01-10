@@ -19,6 +19,7 @@ func (faces Interfaces) String() string {
 	}
 	return strings.Join(str, ",")
 }
+
 func (faces Interfaces) Contains(s r.Type) (okay bool) {
 	for _, n := range faces {
 		if n.face == s {
@@ -28,6 +29,7 @@ func (faces Interfaces) Contains(s r.Type) (okay bool) {
 	}
 	return
 }
+
 func (faces Interfaces) FindMatching(s r.Type) (ret string, err error) {
 	var found []string
 	for _, n := range faces {
