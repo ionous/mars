@@ -1,4 +1,4 @@
-package main
+
 
 import (
 	"bytes"
@@ -25,7 +25,7 @@ func Marshall(src encode.TypeBlocks) (ret string, err error) {
 }
 
 func main() {
-	b := encode.NewTypeBuilder()
+	b := encode.NewTypeEncoder()
 	dst := flag.String("file", "", "export destination.")
 	flag.Parse()
 
