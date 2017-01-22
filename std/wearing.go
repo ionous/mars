@@ -50,11 +50,11 @@ func init() {
 			As("wear it"),
 	)
 	pkg.AddTest("Wearing",
-		test.Setup(NewScript(
+		test.Setup(
 			The("actor", Called("the player"), Exists()),
 			The("prop", Called("the hat"), Is("wearable")),
 			The("prop", Called("the cat"), Exists()),
-			The("prop", Called("the cloak"), Is("wearable"))),
+			The("prop", Called("the cloak"), Is("wearable")),
 		).Try("wearing various objects",
 			test.Parse("don the hat").
 				Match("Now the player is wearing the hat.").

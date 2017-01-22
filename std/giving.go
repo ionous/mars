@@ -100,21 +100,21 @@ func init() {
 
 	// MARS: move all tests to a sub-directory.
 	pkg.AddTest("Giving",
-		test.Setup(NewScript(
+		test.Setup(
 			The("actor", Called("the player"), Exists()),
 			The("actor", Called("the firefighter"), Exists()),
-			The("prop", Called("the cat"), Exists())),
+			The("prop", Called("the cat"), Exists()),
 		).Try("giving when not having",
 			test.Parse("give the cat to the firefighter").
 				Match("You aren't holding the cat."),
 		),
-		test.Setup(NewScript(
+		test.Setup(
 			The("actor", Called("the player"), Exists()),
 			The("actor", Called("the firefighter"), Exists()),
 			The("prop", Called("the cat"), Exists()),
 			The("prop", Called("the hat"), Exists()),
 			The("player", Possesses("the cat")),
-			The("player", Wears("the hat"))),
+			The("player", Wears("the hat")),
 		).Try("giving while having failures",
 			test.Parse("give the cat to the player").
 				Match("You can't give to yourself."),

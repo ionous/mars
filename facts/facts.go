@@ -56,15 +56,13 @@ type FactCommands struct {
 }
 
 func init() {
-	pkg.AddScript("Facts", scriptFacts())
-}
-
-func scriptFacts() (s Script) {
+	s := NewScript()
 	s.The("kinds", Called("facts"),
 		// FIX: interestingly, kinds should have names
 		// also: having the same property as a parent class probably shouldnt be an error
 		Have("summary", "text"))
 	// FIX: many-to-many doesnt exist; traversing a manually created table of all actors and facts would be fairly heavy; so just using a flag.
 	s.The("facts", AreEither("recollected").Or("not recollected").Usually("not recollected"))
-	return
+
+	pkg.Add("Facts", s)
 }

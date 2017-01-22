@@ -74,7 +74,7 @@ func init() {
 		AreEither("singular-named").Or("plural-named"),
 		AreEither("common-named").Or("proper-named"),
 	)
-	pkg.AddScript("Articles", s)
+	pkg.Add("Articles", s)
 }
 
 // You can only just make out the lamp-post.", or "You can only just make out _ Trevor.", or "You can only just make out the soldiers."

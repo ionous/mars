@@ -35,6 +35,7 @@ type CoreCommands struct {
 	*AllTrue
 	// any.go
 	*AnyTrue
+	*Buffer
 	// boolEval.go
 	*IsNum
 	*IsText
@@ -43,6 +44,7 @@ type CoreCommands struct {
 	*IsNot
 	*IsEmpty
 	*IsValid
+	*IsFromClass
 	// change:
 	*SetNum
 	*SetTxt
@@ -56,6 +58,7 @@ type CoreCommands struct {
 	*ChooseNum
 	// Context
 	*Using
+	*GetBool
 	*GetNum
 	*GetText
 	*GetObj
@@ -82,6 +85,7 @@ type CoreCommands struct {
 	// property access
 	*PropertyText
 	*PropertyNum
+	*PropertySafeRef
 	*PropertyRef
 	*PropertyTextList
 	*PropertyNumList

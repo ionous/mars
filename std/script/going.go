@@ -76,7 +76,7 @@ func (goesTo GoesToFragment) GenFragment(src *S.Statements, top backend.Topic) e
 	from := newFromSite(top.Subject, goesTo.FromDoor, goesTo.FromDir)
 	to := newToSite(goesTo.ToRoom, goesTo.ToDoor, goesTo.FromDir)
 
-	s := NewScript(from.makeSite(), to.makeSite())
+	s := NewScript(append(from.makeSite(), to.makeSite()...)...)
 
 	// A departure door (has a Understand) arrival door
 	s.The(from.door.str, HasRef("destination", to.door.str))
@@ -100,8 +100,7 @@ func (goesTo GoesToFragment) GenFragment(src *S.Statements, top backend.Topic) e
 			//_, err = b.The(to.room.str, Has(dir.revRev(), from.door.str))
 		}
 	}
-
-	return s.Generate(src)
+	return s.GenerateScript(src)
 }
 
 // helper to create departure door if needed
@@ -127,14 +126,14 @@ type xSite struct {
 	door xDoor
 }
 
-func (x xSite) makeSite() backend.Declaration {
+func (x xSite) makeSite() []backend.Declaration {
 	s := NewScript(
 		The("room", Called(x.room.str), Exists()),
 		The("door", Called(x.door.str), In(x.room.str), Exists()))
 	if x.door.gen {
 		s.The(x.door.str, Is("scenery"))
 	}
-	return s
+	return s.Declarations()
 }
 
 type xRoom struct {

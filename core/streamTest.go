@@ -23,7 +23,7 @@ func init() {
 		Called("D"), HasNumber("rank", N(3)))
 
 	pkg.AddTest("Sort",
-		test.Setup(t).Try("sorted",
+		test.SetupScript(t).Try("sorted",
 			test.Execute(Say(
 				stream.KeySort{"name", stream.ClassStream{Name: "tests"}})).
 				Match("A B C D"),
@@ -31,10 +31,10 @@ func init() {
 				stream.KeySort{"rank", stream.ClassStream{Name: "tests"}})).
 				Match("C B D A"),
 		),
-		test.Setup(t).Try("first",
+		test.SetupScript(t).Try("first",
 			test.Expect(IsObj{Named{"A"}, stream.First{In: stream.KeySort{"name", stream.ClassStream{Name: "tests"}}}}),
 		),
-		// test.Setup(t).Try("sorted",
+		// test.SetupScript(t).Try("sorted",
 		// 	test.Execute(Say( PropertyTextList{"text list", Named{"sorting"}})).
 		// 		Match("D B A C"),
 		// ))

@@ -6,11 +6,19 @@ import (
 	"github.com/ionous/sashimi/meta"
 )
 
+type ScriptLike interface {
+	Declarations() []backend.Declaration
+}
+
 func NewSuite(name string, units ...Unit) Suite {
 	return Suite{name, units}
 }
 
-func Setup(setup backend.Declaration) Unit {
+func SetupScript(setup ScriptLike) Unit {
+	return Unit{Setup: setup.Declarations()}
+}
+
+func Setup(setup ...backend.Declaration) Unit {
 	return Unit{Setup: setup}
 }
 

@@ -1,15 +1,22 @@
 package mars
 
 import (
-	//	"github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/test"
 	S "github.com/ionous/sashimi/source"
 )
 
+type ScriptLike interface {
+	Declarations() []backend.Declaration
+}
+
 type PackageBuilder struct {
 	Scripts []backend.Declaration
 	Tests   []test.Suite
+}
+
+func (pb *PackageBuilder) Add(_ string, s ScriptLike) {
+	pb.Scripts = append(pb.Scripts, s.Declarations()...)
 }
 
 func (pb *PackageBuilder) AddScript(_ string, decls ...backend.Declaration) {

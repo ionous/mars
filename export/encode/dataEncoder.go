@@ -8,27 +8,32 @@ import (
 
 type ArgMap map[string]interface{}
 
-type DataBlocks []DataBlock
-
 type DataBlock struct {
 	Name string `json:"cmd"`
 	Args ArgMap `json:"args,omitempty"`
 }
 
+type Encoder interface {
+	Encode() (DataBlock, error)
+}
+
 func (args ArgMap) ComputeArgs(at r.Type, av r.Value) (err error) {
 	for i := 0; i < at.NumField(); i++ {
 		ft, fv := at.Field(i), av.Field(i)
-		// keep adding to this structure as if all of the fields were directly embedded.
-		if ft.Anonymous {
-			if e := args.ComputeArgs(ft.Type, fv); e != nil {
-				err = e
+		// only parse public fields
+		if ft.PkgPath == "" {
+			// keep adding to this structure as if all of the fields were directly embedded.
+			if ft.Anonymous {
+				if e := args.ComputeArgs(ft.Type, fv); e != nil {
+					err = e
+					break
+				}
+			} else if arg, e := args.ComputeArg(fv); e != nil {
+				err = errutil.New("error converting", fv, "at", ft.Name, "because", e)
 				break
+			} else if arg != nil {
+				args[ft.Name] = arg
 			}
-		} else if arg, e := args.ComputeArg(fv); e != nil {
-			err = errutil.New("error converting", fv, "at", ft.Name, "because", e)
-			break
-		} else if arg != nil {
-			args[ft.Name] = arg
 		}
 	}
 	return
@@ -68,10 +73,18 @@ func (args ArgMap) ComputeArg(v r.Value) (ret interface{}, err error) {
 
 	case r.Ptr, r.Interface:
 		if !v.IsNil() {
-			if r, e := args.ComputeArg(v.Elem()); e != nil {
-				err = errutil.New("error converting", k, "because", e)
+			if m, ok := v.Interface().(Encoder); ok {
+				if data, e := m.Encode(); e != nil {
+					err = e
+				} else {
+					ret = data
+				}
 			} else {
-				ret = r
+				if r, e := args.ComputeArg(v.Elem()); e != nil {
+					err = errutil.New("error converting", k, "because", e)
+				} else {
+					ret = r
+				}
 			}
 		}
 		// interesingly: interface storage stores an interface object
@@ -82,19 +95,18 @@ func (args ArgMap) ComputeArg(v r.Value) (ret interface{}, err error) {
 	return
 }
 
-func Computes(src interface{}) (ret []DataBlock, err error) {
-	if src != nil {
-		if c, e := ComputeCmd(r.ValueOf(src)); e != nil {
-			err = e
-		} else {
-			ret = append(ret, c)
-		}
-	}
-	return
-}
 func Compute(src interface{}) (ret DataBlock, err error) {
 	if src != nil {
-		ret, err = ComputeCmd(r.ValueOf(src))
+		v := r.ValueOf(src)
+		if v.Kind() == r.Ptr {
+			v = v.Elem()
+		}
+
+		if r, e := ComputeCmd(v); e != nil {
+			err = errutil.New("compute", e)
+		} else {
+			ret = r
+		}
 	}
 	return
 }

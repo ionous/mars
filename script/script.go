@@ -7,36 +7,38 @@ import (
 	"github.com/ionous/sashimi/source/types"
 )
 
-// FIX: might be better as an array rather than a struct
-// needs an appropriate story container
 type Script struct {
-	Specs []backend.Declaration
+	specs []backend.Declaration
 }
 
 func NewScript(specs ...backend.Declaration) Script {
-	return Script{Specs: specs}
+	return Script{specs: specs}
 }
 
 func (s *Script) Add(specs ...backend.Declaration) *Script {
-	s.Specs = append(s.Specs, specs...)
+	s.specs = append(s.specs, specs...)
 	return s
 }
 
 func (s *Script) The(target string, frags ...backend.Fragment) *Script {
-	s.Specs = append(s.Specs, The(target, frags...))
+	s.specs = append(s.specs, The(target, frags...))
 	return s
 }
 
 func (s *Script) Understand(input ...string) ParserHelper {
 	p := ParserHelper{&internal.ParserPhrase{Input: input}}
-	s.Specs = append(s.Specs, p.ptr)
+	s.specs = append(s.specs, p.ptr)
 	return p
 }
 
-// Generate implements Declaration for script.
-// ( but it might be better if parents did this more manually. )
-func (s Script) Generate(src *S.Statements) (err error) {
-	for _, b := range s.Specs {
+func (s Script) Declarations() []backend.Declaration {
+	return s.specs
+}
+
+// // Generate implements Declaration for script.
+// // ( but it might be better if parents did this more manually. )
+func (s Script) GenerateScript(src *S.Statements) (err error) {
+	for _, b := range s.specs {
 		if e := b.Generate(src); e != nil {
 			err = e
 			break

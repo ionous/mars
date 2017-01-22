@@ -16,7 +16,7 @@ func TestSimpleScript(t *testing.T) {
 		),
 		The("room", Called("world"), HasText("greeting", rt.Text{"hello"})),
 	)
-	if e := s.Generate(src); assert.NoError(t, e, "failed to build") {
+	if e := s.GenerateScript(src); assert.NoError(t, e, "failed to build") {
 		assert.Len(t, src.Asserts, 2, "one kind, one instance")
 		assert.Len(t, src.Properties, 1, "room has one property")
 		assert.Len(t, src.KeyValues, 1, "instance has one value")

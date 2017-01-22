@@ -37,10 +37,10 @@ func init() {
 	)
 
 	pkg.AddTest("LookUnder",
-		test.Setup(NewScript(
+		test.Setup(
 			The("object", Called("the wardrobe"), Exists()),
 			The("actor", Called("the player"), Exists()),
-			The("actor", Called("the lion"), Exists())),
+			The("actor", Called("the lion"), Exists()),
 		).Try("looking under something",
 			test.Parse("look under the wardrobe").
 				Match("You find nothing of interest."),

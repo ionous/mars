@@ -16,7 +16,7 @@ func init() {
 		HasText("amSet", T("original")))
 
 	pkg.AddTest("Core Tests",
-		test.Setup(t).Try("changing values",
+		test.SetupScript(t).Try("changing values",
 			test.Expect(IsValid{Named{"test"}}),
 			test.Expect(IsText{PropertyText{"amSet", Named{"test"}}, EqualTo{}, T("original")}),
 			test.Execute(SetTxt{"amSet", Named{"test"}, T("new")}).Expect(IsText{PropertyText{"amSet", Named{"test"}}, EqualTo{}, T("new")}),

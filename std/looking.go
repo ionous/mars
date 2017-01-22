@@ -23,9 +23,9 @@ func init() {
 	)
 
 	pkg.AddTest("Looking",
-		test.Setup(NewScript(
+		test.Setup(
 			The("actor", Called("the player"), Exists(), In("the memories")),
-			The("room", Called("memories"), HasText("description", T("You are trapped in your own unconsciousness.")))),
+			The("room", Called("memories"), HasText("description", T("You are trapped in your own unconsciousness."))),
 		).Try("looking at the room",
 			test.Parse("look").
 				Match("memories", "You are trapped in your own unconsciousness.").

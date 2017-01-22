@@ -129,7 +129,7 @@ func init() {
 				),
 			}))
 
-	pkg.AddScript("Stories", s)
+	pkg.Add("Stories", s)
 
 	t := NewScript()
 	t.The("story",
@@ -145,10 +145,10 @@ func init() {
 	t.The("player", Exists(), In("the nothing"))
 
 	pkg.AddTest("Stories",
-		test.Setup(t).Try("player location",
+		test.SetupScript(t).Try("player location",
 			test.Expect(IsObj{Parent(g.The("player")), g.The("nothing")}),
 		),
-		test.Setup(t).Try("commencing the story",
+		test.SetupScript(t).Try("commencing the story",
 			test.Expect(IsText{g.The("testing").Text("name"), EqualTo{}, T("testing")}),
 			test.Run("commence", g.The("testing")).Match(
 				"testing.",
