@@ -38,7 +38,7 @@ func write(fileName, m string) {
 	}
 }
 
-// go run libGen.go -base /Users/ionous/Dev/makisu/app/bin
+// go run libGen.go -base /Users/ionous/Dev/makisu/bin
 func main() {
 	base := flag.String("base", "", "export destination.")
 	flag.Parse()
