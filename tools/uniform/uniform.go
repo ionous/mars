@@ -14,10 +14,10 @@ type ArgMap map[string]interface{}
 type DataBlocks []*DataBlock
 
 type UniformEncoder struct {
-	types inspect.Type
+	types inspect.Types
 }
 
-func NewUniformEncoder(types inspect.Type) UniformEncoder {
+func NewUniformEncoder(types inspect.Types) UniformEncoder {
 	return UniformEncoder{types: types}
 }
 

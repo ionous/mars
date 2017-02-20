@@ -8,10 +8,10 @@ import (
 )
 
 type Walker struct {
-	types Type
+	types Types
 }
 
-func Inspect(types Type) *Walker {
+func Inspect(types Types) *Walker {
 	return &Walker{types}
 }
 
@@ -80,7 +80,7 @@ func (w *Walker) visitCmd(cw Elements, p *ParamInfo, baseType *CommandInfo, v r.
 
 func (w *Walker) visitArg(c Arguments, p *ParamInfo, v r.Value) (err error) {
 	k := v.Kind()
-	uses, style := p.Split()
+	uses, style := p.Usage(true)
 	isArray, wantArray := (r.Slice == k), style["array"] == "true"
 
 	if isArray != wantArray {

@@ -11,25 +11,48 @@ import (
 
 type TypeRecoder struct {
 	allFaces internal.Interfaces
-	Types    Type
+	Types    Types
 }
 
 func NewTypeRecoder() *TypeRecoder {
 	return &TypeRecoder{
-		Types: make(Type),
+		Types: make(Types),
 	}
 }
 
-func (b *TypeRecoder) AddTypes(ps ...*mars.Package) (ret []CommandInfo, err error) {
-	for _, p := range ps {
-		if faceTypes, e := b.addInterfaces(p, p.Interfaces); e != nil {
+func NewTypes(ps ...*mars.Package) (ret Types, err error) {
+	pm := PackageMap{}
+	if pl, e := pm.AddPackages(ps...); e != nil {
+		err = e
+	} else {
+		tr := &TypeRecoder{
+			Types: make(Types),
+		}
+		if e := tr.addPackageList(pl); e != nil {
 			err = e
-			break
-		} else if cmdTypes, e := b.addCommands(p, p.Commands); e != nil {
-			err = e
-			break
 		} else {
-			ret = append(faceTypes, cmdTypes...)
+			ret = tr.Types
+		}
+	}
+	return
+}
+
+func (tr *TypeRecoder) AddTypes(p *mars.Package) (ret []CommandInfo, err error) {
+	if faceTypes, e := tr.addInterfaces(p, p.Interfaces); e != nil {
+		err = e
+	} else if cmdTypes, e := tr.addCommands(p, p.Commands); e != nil {
+		err = e
+	} else {
+		ret = append(faceTypes, cmdTypes...)
+	}
+	return
+}
+
+func (tr *TypeRecoder) addPackageList(ps PackageList) (err error) {
+	for _, p := range ps {
+		if _, e := tr.AddTypes(p); e != nil {
+			err = e
+			break
 		}
 	}
 	return
@@ -52,7 +75,7 @@ type Parameters struct {
 	ps []ParamInfo
 }
 
-func (b *TypeRecoder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err error) {
+func (tr *TypeRecoder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err error) {
 	if s.Kind() != r.Struct {
 		err = errutil.New("couldn't add params of", s)
 	} else {
@@ -72,13 +95,13 @@ func (b *TypeRecoder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err 
 				}
 				//
 				if f.Anonymous {
-					if e := b.addParams(p, f.Type, ps); e != nil {
+					if e := tr.addParams(p, f.Type, ps); e != nil {
 						err = e
 						break
 					}
 				} else {
 					kinds := make(url.Values)
-					if uses, e := b.addParam(p, f.Type, kinds); e != nil {
+					if uses, e := tr.addParam(p, f.Type, kinds); e != nil {
 						err = errutil.New("couldn't add field", f.Name, e)
 						break
 					} else {
@@ -99,7 +122,7 @@ func (b *TypeRecoder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err 
 	return
 }
 
-func (b *TypeRecoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (uses string, err error) {
+func (tr *TypeRecoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (uses string, err error) {
 	switch n, k := s.Name(), s.Kind(); k {
 	case r.String, r.Bool, r.Float64:
 		uses = k.String()
@@ -108,14 +131,14 @@ func (b *TypeRecoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (use
 		}
 
 	case r.Array, r.Slice:
-		uses, err = b.addParam(p, s.Elem(), kinds)
+		uses, err = tr.addParam(p, s.Elem(), kinds)
 		kinds.Add("array", "true")
 
 	case r.Interface:
 		// FIX: for now.
 		if n == "Generic" {
 			uses = "ObjEval"
-		} else if b.allFaces.Contains(s) {
+		} else if tr.allFaces.Contains(s) {
 			uses = n
 		} else if n != "" {
 			err = errutil.New("has unknown interface", n)
@@ -133,17 +156,17 @@ func (b *TypeRecoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (use
 }
 
 // meeds a bit of recursion.
-func (b *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandInfo, err error) {
+func (tr *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandInfo, err error) {
 	if s.Kind() != r.Struct {
 		err = errutil.New("not a struct type", s)
 	} else {
 		name := s.Name()
-		if b.Types[name] == nil {
-			if face, e := b.allFaces.FindMatching(s); e != nil {
+		if tr.Types[name] == nil {
+			if face, e := tr.allFaces.FindMatching(s); e != nil {
 				err = e
 			} else {
 				ps := Parameters{}
-				if e := b.addParams(p, s, &ps); e != nil {
+				if e := tr.addParams(p, s, &ps); e != nil {
 					err = e
 				} else {
 					typeInfo := &CommandInfo{
@@ -151,7 +174,7 @@ func (b *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandInfo, er
 						Implements: newString(face),
 						Parameters: ps.ps,
 					}
-					b.Types[name] = typeInfo
+					tr.Types[name] = typeInfo
 					ret = typeInfo
 				}
 			}
@@ -160,26 +183,26 @@ func (b *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandInfo, er
 	return
 }
 
-func (b *TypeRecoder) addInterface(p *mars.Package, t r.Type) (ret *CommandInfo, err error) {
-	if name := t.Name(); b.Types[name] == nil {
-		b.allFaces = append(b.allFaces, internal.NewInterface(t))
+func (tr *TypeRecoder) addInterface(p *mars.Package, t r.Type) (ret *CommandInfo, err error) {
+	if name := t.Name(); tr.Types[name] == nil {
+		tr.allFaces = append(tr.allFaces, internal.NewInterface(t))
 		typeInfo := &CommandInfo{
 			Name:       name,
 			Implements: newString("interface"),
 		}
-		b.Types[name] = typeInfo
+		tr.Types[name] = typeInfo
 		ret = typeInfo
 	}
 	return
 }
 
-func (b *TypeRecoder) addCommands(p *mars.Package, cmds interface{}) (ret []CommandInfo, err error) {
+func (tr *TypeRecoder) addCommands(p *mars.Package, cmds interface{}) (ret []CommandInfo, err error) {
 	if cmds != nil {
 		ref := r.TypeOf(cmds).Elem()
 		for i, fields := 0, ref.NumField(); i < fields; i++ {
 			f := ref.Field(i)
 			elem := f.Type.Elem()
-			if newType, e := b.addStruct(p, elem); e != nil {
+			if newType, e := tr.addStruct(p, elem); e != nil {
 				err = errutil.New("error adding command", f.Name, e)
 				break
 			} else if newType != nil {
@@ -190,12 +213,12 @@ func (b *TypeRecoder) addCommands(p *mars.Package, cmds interface{}) (ret []Comm
 	return
 }
 
-func (b *TypeRecoder) addInterfaces(p *mars.Package, allFaces interface{}) (ret []CommandInfo, err error) {
+func (tr *TypeRecoder) addInterfaces(p *mars.Package, allFaces interface{}) (ret []CommandInfo, err error) {
 	if allFaces != nil {
 		ref := r.TypeOf(allFaces).Elem()
 		for i, fields := 0, ref.NumField(); i < fields; i++ {
 			f := ref.Field(i)
-			if newType, e := b.addInterface(p, f.Type); e != nil {
+			if newType, e := tr.addInterface(p, f.Type); e != nil {
 				err = errutil.New("error adding interface", f.Name, e)
 				break
 			} else if newType != nil {

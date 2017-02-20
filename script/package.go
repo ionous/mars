@@ -34,7 +34,7 @@ type ScriptCommands struct {
 	*internal.AfterEvent
 	*internal.BeforeEvent
 	*internal.CanDoIt
-	*internal.Choices
+	*internal.Choice
 	*internal.ClassEnum
 	*internal.ClassProperty
 	*internal.DefaultAction

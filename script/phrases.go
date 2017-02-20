@@ -5,11 +5,60 @@ import (
 	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/internal"
 	"github.com/ionous/sashimi/source/types"
+	"github.com/ionous/sashimi/util/errutil"
 )
 
+type FragmentCollection interface {
+	GetFragments() []backend.Fragment
+}
+
+// where is a good place for things like this?
+// the commands, ideally, would be in one place -- and probably *not* internal
+// the wrapper would be somewhere else
+// maybe instead of "script" as a package -- we should have "nouns" -- and script is solely the generator of "nouns" inside of go.
+type KnownAsList struct {
+	fragments []backend.Fragment
+}
+
+// Add additional aliases for the current subject.
+func (fc KnownAsList) And(name string) KnownAsList {
+	fc.fragments = append(fc.fragments, internal.KnownAs{name})
+	return fc
+}
+
+func (fc KnownAsList) GetFragments() []backend.Fragment {
+	return fc.fragments
+}
+
+type ChoiceList struct {
+	fragments []backend.Fragment
+}
+
+func (fc ChoiceList) And(choice string) ChoiceList {
+	fc.fragments = append(fc.fragments, internal.Choice{choice})
+	return fc
+}
+
+func (fc ChoiceList) GetFragments() []backend.Fragment {
+	return fc.fragments
+}
+
 // The targets a noun for new assertions.
-func The(target string, fragments ...backend.Fragment) backend.Declaration {
-	return internal.NounPhrase{target, fragments}
+func The(target string, fragments ...interface{}) backend.Declaration {
+	flat := []backend.Fragment{}
+	for i, src := range fragments {
+		switch val := src.(type) {
+		case backend.Fragment:
+			flat = append(flat, val)
+		case FragmentCollection:
+			for _, f := range val.GetFragments() {
+				flat = append(flat, f)
+			}
+		default:
+			panic(errutil.New("script noun phrase expects fragments of lists of fragments. at", i, "got", val))
+		}
+	}
+	return internal.NounPhrase{target, flat}
 }
 
 // Understand builds statements for parsing player input.
@@ -54,14 +103,22 @@ func AreEither(firstChoice string) internal.EitherChoice {
 
 // Is asserts one or more states of one or more enumerations.
 // The enumerations must (eventually) be declared for the target's class. ( For example, via AreEither, or AreOneOf, )
-func Is(choice string, choices ...string) internal.Choices {
-	return internal.Choices{append(choices, choice)}
+func Is(choice string, choices ...string) (ret ChoiceList) {
+	ret = ret.And(choice)
+	for _, choice := range choices {
+		ret = ret.And(choice)
+	}
+	return
 }
 
 // IsKnownAs declares an alias for the current subject.
 // ex. The("cabinet", IsKnownAs("armoire").And("..."))
-func IsKnownAs(name string, names ...string) internal.KnownAs {
-	return internal.KnownAs{append(names, name)}
+func IsKnownAs(name string, names ...string) (ret KnownAsList) {
+	ret = ret.And(name)
+	for _, name := range names {
+		ret = ret.And(name)
+	}
+	return
 }
 
 // Have asserts the existance of a property for all instances of a given class.

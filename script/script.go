@@ -20,7 +20,7 @@ func (s *Script) Add(specs ...backend.Declaration) *Script {
 	return s
 }
 
-func (s *Script) The(target string, frags ...backend.Fragment) *Script {
+func (s *Script) The(target string, frags ...interface{}) *Script {
 	s.specs = append(s.specs, The(target, frags...))
 	return s
 }

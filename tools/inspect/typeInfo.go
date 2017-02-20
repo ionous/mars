@@ -24,13 +24,13 @@ func (cmd *CommandInfo) FindParam(name string) (ret ParamInfo, okay bool) {
 	return
 }
 
-type Type map[string]*CommandInfo
+type Types map[string]*CommandInfo
 
-func (p *ParamInfo) Split() (uses string, style map[string]string) {
+func (p *ParamInfo) Usage(parse bool) (uses string, style map[string]string) {
 	parts := strings.Split(p.Uses, "?")
 	if len(parts) > 0 {
 		uses = parts[0]
-		if len(parts) > 1 {
+		if parse && len(parts) > 1 {
 			style = make(map[string]string)
 			for _, q := range strings.Split(parts[1], "&") {
 				vs := strings.Split(q, "=")

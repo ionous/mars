@@ -5,22 +5,11 @@ import (
 	S "github.com/ionous/sashimi/source"
 )
 
-type Choices struct {
-	Is []string `mars: is [...]";choices"`
+type Choice struct {
+	Is string `mars:"is [choice];choice"`
 }
 
-func (f Choices) GenFragment(src *S.Statements, top Topic) (err error) {
-	for _, choice := range f.Is {
-		fields := S.ChoiceFields{top.Subject, choice}
-		if e := src.NewChoice(fields, S.UnknownLocation); e != nil {
-			err = e
-			break
-		}
-	}
-	return err
-}
-
-func (f Choices) And(choice string) Choices {
-	f.Is = append(f.Is, choice)
-	return f
+func (f Choice) GenFragment(src *S.Statements, top Topic) (err error) {
+	fields := S.ChoiceFields{top.Subject, f.Is}
+	return src.NewChoice(fields, S.UnknownLocation)
 }

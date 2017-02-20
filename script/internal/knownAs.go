@@ -6,16 +6,11 @@ import (
 )
 
 type KnownAs struct {
-	Names []string `mars:"known as [names]"`
+	Name string `mars:"known as [name]"`
 }
 
-// Add additional aliases for the current subject.
-func (f KnownAs) And(name string) KnownAs {
-	f.Names = append(f.Names, name)
-	return f
-}
-
+//
 func (f KnownAs) GenFragment(src *S.Statements, top Topic) (err error) {
-	alias := S.AliasFields{top.Subject, f.Names}
+	alias := S.AliasFields{top.Subject, []string{f.Name}}
 	return src.NewAlias(alias, S.UnknownLocation)
 }
