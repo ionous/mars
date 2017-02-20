@@ -1,7 +1,6 @@
 package export
 
 import (
-	"github.com/ionous/mars/export/encode"
 	"github.com/ionous/mars/script/backend"
 )
 
@@ -11,7 +10,7 @@ type Chapter struct {
 	Declarations []backend.Declaration
 }
 
-func NewChapter(ctx *encode.Context, name string, decl []backend.Declaration) (ret *Chapter, err error) {
+func NewChapter(name string, decl []backend.Declaration) (ret *Chapter, err error) {
 	ret = &Chapter{
 		name,
 		decl,

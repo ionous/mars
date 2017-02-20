@@ -35,8 +35,8 @@ type ImpData struct {
 	Execute []DataBlock `json:"exec,omitempty"`
 }
 
-func addSuiteData(src test.Suite) (ret SuiteData, err error) {
-	if us, e := addUnits(src.Units); e != nil {
+func addSuiteData(ue UniformEncoder, src test.Suite) (ret SuiteData, err error) {
+	if us, e := addUnits(ue, src.Units); e != nil {
 		err = errutil.New("couldn't add suite", src.Name, "because", e)
 	} else {
 		ret = SuiteData{src.Name, us}
@@ -44,9 +44,9 @@ func addSuiteData(src test.Suite) (ret SuiteData, err error) {
 	return
 }
 
-func addUnits(src []test.Unit) (ret []UnitData, err error) {
+func addUnits(ue UniformEncoder, src []test.Unit) (ret []UnitData, err error) {
 	for _, u := range src {
-		if newUnit, e := addUnit(u); e != nil {
+		if newUnit, e := addUnit(ue, u); e != nil {
 			err = errutil.New("couldn't add unit", u.Name, "because", e)
 			break
 		} else {
@@ -56,10 +56,10 @@ func addUnits(src []test.Unit) (ret []UnitData, err error) {
 	return
 }
 
-func addUnit(src test.Unit) (ret UnitData, err error) {
-	if setupData, e := addSetup(src); e != nil {
+func addUnit(ue UniformEncoder, src test.Unit) (ret UnitData, err error) {
+	if setupData, e := addSetup(ue, src); e != nil {
 		err = errutil.New("couldn't add setup", e)
-	} else if newTrials, e := addTrials(src.Trials); e != nil {
+	} else if newTrials, e := addTrials(ue, src.Trials); e != nil {
 		err = e
 	} else {
 		ret = UnitData{src.Name, setupData, newTrials}
@@ -67,9 +67,9 @@ func addUnit(src test.Unit) (ret UnitData, err error) {
 	return
 }
 
-func addSetup(src test.Unit) (ret []DataBlock, err error) {
+func addSetup(ue UniformEncoder, src test.Unit) (ret []DataBlock, err error) {
 	for _, s := range src.Setup {
-		if d, e := Compute(s); e != nil {
+		if d, e := ue.Compute(s); e != nil {
 			err = e
 			break
 		} else {
@@ -79,9 +79,9 @@ func addSetup(src test.Unit) (ret []DataBlock, err error) {
 	return
 }
 
-func addTrials(src []test.Trial) (ret []TrialData, err error) {
+func addTrials(ue UniformEncoder, src []test.Trial) (ret []TrialData, err error) {
 	for _, t := range src {
-		if newTrial, e := addTrial(t); e != nil {
+		if newTrial, e := addTrial(ue, t); e != nil {
 			err = e
 			break
 		} else {
@@ -91,14 +91,14 @@ func addTrials(src []test.Trial) (ret []TrialData, err error) {
 	return
 }
 
-func addTrial(src test.Trial) (ret TrialData, err error) {
-	if imp, e := addImp(src.Imp); e != nil {
+func addTrial(ue UniformEncoder, src test.Trial) (ret TrialData, err error) {
+	if imp, e := addImp(ue, src.Imp); e != nil {
 		err = e
-	} else if pre, e := addConditions(src.Pre); e != nil {
+	} else if pre, e := addConditions(ue, src.Pre); e != nil {
 		err = e
-	} else if post, e := addConditions(src.Post); e != nil {
+	} else if post, e := addConditions(ue, src.Post); e != nil {
 		err = e
-	} else if fini, e := addExecute(src.Fini); e != nil {
+	} else if fini, e := addExecute(ue, src.Fini); e != nil {
 		err = e
 	} else {
 		ret = TrialData{src.Name, imp, pre, post, fini}
@@ -106,9 +106,9 @@ func addTrial(src test.Trial) (ret TrialData, err error) {
 	return
 }
 
-func addExecute(src rt.Execute) (ret []DataBlock, err error) {
+func addExecute(ue UniformEncoder, src rt.Execute) (ret []DataBlock, err error) {
 	if src != nil {
-		if c, e := Compute(src); e != nil {
+		if c, e := ue.Compute(src); e != nil {
 			err = e
 		} else {
 			ret = append(ret, c)
@@ -117,9 +117,9 @@ func addExecute(src rt.Execute) (ret []DataBlock, err error) {
 	return
 }
 
-func addConditions(src test.Conditions) (ret []DataBlock, err error) {
+func addConditions(ue UniformEncoder, src test.Conditions) (ret []DataBlock, err error) {
 	for _, cond := range src {
-		if cmd, e := Compute(cond); e != nil {
+		if cmd, e := ue.Compute(cond); e != nil {
 			err = e
 			break
 		} else {
@@ -129,10 +129,10 @@ func addConditions(src test.Conditions) (ret []DataBlock, err error) {
 	return
 }
 
-func addImp(src test.Imp) (ret *ImpData, err error) {
-	if args, e := addArgs(src.Args); e != nil {
+func addImp(ue UniformEncoder, src test.Imp) (ret *ImpData, err error) {
+	if args, e := addArgs(ue, src.Args); e != nil {
 		err = e
-	} else if cmds, e := addStatements(src.Execute); e != nil {
+	} else if cmds, e := addStatements(ue, src.Execute); e != nil {
 		err = e
 	} else if len(cmds) > 0 || len(args) > 0 || len(src.Match) > 0 || src.Input != "" {
 		ret = &ImpData{src.Input, src.Match, args, cmds}
@@ -140,9 +140,9 @@ func addImp(src test.Imp) (ret *ImpData, err error) {
 	return
 }
 
-func addArgs(src []meta.Generic) (ret []DataBlock, err error) {
+func addArgs(ue UniformEncoder, src []meta.Generic) (ret []DataBlock, err error) {
 	for _, a := range src {
-		if cmd, e := Compute(a); e != nil {
+		if cmd, e := ue.Compute(a); e != nil {
 			err = e
 			break
 		} else {
@@ -152,9 +152,9 @@ func addArgs(src []meta.Generic) (ret []DataBlock, err error) {
 	return
 }
 
-func addStatements(src []rt.Execute) (ret []DataBlock, err error) {
+func addStatements(ue UniformEncoder, src []rt.Execute) (ret []DataBlock, err error) {
 	for _, a := range src {
-		if cmd, e := Compute(a); e != nil {
+		if cmd, e := ue.Compute(a); e != nil {
 			err = e
 			break
 		} else {
@@ -164,9 +164,9 @@ func addStatements(src []rt.Execute) (ret []DataBlock, err error) {
 	return
 }
 
-func RecodeSuites(tests []test.Suite) (ret []SuiteData, err error) {
+func RecodeSuites(ue UniformEncoder, tests []test.Suite) (ret []SuiteData, err error) {
 	for _, src := range tests {
-		if s, e := addSuiteData(src); e != nil {
+		if s, e := addSuiteData(ue, src); e != nil {
 			err = e
 			break
 		} else {

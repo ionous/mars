@@ -45,6 +45,11 @@ type CoreCommands struct {
 	*IsEmpty
 	*IsValid
 	*IsFromClass
+	// compare:
+	*EqualTo
+	*GreaterThan
+	*LesserThan
+	*NotEqualTo
 	// change:
 	*SetNum
 	*SetTxt

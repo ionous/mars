@@ -82,8 +82,10 @@ func writeMars(fileName string) (err error) {
 	} else {
 		name := path.Base(fileName)
 		bundle := export.LibraryBundle{name, libs}
-		if data, e := encode.Compute(bundle); e != nil {
-			err = errutil.New("compute error", e)
+		//
+		enc := encode.NewUniformEncoder(ctx.Types)
+		if data, e := enc.Compute(bundle); e != nil {
+			err = errutil.New("compute error:", e)
 		} else if m, e := Marshal(data); e != nil {
 			err = errutil.New("marshal error:", e)
 		} else {
