@@ -1,7 +1,8 @@
-package encode
+package inspect
 
 import (
 	"github.com/ionous/mars"
+	"github.com/ionous/mars/tools/inspect/internal"
 	"github.com/ionous/sashimi/util/errutil"
 	"net/url"
 	r "reflect"
@@ -9,17 +10,17 @@ import (
 )
 
 type TypeRecoder struct {
-	allFaces Interfaces
-	Types    TypeMap
+	allFaces internal.Interfaces
+	Types    Type
 }
 
 func NewTypeRecoder() *TypeRecoder {
 	return &TypeRecoder{
-		Types: make(TypeMap),
+		Types: make(Type),
 	}
 }
 
-func (b *TypeRecoder) AddTypes(ps ...*mars.Package) (ret []CommandType, err error) {
+func (b *TypeRecoder) AddTypes(ps ...*mars.Package) (ret []CommandInfo, err error) {
 	for _, p := range ps {
 		if faceTypes, e := b.addInterfaces(p, p.Interfaces); e != nil {
 			err = e
@@ -29,45 +30,6 @@ func (b *TypeRecoder) AddTypes(ps ...*mars.Package) (ret []CommandType, err erro
 			break
 		} else {
 			ret = append(faceTypes, cmdTypes...)
-		}
-	}
-	return
-}
-
-type ParamInfo struct {
-	Name   string  `json:"name"`
-	Phrase *string `json:"phrase,omitempty"`
-	Uses   string  `json:"uses"`
-}
-
-type CommandType struct {
-	Name       string      `json:"name"`
-	Implements *string     `json:"implements,omitempty"`
-	Parameters []ParamInfo `json:"params,omitempty"`
-}
-
-func (cmd *CommandType) FindParam(name string) (ret ParamInfo, okay bool) {
-	for _, p := range cmd.Parameters {
-		if p.Name == name {
-			ret, okay = p, true
-			break
-		}
-	}
-	return
-}
-
-type TypeMap map[string]*CommandType
-
-func (p *ParamInfo) Split() (uses string, style map[string]string) {
-	parts := strings.Split(p.Uses, "?")
-	if len(parts) > 0 {
-		uses = parts[0]
-		if len(parts) > 1 {
-			style = make(map[string]string)
-			for _, q := range strings.Split(parts[1], "&") {
-				vs := strings.Split(q, "=")
-				style[vs[0]] = vs[1]
-			}
 		}
 	}
 	return
@@ -155,8 +117,10 @@ func (b *TypeRecoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (use
 			uses = "ObjEval"
 		} else if b.allFaces.Contains(s) {
 			uses = n
-		} else {
+		} else if n != "" {
 			err = errutil.New("has unknown interface", n)
+		} else {
+			uses = "blob"
 		}
 	case r.Struct:
 		uses = "blob"
@@ -169,7 +133,7 @@ func (b *TypeRecoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (use
 }
 
 // meeds a bit of recursion.
-func (b *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandType, err error) {
+func (b *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandInfo, err error) {
 	if s.Kind() != r.Struct {
 		err = errutil.New("not a struct type", s)
 	} else {
@@ -182,7 +146,7 @@ func (b *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandType, er
 				if e := b.addParams(p, s, &ps); e != nil {
 					err = e
 				} else {
-					typeInfo := &CommandType{
+					typeInfo := &CommandInfo{
 						Name:       name,
 						Implements: newString(face),
 						Parameters: ps.ps,
@@ -196,11 +160,10 @@ func (b *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandType, er
 	return
 }
 
-func (b *TypeRecoder) addInterface(p *mars.Package, t r.Type) (ret *CommandType, err error) {
-	name := t.Name()
-	if b.Types[name] == nil {
-		b.allFaces = append(b.allFaces, InterfaceRecord{name, t})
-		typeInfo := &CommandType{
+func (b *TypeRecoder) addInterface(p *mars.Package, t r.Type) (ret *CommandInfo, err error) {
+	if name := t.Name(); b.Types[name] == nil {
+		b.allFaces = append(b.allFaces, internal.NewInterface(t))
+		typeInfo := &CommandInfo{
 			Name:       name,
 			Implements: newString("interface"),
 		}
@@ -210,7 +173,7 @@ func (b *TypeRecoder) addInterface(p *mars.Package, t r.Type) (ret *CommandType,
 	return
 }
 
-func (b *TypeRecoder) addCommands(p *mars.Package, cmds interface{}) (ret []CommandType, err error) {
+func (b *TypeRecoder) addCommands(p *mars.Package, cmds interface{}) (ret []CommandInfo, err error) {
 	if cmds != nil {
 		ref := r.TypeOf(cmds).Elem()
 		for i, fields := 0, ref.NumField(); i < fields; i++ {
@@ -227,7 +190,7 @@ func (b *TypeRecoder) addCommands(p *mars.Package, cmds interface{}) (ret []Comm
 	return
 }
 
-func (b *TypeRecoder) addInterfaces(p *mars.Package, allFaces interface{}) (ret []CommandType, err error) {
+func (b *TypeRecoder) addInterfaces(p *mars.Package, allFaces interface{}) (ret []CommandInfo, err error) {
 	if allFaces != nil {
 		ref := r.TypeOf(allFaces).Elem()
 		for i, fields := 0, ref.NumField(); i < fields; i++ {

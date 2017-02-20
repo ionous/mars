@@ -6,9 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ionous/mars/export"
-	"github.com/ionous/mars/export/encode"
 	"github.com/ionous/mars/facts"
 	"github.com/ionous/mars/std"
+	"github.com/ionous/mars/tools/uniform"
 	"github.com/ionous/sashimi/util/errutil"
 	"log"
 	"os"
@@ -57,7 +57,7 @@ func main() {
 }
 
 func writeExports(fileName string) (err error) {
-	ctx := encode.NewContext()
+	ctx := uniform.NewContext()
 	if types, e := ctx.AddTypes(export.Export()); e != nil {
 		err = errutil.New("types error", e)
 	} else {
@@ -76,14 +76,14 @@ func writeExports(fileName string) (err error) {
 }
 
 func writeMars(fileName string) (err error) {
-	ctx := encode.NewContext()
-	if libs, e := export.NewLibraries(ctx, export.Export(), std.Std(), facts.Facts()); e != nil {
+	ctx := uniform.NewContext()
+	if libs, e := uniform.NewLibraries(ctx, export.Export(), std.Std(), facts.Facts()); e != nil {
 		err = errutil.New("mars library error", e)
 	} else {
 		name := path.Base(fileName)
 		bundle := export.LibraryBundle{name, libs}
 		//
-		enc := encode.NewUniformEncoder(ctx.Types)
+		enc := uniform.NewUniformEncoder(ctx.Types)
 		if data, e := enc.Compute(bundle); e != nil {
 			err = errutil.New("compute error:", e)
 		} else if m, e := Marshal(data); e != nil {

@@ -1,4 +1,4 @@
-package encode
+package internal
 
 import (
 	"github.com/ionous/sashimi/util/errutil"
@@ -11,6 +11,11 @@ type InterfaceRecord struct {
 	face r.Type
 }
 type Interfaces []InterfaceRecord
+
+func NewInterface(face r.Type) InterfaceRecord {
+	name := face.Name()
+	return InterfaceRecord{name, face}
+}
 
 func (faces Interfaces) String() string {
 	str := make([]string, len(faces))

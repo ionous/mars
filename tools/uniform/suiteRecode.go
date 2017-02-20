@@ -1,4 +1,4 @@
-package encode
+package uniform
 
 import (
 	"github.com/ionous/mars/rt"
@@ -164,7 +164,7 @@ func addStatements(ue UniformEncoder, src []rt.Execute) (ret []DataBlock, err er
 	return
 }
 
-func RecodeSuites(ue UniformEncoder, tests []test.Suite) (ret []SuiteData, err error) {
+func MakeUniformSuites(ue UniformEncoder, tests []test.Suite) (ret []SuiteData, err error) {
 	for _, src := range tests {
 		if s, e := addSuiteData(ue, src); e != nil {
 			err = e

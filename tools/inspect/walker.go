@@ -1,4 +1,4 @@
-package encode
+package inspect
 
 import (
 	"github.com/ionous/sashimi/util/errutil"
@@ -7,19 +7,15 @@ import (
 	"strings"
 )
 
-type Encoder interface {
-	Encode() (DataBlock, error)
-}
-
 type Walker struct {
-	types TypeMap
+	types Type
 }
 
-func NewWalker(types TypeMap) *Walker {
+func Inspect(types Type) *Walker {
 	return &Walker{types}
 }
 
-func (w *Walker) Visit(c ArgWalker, value interface{}) (err error) {
+func (w *Walker) Visit(c Arguments, value interface{}) (err error) {
 	v := r.ValueOf(value)
 	name := v.Type().Name()
 	if cmdType, ok := w.types[name]; !ok {
@@ -30,7 +26,7 @@ func (w *Walker) Visit(c ArgWalker, value interface{}) (err error) {
 	return
 }
 
-func (w *Walker) visitArgs(c ArgWalker, cmdType *CommandType, cmdData r.Value) (err error) {
+func (w *Walker) visitArgs(c Arguments, cmdType *CommandInfo, cmdData r.Value) (err error) {
 	for _, p := range cmdType.Parameters {
 		if fieldVal := cmdData.FieldByName(p.Name); !fieldVal.IsValid() {
 			err = errutil.New("field not found", sbuf.Q(p.Name))
@@ -43,7 +39,7 @@ func (w *Walker) visitArgs(c ArgWalker, cmdType *CommandType, cmdData r.Value) (
 	return
 }
 
-func (w *Walker) visitArray(c ArgWalker, p *ParamInfo, baseType *CommandType, v r.Value) (err error) {
+func (w *Walker) visitArray(c Arguments, p *ParamInfo, baseType *CommandInfo, v r.Value) (err error) {
 	if a, e := c.NewArray(p, baseType); e != nil {
 		err = e
 	} else {
@@ -58,7 +54,7 @@ func (w *Walker) visitArray(c ArgWalker, p *ParamInfo, baseType *CommandType, v 
 	return
 }
 
-func (w *Walker) visitCmd(cw CommandWalker, p *ParamInfo, baseType *CommandType, v r.Value) (err error) {
+func (w *Walker) visitCmd(cw Elements, p *ParamInfo, baseType *CommandInfo, v r.Value) (err error) {
 	switch k := v.Kind(); k {
 	case r.Struct:
 		if cmdType, e := w.commandType(v); e != nil {
@@ -82,7 +78,7 @@ func (w *Walker) visitCmd(cw CommandWalker, p *ParamInfo, baseType *CommandType,
 	return
 }
 
-func (w *Walker) visitArg(c ArgWalker, p *ParamInfo, v r.Value) (err error) {
+func (w *Walker) visitArg(c Arguments, p *ParamInfo, v r.Value) (err error) {
 	k := v.Kind()
 	uses, style := p.Split()
 	isArray, wantArray := (r.Slice == k), style["array"] == "true"
@@ -121,7 +117,7 @@ func (w *Walker) visitArg(c ArgWalker, p *ParamInfo, v r.Value) (err error) {
 }
 
 // does cmd implement base
-func implements(base, cmd *CommandType) (okay bool) {
+func implements(base, cmd *CommandInfo) (okay bool) {
 	if cmd.Implements != nil {
 		for _, k := range strings.Split(*cmd.Implements, ",") {
 			if k == base.Name {
@@ -133,7 +129,7 @@ func implements(base, cmd *CommandType) (okay bool) {
 	return
 }
 
-func (w *Walker) commandType(v r.Value) (ret *CommandType, err error) {
+func (w *Walker) commandType(v r.Value) (ret *CommandInfo, err error) {
 	t := v.Type()
 	name := t.Name()
 	if cmd, ok := w.types[name]; !ok {

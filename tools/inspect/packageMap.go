@@ -1,4 +1,4 @@
-package encode
+package inspect
 
 import (
 	"github.com/ionous/mars"

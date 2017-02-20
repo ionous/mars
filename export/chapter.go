@@ -10,14 +10,6 @@ type Chapter struct {
 	Declarations []backend.Declaration
 }
 
-func NewChapter(name string, decl []backend.Declaration) (ret *Chapter, err error) {
-	ret = &Chapter{
-		name,
-		decl,
-	}
-	return
-}
-
 func (*Chapter) GetSectionType() SectionType {
 	return ChapterSectionType
 }
