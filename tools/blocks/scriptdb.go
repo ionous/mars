@@ -7,6 +7,7 @@ import (
 
 type ScriptDB interface {
 	ReverseCursor(path string) (Cursor, error)
+	FindByPath(path string) (interface{}, bool)
 }
 
 type Cursor interface {
@@ -25,6 +26,12 @@ func (f DB) Add(key []string, data interface{}) {
 	path := strings.Join(key, "/")
 	f[path] = data
 }
+
+func (f DB) FindByPath(path string) (interface{}, bool) {
+	x, ok := f[path]
+	return x, ok
+}
+
 func (f DB) ReverseCursor(path string) (ret Cursor, err error) {
 	if len(path) < 0 {
 		err = errutil.New("empty path")

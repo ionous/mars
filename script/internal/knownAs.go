@@ -6,7 +6,7 @@ import (
 )
 
 type KnownAs struct {
-	Name string `mars:"known as [name]"`
+	Name string `mars:"is known as [name]"`
 }
 
 //

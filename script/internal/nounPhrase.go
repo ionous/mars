@@ -13,7 +13,7 @@ import (
 // ( MARS its called oldstyle because i want to remove the called fragment )
 type NounPhrase struct {
 	Target    string     `mars:"The [subject]"`
-	Fragments []Fragment `mars:"[fragment]"`
+	Fragments []Fragment `mars:"[phrases]"`
 }
 
 func (p NounPhrase) Generate(src *S.Statements) (err error) {
