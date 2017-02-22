@@ -4,10 +4,13 @@ import (
 	"github.com/ionous/mars/tools/inspect"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/sbuf"
+	"log"
 )
 
+var _ = log.Println
+
 type BlockTags map[string]string
-type ParamProcs map[string]BuildFn
+type ParamProcs map[string]ParamFn
 type CommandProcs map[string]CommandFn
 
 func (m BlockTags) CreateOn(typeName string, tag string) {
@@ -24,7 +27,7 @@ func (m CommandProcs) AddProcess(uses string, proc CommandFn) (err error) {
 	return
 }
 
-func (m ParamProcs) AddProcess(uses string, proc BuildFn) (err error) {
+func (m ParamProcs) AddProcess(uses string, proc ParamFn) (err error) {
 	if _, exists := m[uses]; !exists {
 		m[uses] = proc
 	} else {
@@ -35,7 +38,7 @@ func (m ParamProcs) AddProcess(uses string, proc BuildFn) (err error) {
 }
 
 func (m ParamProcs) AddFilter(uses string, filter FilterFn) error {
-	return m.AddProcess(uses, func(stack *Stack) error {
+	return m.AddProcess(uses, func(_ *inspect.ParamInfo, stack *Stack) error {
 		return stack.Data(func(data interface{}) (err error) {
 			if src, e := Format(data.(*PrimData).Value); e != nil {
 				err = errutil.New("error filtering", uses, e)
@@ -79,8 +82,7 @@ func (m *ModelMaker) innerBuild(stack *Stack) error {
 			})
 		} else {
 			err = stack.NewParameters(func(param *inspect.ParamInfo) error {
-				path := stack.ChildPath(param.Name)
-				return stack.NewPath(path, func(data interface{}) (err error) {
+				return stack.NewPath(param.Name, func(data interface{}) (err error) {
 					pre, post, token := Tokenize(param)
 					if data == nil {
 						stack.NewSpan("st-token", func(span *Span) {
@@ -92,16 +94,16 @@ func (m *ModelMaker) innerBuild(stack *Stack) error {
 								span.Text = pre
 							})
 						}
+
+						proc := m.buildContent
 						dotted := cmd.Name + "." + param.Name
-						var proc BuildFn
 						if p, ok := m.Params[dotted]; ok {
 							proc = p
 						} else if p, ok := m.Params[param.Uses]; ok {
 							proc = p
-						} else {
-							proc = m.buildContent
 						}
-						if e := proc(stack); e != nil {
+
+						if e := proc(param, stack); e != nil {
 							err = e
 						} else {
 							if len(post) > 0 {
@@ -119,25 +121,28 @@ func (m *ModelMaker) innerBuild(stack *Stack) error {
 	})
 }
 
-//
-func (m *ModelMaker) buildContent(stack *Stack) (err error) {
-	return stack.Parameter(func(param *inspect.ParamInfo) (err error) {
-		switch param.Categorize() {
-		case inspect.ParamTypePrim:
-			err = m.BuildPrimitive(stack)
-		case inspect.ParamTypeArray:
-			err = m.BuildArray(stack)
-		case inspect.ParamTypeBlob:
-			//
-		case inspect.ParamTypeCommand:
-			err = m.BuildCmd(stack)
-		default:
-			err = errutil.New("unknown primitive type")
-		}
-		if err != nil {
-			err = errutil.New("couldnt build content", param.Name, err)
-		}
-		return
-	})
+func (m *ModelMaker) buildContent(param *inspect.ParamInfo, stack *Stack) (err error) {
+	switch param.Categorize() {
+	case inspect.ParamTypePrim:
+		err = m.BuildPrimitive(stack)
+	case inspect.ParamTypeArray:
+		err = m.BuildArray(stack)
+	case inspect.ParamTypeBlob:
+		//
+	case inspect.ParamTypeCommand:
+		err = stack.Data(func(data interface{}) (err error) {
+			if cmd, e := m.commandFromData(data); e != nil {
+				err = e
+			} else {
+				err = m.BuildCmd(cmd, stack)
+			}
+			return
+		})
+	default:
+		err = errutil.New("unknown primitive type")
+	}
+	if err != nil {
+		err = errutil.New("couldnt build content", param.Name, err)
+	}
 	return
 }

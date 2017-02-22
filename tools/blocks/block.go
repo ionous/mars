@@ -4,15 +4,15 @@ type Block struct {
 	blocks  *Blocks
 	Path    string
 	Tag     string
-	Spans   []*Span
-	rebuild BuildFn `json:",omitempty"`
+	Spans   []*Span `json:",omitempty"`
+	rebuild BuildFn
 }
 
 func (b *Block) AddSpan(path, tag string) *Span {
 	n := &Span{
 		Path: path + "?" + tag,
 		Tag:  tag,
-		Sep:  SpaceSep,
+		Sep:  SpaceSep{},
 	}
 	b.Spans = append(b.Spans, n)
 	return n

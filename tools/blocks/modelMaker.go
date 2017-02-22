@@ -4,6 +4,7 @@ import (
 	"github.com/ionous/mars/tools/inspect"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/sbuf"
+	"log"
 	"strings"
 )
 
@@ -16,10 +17,13 @@ type ModelMaker struct {
 	Commands CommandProcs
 }
 
+var _ = log.Println
+
 type BuildFn func(*Stack) error
 type FilterFn func(string) string
+type ParamFn func(*inspect.ParamInfo, *Stack) error
 type CommandFn func(*inspect.CommandInfo, *Stack) error
-type ArrayFn func(src *ArrayData, i int) (err error)
+type ArrayFn func(_ *inspect.CommandInfo, _ *ArrayData, idx int) (err error)
 
 func NewModelMaker(db ScriptDB, types inspect.Types) *ModelMaker {
 	return &ModelMaker{db: db, types: types, Blocks: make(BlockTags), Params: make(ParamProcs), Commands: make(CommandProcs)}
@@ -50,19 +54,13 @@ func (m *ModelMaker) BuildElements(stack *Stack, buildEl ArrayFn) (err error) {
 			err = errutil.New("array type mismatch at", sbuf.Q(stack.Path()), sbuf.Type{data})
 		} else {
 			for i, kid := range src.Array {
-				path := stack.ChildPath(kid)
-				if e := stack.NewPath(path, func(data interface{}) (err error) {
+				if e := stack.NewPath(kid, func(data interface{}) (err error) {
 					if cmd, e := m.commandFromData(data); e != nil {
 						err = e
+					} else if buildEl != nil {
+						err = buildEl(cmd, src, i)
 					} else {
-						err = stack.NewCommand(cmd, func() (err error) {
-							if buildEl != nil {
-								err = buildEl(src, i)
-							} else {
-								err = m.BuildCmd(stack)
-							}
-							return
-						})
+						err = m.BuildCmd(cmd, stack)
 					}
 					return
 				}); e != nil {
@@ -87,15 +85,14 @@ func (m *ModelMaker) ProcessCmd(cmd *inspect.CommandInfo, stack *Stack) (err err
 		err = m.innerBuild(stack)
 	} else {
 		tag := strings.Join(tags, " ")
-		err = stack.NewBlock(tag, func(stack *Stack) error {
-			return m.innerBuild(stack)
-		})
+		err = stack.NewBlock(tag, m.innerBuild)
 	}
 	return
 }
 
-func (m *ModelMaker) BuildCmd(stack *Stack) error {
-	return stack.Command(func(cmd *inspect.CommandInfo) (err error) {
+// BuildCmd,
+func (m *ModelMaker) BuildCmd(cmd *inspect.CommandInfo, stack *Stack) error {
+	return stack.NewCommand(cmd, func() (err error) {
 		proc := m.ProcessCmd
 		for _, c := range cmd.Types() {
 			if p, ok := m.Commands[c]; ok {
@@ -118,16 +115,13 @@ func (m *ModelMaker) BuildRootCmd(path string) (block *Block, blocks *Blocks, er
 		if cmd, e := m.commandFromData(data); e != nil {
 			err = errutil.New("root command error", e)
 		} else {
-			err = stack.NewCommand(cmd, func() (err error) {
-				if b, e := stack.NewRoot("st-root", func(s *Stack) error {
-					return m.BuildCmd(s)
-				}); e != nil {
-					err = e
-				} else {
-					block = b
-				}
-				return
-			})
+			if b, e := stack.NewRoot("st-root", func(s *Stack) error {
+				return m.BuildCmd(cmd, s)
+			}); e != nil {
+				err = e
+			} else {
+				block = b
+			}
 		}
 		return
 	})

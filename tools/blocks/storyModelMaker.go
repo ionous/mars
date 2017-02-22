@@ -11,18 +11,41 @@ func QuoteFilter(prim string) string {
 	return `"` + prim + `"`
 }
 
-func FullStopSep(*Block, int) string {
-	return "."
+type FullStop struct {
+	StopGap bool
 }
-func StopGapSep(*Block, int) string {
-	return ". "
+
+func (f FullStop) Sep(*Block, int) (ret string) {
+	if f.StopGap {
+		ret = ". "
+	} else {
+		ret = "."
+	}
+	return
 }
-func CommaSep(block *Block, idx int) (ret string) {
+
+type CommaSep struct {
+	FullStop bool
+}
+
+func (f CommaSep) Sep(block *Block, idx int) (ret string) {
 	cnt := len(block.Spans)
 	if cnt > 0 {
-		fini := (idx + 1) == cnt
+		last := block.Spans[cnt-1]
+		var ofs int
+		if last.Tag == "st-post" {
+			ofs = 2
+		} else {
+			ofs = 1
+		}
+
+		fini := (idx + ofs) == cnt
 		if fini {
-			ret = "."
+			if f.FullStop {
+				ret = "."
+			} else {
+				ret = " "
+			}
 		} else {
 			ret = ", and "
 		}
@@ -43,7 +66,7 @@ func NewStoryModel(db ScriptDB, types inspect.Types) *ModelMaker {
 	m.Params.AddFilter("Text.Value", QuoteFilter)
 	m.Params.AddFilter("Chapter.Name", BlockEndFilter)
 
-	m.Params.AddProcess("Execute?array=true", func(stack *Stack) error {
+	m.Params.AddProcess("Execute?array=true", func(_ *inspect.ParamInfo, stack *Stack) error {
 		return stack.NewBlock("dl-scope", m.BuildArray)
 	})
 
@@ -52,10 +75,8 @@ func NewStoryModel(db ScriptDB, types inspect.Types) *ModelMaker {
 	// 		isLast := (i + 1) == len(data.Array)
 	// 		if e := m.BuildCmd(stack); e != nil {
 	// 			err = e
-	// 		} else if isLast {
-	// 			stack.LastChild.Sep = FullStopSep
 	// 		} else {
-	// 			stack.LastChild.Sep = StopGapSep
+	// 			stack.LastChild.Sep = FullStop{!isLast}
 	// 		}
 	// 		return
 	// 	})
@@ -65,24 +86,32 @@ func NewStoryModel(db ScriptDB, types inspect.Types) *ModelMaker {
 		if e := m.ProcessCmd(cmd, stack); e != nil {
 			err = e
 		} else {
-			stack.LastChild.Sep = FullStopSep
+			stack.LastChild.Sep = FullStop{false}
 		}
 		return
 	})
+	m.Params.AddProcess("AllTrue.Test", func(_ *inspect.ParamInfo, stack *Stack) error {
+		return m.BuildElements(stack, func(cmd *inspect.CommandInfo, array *ArrayData, i int) (err error) {
+			if e := m.BuildCmd(cmd, stack); e != nil {
+				err = e
+			} else {
+				stack.LastChild.Sep = CommaSep{false}
+			}
+			return
+		})
+	})
 
-	m.Params.AddProcess("NounDirective.Fragments", func(stack *Stack) error {
-		return m.BuildElements(stack, func(array *ArrayData, i int) error {
-			return stack.Command(func(cmd *inspect.CommandInfo) (err error) {
-				called := cmd.Name == "ScriptSubject"
-				if e := m.BuildCmd(stack); e != nil {
-					err = e
-				} else if called {
-					stack.LastChild.Sep = SpaceSep
-				} else {
-					stack.LastChild.Sep = CommaSep
-				}
-				return
-			})
+	m.Params.AddProcess("NounDirective.Fragments", func(_ *inspect.ParamInfo, stack *Stack) error {
+		return m.BuildElements(stack, func(cmd *inspect.CommandInfo, array *ArrayData, i int) (err error) {
+			called := cmd.Name == "ScriptSubject"
+			if e := m.BuildCmd(cmd, stack); e != nil {
+				err = e
+			} else if called {
+				stack.LastChild.Sep = SpaceSep{}
+			} else {
+				stack.LastChild.Sep = CommaSep{true}
+			}
+			return
 		})
 	})
 

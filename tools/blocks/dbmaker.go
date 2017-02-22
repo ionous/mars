@@ -28,8 +28,7 @@ func (ue DBMaker) Compute(data interface{}) (ret ScriptDB, err error) {
 		impl := strings.Split(*cmdType.Implements, ",")
 		db.Add(key, &CommandData{impl[0], name})
 
-		c := CommandVisitor{db, cmdType, key}
-		//
+		c := &CommandVisitor{db, cmdType, key}
 		if e := inspect.Inspect(ue.types).Visit(c, data); e != nil {
 			err = e
 		} else {
@@ -52,13 +51,13 @@ type ArrayVisitor struct {
 	data *ArrayData
 }
 
-func (uc CommandVisitor) NewCommand(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Arguments, error) {
+func (uc *CommandVisitor) NewCommand(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Arguments, error) {
 	key := append(uc.key, p.Name)
 	uc.db.Add(key, &CommandData{uc.baseType.Name, cmdType.Name})
-	return CommandVisitor{uc.db, cmdType, key}, nil
+	return &CommandVisitor{uc.db, cmdType, key}, nil
 }
 
-func (uc CommandVisitor) NewValue(p *inspect.ParamInfo, v interface{}) (err error) {
+func (uc *CommandVisitor) NewValue(p *inspect.ParamInfo, v interface{}) (err error) {
 	if v != nil {
 		uses, _ := p.Usage(false)
 		key := append(uc.key, p.Name)
@@ -67,12 +66,12 @@ func (uc CommandVisitor) NewValue(p *inspect.ParamInfo, v interface{}) (err erro
 	return
 }
 
-func (uc CommandVisitor) NewArray(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Elements, error) {
+func (uc *CommandVisitor) NewArray(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Elements, error) {
 	key := append(uc.key, p.Name)
-	return ArrayVisitor{Visitor{uc.db, cmdType, key}, nil}, nil
+	return &ArrayVisitor{Visitor{uc.db, cmdType, key}, nil}, nil
 }
 
-func (ua ArrayVisitor) NewCommand(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Arguments, error) {
+func (ua *ArrayVisitor) NewCommand(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Arguments, error) {
 	if ua.data == nil {
 		ua.data = &ArrayData{cmdType.Name, nil, 1}
 		ua.db.Add(ua.key, ua.data)
@@ -85,5 +84,5 @@ func (ua ArrayVisitor) NewCommand(p *inspect.ParamInfo, cmdType *inspect.Command
 	key := append(ua.key, kid)
 	ua.db.Add(key, &CommandData{ua.baseType.Name, cmdType.Name})
 
-	return CommandVisitor{ua.db, cmdType, key}, nil
+	return &CommandVisitor{ua.db, cmdType, key}, nil
 }

@@ -6,9 +6,13 @@ import (
 	"strconv"
 )
 
-type Separator func(b *Block, i int) string
+type Separator interface {
+	Sep(*Block, int) string
+}
 
-func SpaceSep(b *Block, i int) (ret string) {
+type SpaceSep struct{}
+
+func (_ SpaceSep) Sep(b *Block, i int) (ret string) {
 	if len(b.Spans) > 0 && (i+1 != len(b.Spans)) {
 		ret = " "
 	}
@@ -38,7 +42,7 @@ func (b *Block) Render(str io.Writer) (err error) {
 				err = e
 				break
 			}
-			sep := n.Sep(b, i)
+			sep := n.Sep.Sep(b, i)
 			if _, e := str.Write([]byte(sep)); e != nil {
 				err = e
 				break

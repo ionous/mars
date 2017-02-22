@@ -42,8 +42,8 @@ func (w *Walker) visitArgs(c Arguments, cmdType *CommandInfo, cmdData r.Value) (
 func (w *Walker) visitArray(c Arguments, p *ParamInfo, baseType *CommandInfo, v r.Value) (err error) {
 	if a, e := c.NewArray(p, baseType); e != nil {
 		err = e
-	} else {
-		for i := 0; i < v.Len(); i++ {
+	} else if cnt := v.Len(); cnt > 0 {
+		for i := 0; i < cnt; i++ {
 			elVal := v.Index(i)
 			if e := w.visitCmd(a, p, baseType, elVal); e != nil {
 				err = e

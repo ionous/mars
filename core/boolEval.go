@@ -174,7 +174,7 @@ func (op IsObj) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 // IsState (rt.BoolEval) determines if the object is in the named state.
 type IsState struct {
 	Ref   rt.ObjEval `mars:"is [object]"`
-	State string     `mars:"in state [which state]"`
+	State string     `mars:"[which state]"`
 }
 
 func (op IsState) GetBool(run rt.Runtime) (ret rt.Bool, err error) {

@@ -13,7 +13,7 @@ func Name(name string) Named {
 // Named searches for objects by name.
 // see also: core.Id() which uses direct lookup.
 type Named struct {
-	Name string `mars:"named [name];noun"`
+	Name string `mars:"our [name];noun"`
 }
 
 // GetObject searches through the scope for an object matching Name

@@ -3,12 +3,16 @@ package blocks
 import (
 	"github.com/ionous/mars/tools/inspect"
 	"github.com/ionous/sashimi/util/errutil"
-	// "log"
+	"log"
+	"strings"
 )
+
+var _ = log.Println
 
 type Stack struct {
 	db        ScriptDB
 	path      string
+	parts     []string
 	data      interface{}
 	block     *Block
 	blocks    *Blocks
@@ -27,11 +31,6 @@ func NewStack(db ScriptDB, blocks *Blocks) *Stack {
 // Path, the current path.
 func (bk *Stack) Path() string {
 	return bk.path
-}
-
-// ChildPath, the current path plus some kid
-func (bk *Stack) ChildPath(kid string) string {
-	return SlashPath(bk.path, kid)
 }
 
 // Block, callback with the current block.
@@ -60,15 +59,18 @@ func (bk *Stack) Data(cb func(interface{}) error) error {
 }
 
 // NewPath, establish a new data context.
-func (bk *Stack) NewPath(newPath string, cb func(interface{}) error) error {
+func (bk *Stack) NewPath(part string, cb func(interface{}) error) error {
 	var newData interface{}
+	bk.parts = append(bk.parts, part)
+	newPath := strings.Join(bk.parts, "/")
 	if data, ok := bk.db.FindByPath(newPath); ok {
 		newData = data
 	}
 	oldPath, oldData := bk.path, bk.data
 	bk.path, bk.data = newPath, newData
-	err := cb(bk.data)
+	err := cb(newData)
 	bk.path, bk.data = oldPath, oldData
+	bk.parts = bk.parts[0 : len(bk.parts)-1]
 	return err
 }
 
