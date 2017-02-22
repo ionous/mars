@@ -23,11 +23,12 @@ var script *mars.Package
 
 // https://github.com/ungerik/pkgreflect: could be used via go generate
 type ScriptInterfaces struct {
-	backend.Declaration
+	backend.Directive
 	backend.Fragment
 	internal.ActionRequirements
-	internal.ReverseRelation
 	internal.EventTiming
+	internal.ParserInput
+	internal.ReverseRelation
 }
 
 type ScriptCommands struct {
@@ -46,9 +47,10 @@ type ScriptCommands struct {
 	*internal.ImplyingOne
 	*internal.ImplyingMany
 	*internal.KnownAs
-	*internal.NounPhrase
+	*internal.MatchString
+	*internal.NounDirective
 	*internal.NumberValue
-	*internal.ParserPhrase
+	*internal.ParserDirective
 	*internal.RefValue
 	*internal.Requires
 	*internal.RequiresOnly

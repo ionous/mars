@@ -3,26 +3,40 @@ package internal
 import (
 	"github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
-	"github.com/ionous/sashimi/source/types"
 )
 
-type ParserPartial types.PlayerInput
+type ParserPartial []ParserInput
 
 func (p ParserPartial) And(s string) ParserPartial {
-	return append(p, s)
+	return append(p, MatchString{s})
 }
 
-// MARS: its eems this would read better with the event name than the action name...
-func (p ParserPartial) As(s types.NamedAction) backend.Declaration {
-	return ParserPhrase{types.PlayerInput(p), s}
+func (p ParserPartial) As(s string) backend.Directive {
+	return ParserDirective{[]ParserInput(p), s}
 }
 
-type ParserPhrase struct {
-	Input types.PlayerInput `mars:"understand [text]"`
-	What  types.NamedAction `mars:"as [action]"`
+type ParserDirective struct {
+	Input []ParserInput `mars:"Understand [input];input"`
+	What  string        `mars:"as [event];event"`
 }
 
-func (p ParserPhrase) Generate(src *S.Statements) error {
-	alias := S.AliasFields{p.What.String(), p.Input.Strings()}
+type ParserInput interface {
+	GetInputString() string
+}
+
+type MatchString struct {
+	Input string
+}
+
+func (m MatchString) GetInputString() string {
+	return m.Input
+}
+
+func (p ParserDirective) Generate(src *S.Statements) error {
+	var phrases []string
+	for _, in := range p.Input {
+		phrases = append(phrases, in.GetInputString())
+	}
+	alias := S.AliasFields{p.What, phrases}
 	return src.NewAlias(alias, S.UnknownLocation)
 }

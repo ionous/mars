@@ -4,7 +4,6 @@ import (
 	"github.com/ionous/mars/rt"
 	. "github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
-	"github.com/ionous/sashimi/source/types"
 )
 
 type EventTiming interface {
@@ -44,8 +43,8 @@ func NewEvent(evt string, t EventTiming) EventPartial {
 	return EventPartial{&HandleEvent{t, events, nil}}
 }
 
-func (p EventPartial) Or(event types.NamedEvent) EventPartial {
-	p.data.Events = append(p.data.Events, event.String())
+func (p EventPartial) Or(event string) EventPartial {
+	p.data.Events = append(p.data.Events, event)
 	return p
 }
 

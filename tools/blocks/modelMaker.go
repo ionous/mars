@@ -30,7 +30,7 @@ func (m *ModelMaker) BuildPrimitive(stack *Stack) error {
 		if src, ok := data.(*PrimData); !ok {
 			err = errutil.New("no primitive data")
 		} else if text, e := Format(src.Value); e != nil {
-			err = e
+			err = errutil.New("error building primitive, because", e)
 		} else {
 			stack.NewSpan("st-prim", func(span *Span) {
 				span.Text = text
@@ -47,7 +47,7 @@ func (m *ModelMaker) BuildArray(stack *Stack) error {
 func (m *ModelMaker) BuildElements(stack *Stack, buildEl ArrayFn) (err error) {
 	return stack.Data(func(data interface{}) (err error) {
 		if src, ok := data.(*ArrayData); !ok {
-			err = errutil.New("array mismatch", stack.Path(), sbuf.Type{data})
+			err = errutil.New("array type mismatch at", sbuf.Q(stack.Path()), sbuf.Type{data})
 		} else {
 			for i, kid := range src.Array {
 				path := stack.ChildPath(kid)
@@ -96,9 +96,12 @@ func (m *ModelMaker) ProcessCmd(cmd *inspect.CommandInfo, stack *Stack) (err err
 
 func (m *ModelMaker) BuildCmd(stack *Stack) error {
 	return stack.Command(func(cmd *inspect.CommandInfo) (err error) {
-		proc, ok := m.Commands[cmd.Name]
-		if !ok {
-			proc = m.ProcessCmd
+		proc := m.ProcessCmd
+		for _, c := range cmd.Types() {
+			if p, ok := m.Commands[c]; ok {
+				proc = p
+				break
+			}
 		}
 		if e := proc(cmd, stack); e != nil {
 			err = errutil.New("couldnt build cmd", cmd.Name, e)

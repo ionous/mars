@@ -7,19 +7,19 @@ import (
 )
 
 type ScriptLike interface {
-	Declarations() []backend.Declaration
+	Directives() []backend.Directive
 }
 
 type PackageBuilder struct {
-	Scripts []backend.Declaration
+	Scripts []backend.Directive
 	Tests   []test.Suite
 }
 
 func (pb *PackageBuilder) Add(_ string, s ScriptLike) {
-	pb.Scripts = append(pb.Scripts, s.Declarations()...)
+	pb.Scripts = append(pb.Scripts, s.Directives()...)
 }
 
-func (pb *PackageBuilder) AddScript(_ string, decls ...backend.Declaration) {
+func (pb *PackageBuilder) AddScript(_ string, decls ...backend.Directive) {
 	pb.Scripts = append(pb.Scripts, decls...)
 }
 
@@ -36,7 +36,7 @@ type Package struct {
 	// represented by a nil pointer to a structure of interface objects.
 	Interfaces interface{}
 	// Scripts contains all declarations for the package.
-	Scripts []backend.Declaration
+	Scripts []backend.Directive
 	// Test contains all test suites for the package.
 	Tests []test.Suite
 	// Dependencies contains all package dependencies.

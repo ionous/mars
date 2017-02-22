@@ -76,12 +76,12 @@ func (p *ParamInfo) Categorize() (ret ParamType) {
 	uses, attr := p.Usage(true)
 	if uses == "blob" {
 		ret = ParamTypeBlob
+	} else if strings.ToUpper(uses[:1]) != uses[:1] {
+		ret = ParamTypePrim
 	} else if attr["array"] == "true" {
 		ret = ParamTypeArray
-	} else if strings.ToUpper(uses[:1]) == uses[:1] {
-		ret = ParamTypeCommand
 	} else {
-		ret = ParamTypePrim
+		ret = ParamTypeCommand
 	}
 	return
 }

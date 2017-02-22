@@ -3,13 +3,12 @@ package internal
 import (
 	. "github.com/ionous/mars/script/backend"
 	S "github.com/ionous/sashimi/source"
-	"github.com/ionous/sashimi/source/types"
 	"strings"
 )
 
 type Relative struct {
-	Property types.NamedProperty
-	Class    types.NamedClass `mars:"of [class]"`
+	Property string `mars:";property"`
+	Class    string `mars:"of [class];class"`
 }
 
 type RelationData struct {
@@ -25,30 +24,30 @@ type Relation interface {
 }
 
 type ReverseRelation interface {
-	GetReverse() (types.NamedClass, S.RelativeHint, Relative)
+	GetReverse() (string, S.RelativeHint, Relative)
 }
 
 //
 type ImplyingNothing struct{}
 
-func (f ImplyingNothing) GetReverse() (a types.NamedClass, b S.RelativeHint, c Relative) {
+func (f ImplyingNothing) GetReverse() (a string, b S.RelativeHint, c Relative) {
 	return a, b, c
 }
 
 type ReverseRelative struct {
-	Kind types.NamedClass
+	Kind string `mars:";class"`
 	Relative
 }
 
 type ImplyingOne ReverseRelative
 
-func (f ImplyingOne) GetReverse() (types.NamedClass, S.RelativeHint, Relative) {
+func (f ImplyingOne) GetReverse() (string, S.RelativeHint, Relative) {
 	return f.Kind, S.RelativeOne, f.Relative
 }
 
 type ImplyingMany ReverseRelative
 
-func (f ImplyingMany) GetReverse() (types.NamedClass, S.RelativeHint, Relative) {
+func (f ImplyingMany) GetReverse() (string, S.RelativeHint, Relative) {
 	return f.Kind, S.RelativeMany, f.Relative
 }
 
@@ -76,7 +75,7 @@ func (f *HaveMany) GenFragment(src *S.Statements, top Topic) (err error) {
 func (f Relative) Genifer(s *S.Statements, top Topic, this Relation, other ReverseRelation) (err error) {
 	// uses the subject, ex. gremlins, and the field, ex. pets: gremlins-pets-relation
 	srcHint, srcRel := this.GetRelation()
-	srcName, srcTarget := srcRel.Property.String(), srcRel.Class.String()
+	srcName, srcTarget := srcRel.Property, srcRel.Class
 	srcClass, srcHint := top.Subject, srcHint|S.RelativeSource
 	//
 	via := strings.Join([]string{srcClass, srcName, "relation"}, "-")
@@ -86,8 +85,8 @@ func (f Relative) Genifer(s *S.Statements, top Topic, this Relation, other Rever
 	} else {
 		revClass, revHint, revRel := other.GetReverse()
 		if revHint != 0 {
-			revName, revTarget := revRel.Property.String(), revRel.Class.String()
-			drel := S.RelativeProperty{revClass.String(), revName, revTarget, via, revHint}
+			revName, revTarget := revRel.Property, revRel.Class
+			drel := S.RelativeProperty{revClass, revName, revTarget, via, revHint}
 			err = s.NewRelative(drel, S.UnknownLocation)
 		}
 	}

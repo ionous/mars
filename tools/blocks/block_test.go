@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/ionous/mars/export"
+	"github.com/ionous/mars/script"
 	. "github.com/ionous/mars/script"
 	"github.com/ionous/mars/std"
 	"github.com/ionous/mars/tools/inspect"
@@ -50,22 +51,39 @@ func TestTokenize(t *testing.T) {
 func TestParamTypes(t *testing.T) {
 	assert := assert.New(t)
 	if types, e := inspect.NewTypes(std.Std()); assert.NoError(e) {
-		nf := types["NounPhrase"]
-		target, _ := nf.FindParam("Target")
-		assert.Equal(inspect.ParamTypePrim, target.Categorize())
-		//
-		fragments, _ := nf.FindParam("Fragments")
-		assert.Equal(inspect.ParamTypeArray, fragments.Categorize())
-
-		ref := types["ScriptRef"]
-		obj, _ := ref.FindParam("Obj")
-		assert.Equal(inspect.ParamTypeCommand, obj.Categorize())
+		if cmd, ok := types["NounDirective"]; assert.True(ok) {
+			if p, ok := cmd.FindParam("Target"); assert.True(ok) {
+				r := p.Categorize()
+				assert.Equal(inspect.ParamTypePrim, r, r.String())
+			}
+			if p, ok := cmd.FindParam("Fragments"); assert.True(ok) {
+				r := p.Categorize()
+				assert.Equal(inspect.ParamTypeArray, r, r.String())
+			}
+		}
+		if cmd, ok := types["ScriptRef"]; assert.True(ok) {
+			if p, ok := cmd.FindParam("Obj"); assert.True(ok) {
+				r := p.Categorize()
+				assert.Equal(inspect.ParamTypeCommand, r, r.String())
+			}
+		}
 	}
-
 	if types, e := inspect.NewTypes(export.Export()); assert.NoError(e) {
-		lib := types["Library"]
-		blob, _ := lib.FindParam("Types")
-		assert.Equal(inspect.ParamTypeBlob, blob.Categorize())
+		if cmd, ok := types["Library"]; assert.True(ok) {
+			if p, ok := cmd.FindParam("Types"); assert.True(ok) {
+				r := p.Categorize()
+				assert.Equal(inspect.ParamTypeBlob, r, r.String())
+			}
+		}
+	}
+	if types, e := inspect.NewTypes(script.Package()); assert.NoError(e) {
+		if cmd, ok := types["ParserDirective"]; assert.True(ok) {
+			// input is an array of string
+			if p, ok := cmd.FindParam("Input"); assert.True(ok) {
+				r := p.Categorize()
+				assert.Equal(inspect.ParamTypeArray, r, r.String())
+			}
+		}
 	}
 }
 
@@ -93,14 +111,24 @@ func TestKnownAs(t *testing.T) {
 	}
 }
 
+////////////////////////
+func TestUnderstanding(t *testing.T) {
+	what := Understand("feed {{something}}").As("feeding it")
+	assert := assert.New(t)
+	if text, e := PhraseText(what); assert.NoError(e) {
+		assert.Equal(`Understand feed {{something}} as feeding it.`, text)
+	}
+}
+
+//
 func PhraseText(what interface{}) (ret string, err error) {
 	if types, e := inspect.NewTypes(std.Std()); e != nil {
 		err = e
 	} else if db, e := NewDBMaker("test", types).Compute(what); e != nil {
 		err = e
 	} else {
-		prettyBytes, e := json.MarshalIndent(db, "", " ")
-		log.Println("db", string(prettyBytes), e)
+		// prettyBytes, e := json.MarshalIndent(db, "", " ")
+		// log.Println("db", string(prettyBytes), e)
 
 		m := NewStoryModel(db, types)
 		if block, _, e := m.BuildRootCmd("test"); e != nil {

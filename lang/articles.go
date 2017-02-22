@@ -5,7 +5,6 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/scope"
 	. "github.com/ionous/mars/script"
-	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/lang"
 )
 
@@ -93,7 +92,7 @@ func articleNamed(run rt.Runtime, noun rt.ObjEval, article string) (ret rt.Text,
 				ret = rt.Text{lang.Titleize(name.Value)}
 			} else {
 				if len(article) == 0 {
-					if indefinite, e := (core.GetText{types.NamedProperty("indefinite article")}.GetText(run)); e != nil {
+					if indefinite, e := (core.GetText{"indefinite article"}.GetText(run)); e != nil {
 						err = e
 					} else {
 						article = indefinite.Value

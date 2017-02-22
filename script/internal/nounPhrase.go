@@ -7,16 +7,16 @@ import (
 	"github.com/ionous/sashimi/util/sbuf"
 )
 
-// NounPhrase builds "The" and "Our" statements.
+// NounDirective builds "The" and "Our" statements.
 // The statements are composed of "Fragment"s, all relating to a single subject.
 // The presence of a Called fragements switches the subject.
 // ( MARS its called oldstyle because i want to remove the called fragment )
-type NounPhrase struct {
+type NounDirective struct {
 	Target    string     `mars:"The [subject]"`
 	Fragments []Fragment `mars:"[phrases]"`
 }
 
-func (p NounPhrase) Generate(src *S.Statements) (err error) {
+func (p NounDirective) Generate(src *S.Statements) (err error) {
 	if s, e := p.findSubject(); e != nil {
 		err = e
 	} else {
@@ -30,7 +30,7 @@ func (p NounPhrase) Generate(src *S.Statements) (err error) {
 	return err
 }
 
-func (p NounPhrase) findSubject() (ret string, err error) {
+func (p NounDirective) findSubject() (ret string, err error) {
 	subject, found := p.Target, false // by default
 	for _, f := range p.Fragments {
 		if called, ok := f.(ScriptSubject); ok {

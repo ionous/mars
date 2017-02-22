@@ -2,7 +2,6 @@ package blocks
 
 import (
 	"github.com/ionous/sashimi/util/errutil"
-	"github.com/ionous/sashimi/util/sbuf"
 	"io"
 	"strconv"
 )
@@ -27,9 +26,14 @@ func (b *Block) RenderToString(maxLen int) (ret string, err error) {
 	return
 }
 
+// const quote = "'"
+
 func (b *Block) Render(str io.Writer) (err error) {
 	for i, n := range b.Spans {
 		if s := n.Text; s != "" {
+			// if n.Tag == "st-prim" {
+			// 	s = quote + s + quote
+			// }
 			if _, e := str.Write([]byte(s)); e != nil {
 				err = e
 				break
@@ -60,7 +64,7 @@ func Format(data interface{}) (ret string, err error) {
 	case bool:
 		ret = strconv.FormatBool(val)
 	default:
-		err = errutil.New("Unknown block data type", sbuf.Type{val}, val)
+		err = errutil.New("couldnt format data", data)
 	}
 	return
 }

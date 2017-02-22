@@ -7,7 +7,7 @@ import (
 )
 
 type ScriptLike interface {
-	Declarations() []backend.Declaration
+	Directives() []backend.Directive
 }
 
 func NewSuite(name string, units ...Unit) Suite {
@@ -15,10 +15,10 @@ func NewSuite(name string, units ...Unit) Suite {
 }
 
 func SetupScript(setup ScriptLike) Unit {
-	return Unit{Setup: setup.Declarations()}
+	return Unit{Setup: setup.Directives()}
 }
 
-func Setup(setup ...backend.Declaration) Unit {
+func Setup(setup ...backend.Directive) Unit {
 	return Unit{Setup: setup}
 }
 

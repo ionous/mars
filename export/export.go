@@ -26,7 +26,7 @@ var export *mars.Package
 type ExportInterfaces struct {
 	ScriptBundle
 	StorySection
-	backend.Declaration
+	backend.Directive
 	StoryFileBootstrap
 }
 

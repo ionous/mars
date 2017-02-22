@@ -36,7 +36,7 @@ func CommaSep(block *Block, idx int) (ret string) {
 func NewStoryModel(db ScriptDB, types inspect.Types) *ModelMaker {
 	m := NewModelMaker(db, types)
 
-	m.Blocks.CreateOn("Declaration", "dl-group")
+	m.Blocks.CreateOn("Directive", "dl-group")
 	m.Blocks.CreateOn("Execute", "dl-line")
 	m.Params.AddFilter("InLocation.Location", QuoteFilter)
 	m.Params.AddFilter("ScriptSubject.Subject", QuoteFilter)
@@ -47,7 +47,7 @@ func NewStoryModel(db ScriptDB, types inspect.Types) *ModelMaker {
 		return stack.NewBlock("dl-scope", m.BuildArray)
 	})
 
-	// m.Params.AddProcess("Declaration?array=true", func(stack *Stack) error {
+	// m.Params.AddProcess("Directive?array=true", func(stack *Stack) error {
 	// 	return m.BuildElements(stack, func(data *ArrayData, i int) (err error) {
 	// 		isLast := (i + 1) == len(data.Array)
 	// 		if e := m.BuildCmd(stack); e != nil {
@@ -61,7 +61,7 @@ func NewStoryModel(db ScriptDB, types inspect.Types) *ModelMaker {
 	// 	})
 	// })
 
-	m.Commands.AddProcess("NounPhrase", func(cmd *inspect.CommandInfo, stack *Stack) (err error) {
+	m.Commands.AddProcess("Directive", func(cmd *inspect.CommandInfo, stack *Stack) (err error) {
 		if e := m.ProcessCmd(cmd, stack); e != nil {
 			err = e
 		} else {
@@ -70,7 +70,7 @@ func NewStoryModel(db ScriptDB, types inspect.Types) *ModelMaker {
 		return
 	})
 
-	m.Params.AddProcess("NounPhrase.Fragments", func(stack *Stack) error {
+	m.Params.AddProcess("NounDirective.Fragments", func(stack *Stack) error {
 		return m.BuildElements(stack, func(array *ArrayData, i int) error {
 			return stack.Command(func(cmd *inspect.CommandInfo) (err error) {
 				called := cmd.Name == "ScriptSubject"

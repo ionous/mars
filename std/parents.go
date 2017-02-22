@@ -6,7 +6,6 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/script/g"
 	"github.com/ionous/mars/std/compat"
-	"github.com/ionous/sashimi/source/types"
 )
 
 // FIX: note: this wouldnt work for something in a container
@@ -44,7 +43,7 @@ func Ancestors(obj rt.ObjEval) rt.ObjListEval {
 	// a search through all relation properties:
 	refs := rt.References{}
 	for _, rel := range []string{"wearer", "owner", "whereabouts", "support", "enclosure"} {
-		refs.Values = append(refs.Values, core.PropertySafeRef{types.NamedProperty(rel), core.GetObj{"@"}})
+		refs.Values = append(refs.Values, core.PropertySafeRef{string(rel), core.GetObj{"@"}})
 	}
 	return stream.MakeStream{
 		Using: obj,

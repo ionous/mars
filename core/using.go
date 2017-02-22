@@ -3,7 +3,6 @@ package core
 import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/scope"
-	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/sbuf"
 )
@@ -30,11 +29,11 @@ func (c Using) Execute(run rt.Runtime) (err error) {
 }
 
 type GetBool struct {
-	Field types.NamedProperty
+	Field string `mars:";property"`
 }
 
 func (c GetBool) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
-	if eval, e := run.FindValue(c.Field.String()); e != nil {
+	if eval, e := run.FindValue(c.Field); e != nil {
 		err = e
 	} else if neval, ok := eval.(rt.BoolEval); !ok {
 		err = errutil.New("value", c.Field, "is a", sbuf.Type{eval}, "not BoolEval")
@@ -48,11 +47,11 @@ func (c GetBool) GetBool(run rt.Runtime) (ret rt.Bool, err error) {
 
 // GetNum returns a number from the current context.
 type GetNum struct {
-	Field types.NamedProperty
+	Field string `mars:";property"`
 }
 
 func (c GetNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
-	if eval, e := run.FindValue(c.Field.String()); e != nil {
+	if eval, e := run.FindValue(c.Field); e != nil {
 		err = e
 	} else if neval, ok := eval.(rt.NumberEval); !ok {
 		err = errutil.New("value", c.Field, "is a", sbuf.Type{eval}, "not NumberEval")
@@ -66,11 +65,11 @@ func (c GetNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 
 // GetText returns a text value from the current context.
 type GetText struct {
-	Field types.NamedProperty
+	Field string `mars:";property"`
 }
 
 func (c GetText) GetText(run rt.Runtime) (ret rt.Text, err error) {
-	if eval, e := run.FindValue(c.Field.String()); e != nil {
+	if eval, e := run.FindValue(c.Field); e != nil {
 		err = e
 	} else if teval, ok := eval.(rt.TextEval); !ok {
 		err = errutil.New("value", c.Field, "is a", sbuf.Type{eval}, "not TextEval")
@@ -84,11 +83,11 @@ func (c GetText) GetText(run rt.Runtime) (ret rt.Text, err error) {
 
 // GetObject returns a object value from the current conobject.
 type GetObj struct {
-	Field types.NamedProperty
+	Field string `mars:";property"`
 }
 
 func (c GetObj) GetObject(run rt.Runtime) (ret rt.Object, err error) {
-	if eval, e := run.FindValue(c.Field.String()); e != nil {
+	if eval, e := run.FindValue(c.Field); e != nil {
 		err = e
 	} else if objeval, ok := eval.(rt.ObjEval); !ok {
 		err = errutil.New("value", c.Field, "is not object eval", sbuf.Type{eval})

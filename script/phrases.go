@@ -4,7 +4,6 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/script/backend"
 	"github.com/ionous/mars/script/internal"
-	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/errutil"
 )
 
@@ -44,7 +43,7 @@ func (fc ChoiceList) GetFragments() []backend.Fragment {
 }
 
 // The targets a noun for new assertions.
-func The(target string, fragments ...interface{}) backend.Declaration {
+func The(target string, fragments ...interface{}) backend.Directive {
 	flat := []backend.Fragment{}
 	for i, src := range fragments {
 		switch val := src.(type) {
@@ -58,12 +57,12 @@ func The(target string, fragments ...interface{}) backend.Declaration {
 			panic(errutil.New("script noun phrase expects fragments of lists of fragments. at", i, "got", val))
 		}
 	}
-	return internal.NounPhrase{target, flat}
+	return internal.NounDirective{target, flat}
 }
 
 // Understand builds statements for parsing player input.
 func Understand(s string) internal.ParserPartial {
-	return internal.ParserPartial{s}
+	return internal.ParserPartial{}.And(s)
 }
 
 // Our is an alias for The
@@ -75,7 +74,7 @@ func Called(subject string) internal.ScriptSubject {
 	return internal.ScriptSubject{subject}
 }
 
-func HasSingularName(subject types.NamedClass) internal.ScriptSingular {
+func HasSingularName(subject string) internal.ScriptSingular {
 	return internal.ScriptSingular{subject}
 }
 
@@ -123,18 +122,18 @@ func IsKnownAs(name string, names ...string) (ret KnownAsList) {
 
 // Have asserts the existance of a property for all instances of a given class.
 // For relations, use HaveOne or HaveMany.
-func Have(name string, class types.NamedClass) backend.Fragment {
-	return internal.ClassProperty{types.NamedProperty(name), class}
+func Have(name string, class string) backend.Fragment {
+	return internal.ClassProperty{name, class}
 }
 
 // HaveOne establishes a one-to-one, or one-to-many relation.
-func HaveOne(name string, class types.NamedClass) internal.PartialRelation {
-	return internal.NewHaveOne(types.NamedProperty(name), class)
+func HaveOne(name string, class string) internal.PartialRelation {
+	return internal.NewHaveOne(name, class)
 }
 
 // HaveMany establishs a many-to-one relation.
-func HaveMany(name string, class types.NamedClass) internal.PartialRelation {
-	return internal.NewHaveMany(types.NamedProperty(name), class)
+func HaveMany(name string, class string) internal.PartialRelation {
+	return internal.NewHaveMany(name, class)
 }
 
 func HasNumber(property string, value rt.NumberEval) (ret backend.Fragment) {
@@ -164,12 +163,12 @@ func HasTextList(property string, value rt.TextListEval) (ret backend.Fragment) 
 }
 
 // Can asserts a new verb for the targeted noun.
-func Can(verb types.NamedAction) internal.CanDoPhrase {
+func Can(verb string) internal.CanDoPhrase {
 	return internal.CanDoPhrase{ActionName: verb}
 }
 
 // To assigns runtime statements to a default action handler.
-func To(action types.NamedAction, call rt.Execute, calls ...rt.Execute) backend.Fragment {
+func To(action string, call rt.Execute, calls ...rt.Execute) backend.Fragment {
 	return internal.DefaultAction{action, internal.JoinCallbacks(call, calls)}
 }
 

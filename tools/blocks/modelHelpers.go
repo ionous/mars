@@ -121,7 +121,7 @@ func (m *ModelMaker) innerBuild(stack *Stack) error {
 
 //
 func (m *ModelMaker) buildContent(stack *Stack) (err error) {
-	if e := stack.Parameter(func(param *inspect.ParamInfo) (err error) {
+	return stack.Parameter(func(param *inspect.ParamInfo) (err error) {
 		switch param.Categorize() {
 		case inspect.ParamTypePrim:
 			err = m.BuildPrimitive(stack)
@@ -134,9 +134,10 @@ func (m *ModelMaker) buildContent(stack *Stack) (err error) {
 		default:
 			err = errutil.New("unknown primitive type")
 		}
+		if err != nil {
+			err = errutil.New("couldnt build content", param.Name, err)
+		}
 		return
-	}); e != nil {
-		err = errutil.New("couldnt build context", e)
-	}
+	})
 	return
 }

@@ -8,10 +8,10 @@ import (
 // "types" needs to be read before "declarations".
 type Library struct {
 	Name         string
-	Dependencies []string              `json:",omitempty"`
-	Types        []interface{}         `mars:";TypeBlock" json:",omitempty"`
-	Declarations []backend.Declaration `json:",omitempty"`
-	Tests        []interface{}         `mars:";SuiteData" json:",omitempty"`
+	Dependencies []string            `json:",omitempty"`
+	Types        []interface{}       `mars:";TypeBlock" json:",omitempty"`
+	Directives   []backend.Directive `json:",omitempty"`
+	Tests        []interface{}       `mars:";SuiteData" json:",omitempty"`
 }
 
 func (*Library) GetSectionType() SectionType {

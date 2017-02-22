@@ -6,8 +6,8 @@ import (
 
 // a single chapter; chapters have no dependencies.
 type Chapter struct {
-	Name         string
-	Declarations []backend.Declaration
+	Name       string
+	Directives []backend.Directive
 }
 
 func (*Chapter) GetSectionType() SectionType {

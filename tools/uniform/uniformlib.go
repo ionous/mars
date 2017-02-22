@@ -7,7 +7,7 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-func NewChapter(name string, decl []backend.Declaration) (ret *export.Chapter, err error) {
+func NewChapter(name string, decl []backend.Directive) (ret *export.Chapter, err error) {
 	ret = &export.Chapter{
 		name,
 		decl,
@@ -27,7 +27,7 @@ func NewLibrary(ctx *Context, p *mars.Package) (ret *export.Library, err error) 
 				Name:         p.Name,
 				Dependencies: dependencyNames(p),
 				Types:        []interface{}{types},
-				Declarations: p.Scripts,
+				Directives:   p.Scripts,
 				Tests:        []interface{}{tests},
 			}
 		}

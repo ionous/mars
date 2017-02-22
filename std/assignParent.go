@@ -3,12 +3,11 @@ package std
 import (
 	"github.com/ionous/mars/core"
 	"github.com/ionous/mars/rt"
-	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/errutil"
 )
 
 func clearRef(src rt.ObjEval, name string) core.SetObj {
-	return core.SetObj{types.NamedProperty(name), src, core.Nothing()}
+	return core.SetObj{name, src, core.Nothing()}
 }
 
 type AssignParent struct {
@@ -49,7 +48,7 @@ func (ap AssignParent) Execute(run rt.Runtime) (err error) {
 		if e := ap.clear(run, rel); e != nil {
 			err = e
 		} else {
-			err = core.SetObj{types.NamedProperty(rel), ap.Src, ap.Dst}.Execute(run)
+			err = core.SetObj{string(rel), ap.Src, ap.Dst}.Execute(run)
 		}
 	}
 	return

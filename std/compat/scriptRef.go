@@ -5,7 +5,6 @@ import (
 	"github.com/ionous/mars/lang"
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/sashimi/meta"
-	"github.com/ionous/sashimi/source/types"
 )
 
 // ScriptRef provides (some) backwards compatibility with the old GameObject interface:
@@ -34,35 +33,35 @@ func (h ScriptRef) Upper() lang.TheUpper {
 
 // Num returns an rt.NumberEval yield the property with the passed name.
 func (h ScriptRef) Num(name string) rt.NumberEval {
-	return PropertyNum{types.NamedProperty(name), h}
+	return PropertyNum{name, h}
 }
 
 // Text returns an rt.TextEval yield the property with the passed name.
 // g.The("player").Text("greeting"))
 func (h ScriptRef) Text(name string) rt.TextEval {
-	return PropertyText{types.NamedProperty(name), h}
+	return PropertyText{name, h}
 }
 
 // Object yields the object property with the passed name.
 // It wraps the property's rt.ObjectEval with a ScriptRef to allow chaining.
 func (h ScriptRef) Object(name string) ScriptRef {
-	return ScriptRef{PropertyRef{types.NamedProperty(name), h}}
+	return ScriptRef{PropertyRef{name, h}}
 }
 
 func (h ScriptRef) SetNum(name string, val rt.NumberEval) rt.Execute {
-	return SetNum{types.NamedProperty(name), h, val}
+	return SetNum{name, h, val}
 }
 
 func (h ScriptRef) SetText(name string, val rt.TextEval) rt.Execute {
-	return SetTxt{types.NamedProperty(name), h, val}
+	return SetTxt{name, h, val}
 }
 
 func (h ScriptRef) SetObject(name string, val rt.ObjEval) rt.Execute {
-	return SetObj{types.NamedProperty(name), h, val}
+	return SetObj{name, h, val}
 }
 
 func (h ScriptRef) ObjectList(name string) ScriptRefList {
-	return ScriptRefList{PropertyRefList{types.NamedProperty(name), h}}
+	return ScriptRefList{PropertyRefList{name, h}}
 }
 
 // Is this object in the passed state?
@@ -114,7 +113,7 @@ func (h ScriptRef) Go(run string, all ...interface{}) rt.Execute {
 		parms[i+1] = ps
 	}
 	return GoCall{
-		Action:     types.NamedAction(run),
+		Action:     run,
 		Parameters: parms,
 	}
 }

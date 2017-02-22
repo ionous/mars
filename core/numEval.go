@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/ionous/mars/rt"
-	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/errutil"
 )
 
@@ -22,7 +21,7 @@ func (op AddNum) GetNumber(run rt.Runtime) (ret rt.Number, err error) {
 }
 
 type Inc struct {
-	Field types.NamedProperty
+	Field string `mars:";property"`
 }
 
 func (op Inc) Execute(run rt.Runtime) (err error) {

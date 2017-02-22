@@ -2,12 +2,11 @@ package core
 
 import (
 	"github.com/ionous/mars/rt"
-	"github.com/ionous/sashimi/source/types"
 	"github.com/ionous/sashimi/util/errutil"
 )
 
 type SetNum struct {
-	Field  types.NamedProperty
+	Field  string `mars:";property"`
 	Object rt.ObjEval
 	Num    rt.NumberEval
 }
@@ -25,7 +24,7 @@ func (x SetNum) Execute(run rt.Runtime) (err error) {
 }
 
 type SetTxt struct {
-	Field  types.NamedProperty
+	Field  string `mars:";property"`
 	Object rt.ObjEval
 	Txt    rt.TextEval
 }
@@ -43,7 +42,7 @@ func (x SetTxt) Execute(run rt.Runtime) (err error) {
 }
 
 type SetObj struct {
-	Field  types.NamedProperty
+	Field  string `mars:";property"`
 	Object rt.ObjEval
 	Ref    rt.ObjEval
 }
@@ -64,7 +63,7 @@ func (x SetObj) Execute(run rt.Runtime) (err error) {
 
 type ChangeState struct {
 	Ref    rt.ObjEval
-	States types.NamedChoices
+	States []string `mars:";choice"`
 }
 
 func Change(tgt rt.ObjEval) ChangeState {

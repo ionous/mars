@@ -5,7 +5,6 @@ import (
 	"github.com/ionous/mars/rt"
 	"github.com/ionous/mars/std/compat"
 	"github.com/ionous/sashimi/meta"
-	"github.com/ionous/sashimi/source/types"
 )
 
 func Say(args ...interface{}) rt.Execute {
@@ -30,5 +29,5 @@ func TheObject() compat.ScriptRef {
 var Go = rt.MakeStatements
 
 func Call(act string, args ...meta.Generic) core.GoCall {
-	return core.GoCall{types.NamedAction(act), args}
+	return core.GoCall{act, args}
 }

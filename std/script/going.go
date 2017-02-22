@@ -126,14 +126,14 @@ type xSite struct {
 	door xDoor
 }
 
-func (x xSite) makeSite() []backend.Declaration {
+func (x xSite) makeSite() []backend.Directive {
 	s := NewScript(
 		The("room", Called(x.room.str), Exists()),
 		The("door", Called(x.door.str), In(x.room.str), Exists()))
 	if x.door.gen {
 		s.The(x.door.str, Is("scenery"))
 	}
-	return s.Declarations()
+	return s.Directives()
 }
 
 type xRoom struct {
@@ -153,7 +153,7 @@ func (x xDir) isSpecified() bool {
 	return len(x.str) > 0
 }
 
-func (x xDir) makeDir() backend.Declaration {
+func (x xDir) makeDir() backend.Directive {
 	return The("direction", Called(x.str), Exists())
 }
 
