@@ -75,6 +75,17 @@ type Parameters struct {
 	ps []ParamInfo
 }
 
+func ParseMarsTag(f *r.StructField) (phrase, primType string) {
+	if tags := f.Tag.Get("mars"); tags != "" {
+		phraseType := strings.Split(tags, ";")
+		phrase = phraseType[0]
+		if cnt := len(phraseType); cnt == 2 {
+			primType = phraseType[1]
+		}
+	}
+	return
+}
+
 func (tr *TypeRecoder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err error) {
 	if s.Kind() != r.Struct {
 		err = errutil.New("couldn't add params of", s)
@@ -85,14 +96,8 @@ func (tr *TypeRecoder) addParams(p *mars.Package, s r.Type, ps *Parameters) (err
 			if f.PkgPath == "" {
 				tp := ParamInfo{}
 				tp.Name = f.Name
-				var primType string
-				if tags := f.Tag.Get("mars"); tags != "" {
-					phraseType := strings.Split(tags, ";")
-					tp.Phrase = newString(phraseType[0])
-					if cnt := len(phraseType); cnt == 2 {
-						primType = phraseType[1]
-					}
-				}
+				phrase, primType := ParseMarsTag(&f)
+				tp.Phrase = newString(phrase)
 				//
 				if f.Anonymous {
 					if e := tr.addParams(p, f.Type, ps); e != nil {
@@ -155,9 +160,9 @@ func (tr *TypeRecoder) addParam(p *mars.Package, s r.Type, kinds url.Values) (us
 	return
 }
 
-// meeds a bit of recursion.
-func (tr *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandInfo, err error) {
-	if s.Kind() != r.Struct {
+// needs a bit of recursion.
+func (tr *TypeRecoder) addStruct(p *mars.Package, f *r.StructField) (ret *CommandInfo, err error) {
+	if s := f.Type.Elem(); s.Kind() != r.Struct {
 		err = errutil.New("not a struct type", s)
 	} else {
 		name := s.Name()
@@ -169,9 +174,12 @@ func (tr *TypeRecoder) addStruct(p *mars.Package, s r.Type) (ret *CommandInfo, e
 				if e := tr.addParams(p, s, &ps); e != nil {
 					err = e
 				} else {
+					phrase, category := ParseMarsTag(f)
 					typeInfo := &CommandInfo{
 						Name:       name,
 						Implements: newString(face),
+						Phrase:     newString(phrase),
+						Category:   newString(category),
 						Parameters: ps.ps,
 					}
 					tr.Types[name] = typeInfo
@@ -201,8 +209,7 @@ func (tr *TypeRecoder) addCommands(p *mars.Package, cmds interface{}) (ret []Com
 		ref := r.TypeOf(cmds).Elem()
 		for i, fields := 0, ref.NumField(); i < fields; i++ {
 			f := ref.Field(i)
-			elem := f.Type.Elem()
-			if newType, e := tr.addStruct(p, elem); e != nil {
+			if newType, e := tr.addStruct(p, &f); e != nil {
 				err = errutil.New("error adding command", f.Name, e)
 				break
 			} else if newType != nil {

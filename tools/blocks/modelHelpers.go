@@ -4,6 +4,8 @@ import (
 	"github.com/ionous/mars/tools/inspect"
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/sbuf"
+	"strings"
+
 	"log"
 )
 
@@ -73,49 +75,75 @@ func (m *ModelMaker) commandFromData(data interface{}) (ret *inspect.CommandInfo
 	return
 }
 
+func Tag(tags ...string) string {
+	return strings.Join(tags, " ")
+}
+
 func (m *ModelMaker) innerBuild(stack *Stack) error {
 	return stack.Command(func(cmd *inspect.CommandInfo) (err error) {
 		if len(cmd.Parameters) == 0 {
-			spaces := PascalSpaces(cmd.Name)
-			stack.NewSpan("st-cmd", func(span *Span) {
+			var spaces string
+			if cmd.Phrase != nil {
+				spaces = *cmd.Phrase
+			} else {
+				spaces = PascalSpaces(cmd.Name)
+			}
+			stack.NewSpan(Tag("st-cmd", cmd.Name), func(span *Span) {
 				span.Text = spaces
 			})
 		} else {
-			err = stack.NewParameters(func(param *inspect.ParamInfo) error {
-				return stack.NewPath(param.Name, func(data interface{}) (err error) {
-					pre, post, token := Tokenize(param)
-					if data == nil {
-						stack.NewSpan("st-token", func(span *Span) {
-							span.Text = token
-						})
-					} else {
-						if len(pre) > 0 {
-							stack.NewSpan("st-pre", func(span *Span) {
-								span.Text = pre
-							})
-						}
-
-						proc := m.buildContent
-						dotted := cmd.Name + "." + param.Name
-						if p, ok := m.Params[dotted]; ok {
-							proc = p
-						} else if p, ok := m.Params[param.Uses]; ok {
-							proc = p
-						}
-
-						if e := proc(param, stack); e != nil {
-							err = e
-						} else {
-							if len(post) > 0 {
-								stack.NewSpan("st-post", func(span *Span) {
-									span.Text = post
-								})
-							}
-						}
-					}
-					return
+			var pre, post string
+			if cmd.Phrase != nil {
+				pre, post, _ = TokenizePhrase(*cmd.Phrase)
+			}
+			if len(pre) > 0 {
+				stack.NewSpan(Tag("st-cmd-pre", cmd.Name), func(span *Span) {
+					span.Text = pre
 				})
+			}
+			if e := stack.NewParameters(m.innerParams); e != nil {
+				err = e
+			} else if len(post) > 0 {
+				stack.NewSpan(Tag("st-cmd-post", cmd.Name), func(span *Span) {
+					span.Text = post
+				})
+			}
+		}
+		return
+	})
+}
+
+func (m *ModelMaker) innerParams(stack *Stack, cmd *inspect.CommandInfo, param *inspect.ParamInfo) (err error) {
+	return stack.NewPath(param.Name, func(data interface{}) (err error) {
+		pre, post, token := Tokenize(param)
+		if data == nil {
+			stack.NewSpan("st-token", func(span *Span) {
+				span.Text = token
 			})
+		} else {
+			if len(pre) > 0 {
+				stack.NewSpan("st-pre", func(span *Span) {
+					span.Text = pre
+				})
+			}
+
+			proc := m.buildContent
+			dotted := cmd.Name + "." + param.Name
+			if p, ok := m.Params[dotted]; ok {
+				proc = p
+			} else if p, ok := m.Params[param.Uses]; ok {
+				proc = p
+			}
+
+			if e := proc(param, stack); e != nil {
+				err = e
+			} else {
+				if len(post) > 0 {
+					stack.NewSpan("st-post", func(span *Span) {
+						span.Text = post
+					})
+				}
+			}
 		}
 		return
 	})

@@ -14,6 +14,8 @@ type CommandInfo struct {
 	// change to: an array
 	Implements *string     `json:"implements,omitempty"`
 	Parameters []ParamInfo `json:"params,omitempty"`
+	Phrase     *string     `json:"phrase,omitempty"`
+	Category   *string     `json:"category,omitempty"`
 }
 
 type Types map[string]*CommandInfo

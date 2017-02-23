@@ -10,10 +10,14 @@ func NewBlocks(db ScriptDB) *Blocks {
 }
 
 func (l *Blocks) newBlock(path, tag string, rebuild BuildFn) *Block {
+	var opt *string
+	if len(tag) > 0 {
+		opt = &tag
+	}
 	b := &Block{
 		blocks:  l,
 		Path:    path,
-		Tag:     tag,
+		Tag:     opt,
 		rebuild: rebuild,
 	}
 	l.blocks[path] = b

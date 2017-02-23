@@ -48,9 +48,9 @@ type ScriptCommands struct {
 	*internal.ImplyingMany
 	*internal.KnownAs
 	*internal.MatchString
-	*internal.NounDirective
+	*internal.NounDirective `mars:"[Directive]."`
 	*internal.NumberValue
-	*internal.ParserDirective
+	*internal.ParserDirective `mars:"[Understanding]."`
 	*internal.RefValue
 	*internal.Requires
 	*internal.RequiresOnly

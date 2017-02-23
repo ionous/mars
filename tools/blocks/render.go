@@ -6,19 +6,6 @@ import (
 	"strconv"
 )
 
-type Separator interface {
-	Sep(*Block, int) string
-}
-
-type SpaceSep struct{}
-
-func (_ SpaceSep) Sep(b *Block, i int) (ret string) {
-	if len(b.Spans) > 0 && (i+1 != len(b.Spans)) {
-		ret = " "
-	}
-	return
-}
-
 // depth can be -1
 func (b *Block) RenderToString(maxLen int) (ret string, err error) {
 	buf := NewSaturatedOutput(maxLen)
@@ -30,31 +17,43 @@ func (b *Block) RenderToString(maxLen int) (ret string, err error) {
 	return
 }
 
-// const quote = "'"
+type RenderContext struct {
+	io.Writer
+	space bool
+	state State
+}
+
+type State struct {
+	pos, end int
+}
+
+func (rc *RenderContext) Flush(prn bool) {
+	if rc.space && prn {
+		rc.Write([]byte(" "))
+	}
+	rc.space = false
+}
+
+type ContextRenderer interface {
+	ContextRender(*RenderContext) error
+	Destroy()
+}
 
 func (b *Block) Render(str io.Writer) (err error) {
-	for i, n := range b.Spans {
-		if s := n.Text; s != "" {
-			// if n.Tag == "st-prim" {
-			// 	s = quote + s + quote
-			// }
-			if _, e := str.Write([]byte(s)); e != nil {
-				err = e
-				break
-			}
-			sep := n.Sep.Sep(b, i)
-			if _, e := str.Write([]byte(sep)); e != nil {
-				err = e
-				break
-			}
-		}
-		if n.Children != nil {
-			if e := n.Children.Render(str); e != nil {
-				err = e
-				break
-			}
+	return b.ContextRender(&RenderContext{Writer: str})
+}
+
+func (b *Block) ContextRender(rc *RenderContext) (err error) {
+	memo := rc.state
+	rc.state = State{0, len(b.Children)}
+	for i, n := range b.Children {
+		rc.state.pos = i
+		if e := n.ContextRender(rc); e != nil {
+			err = e
+			break
 		}
 	}
+	rc.state = memo
 	return
 }
 

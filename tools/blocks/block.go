@@ -1,21 +1,17 @@
 package blocks
 
 type Block struct {
-	blocks  *Blocks
-	Path    string
-	Tag     string
-	Spans   []*Span `json:",omitempty"`
-	rebuild BuildFn
+	blocks   *Blocks
+	Path     string
+	Tag      *string           `json:",omitempty"`
+	Children []ContextRenderer `json:",omitempty"`
+	rebuild  BuildFn
 }
 
 func (b *Block) AddSpan(path, tag string) *Span {
-	n := &Span{
-		Path: path + "?" + tag,
-		Tag:  tag,
-		Sep:  SpaceSep{},
-	}
-	b.Spans = append(b.Spans, n)
-	return n
+	span := NewSpan(path, tag)
+	b.Children = append(b.Children, span)
+	return span
 }
 
 func (b *Block) Build(bk *Stack) error {
@@ -28,7 +24,10 @@ func (b *Block) Destroy() {
 }
 
 func (b *Block) destroy(keep bool) {
-	b.Spans = []*Span{}
+	for _, n := range b.Children {
+		n.Destroy()
+	}
+	b.Children = nil
 	if !keep {
 		b.blocks.blockDestroyed(b)
 	}

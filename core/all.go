@@ -7,7 +7,7 @@ func All(all ...rt.BoolEval) rt.BoolEval {
 }
 
 type AllTrue struct {
-	Test []rt.BoolEval `mars:"([tests])"`
+	Test []rt.BoolEval `mars:"[tests]"`
 }
 
 func (a AllTrue) GetBool(run rt.Runtime) (okay rt.Bool, err error) {

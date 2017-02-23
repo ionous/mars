@@ -100,7 +100,24 @@ func (bk *Stack) NewBlock(tag string, cb func(*Stack) error) error {
 	newBlock, oldBlock := bk.blocks.newBlock(bk.path, tag, cb), bk.block
 	// put the new block in the new child
 	span.Children = newBlock
-	//
+	// store, call, restore
+	bk.block = newBlock
+	err := cb(bk)
+	bk.block = oldBlock
+	return err
+}
+
+// NewBlock, create a new block with passed tag.
+func (bk *Stack) NewInlineBlock(tag string, cb func(*Stack) error) error {
+	path := bk.path
+	// if len(tag) > 0 {
+	// 	path += "?" + strings.Replace(tag, " ", "&", -1)
+	// }
+	// create a new block for the passed path
+	newBlock, oldBlock := bk.blocks.newBlock(path, tag, cb), bk.block
+	// put the new block in the old block
+	oldBlock.Children = append(oldBlock.Children, newBlock)
+	// store, call, restore
 	bk.block = newBlock
 	err := cb(bk)
 	bk.block = oldBlock
@@ -128,11 +145,11 @@ func (bk *Stack) NewCommand(cmd *inspect.CommandInfo, cb func() error) error {
 }
 
 // NewParameters, establish a series of parameter scopes based on the current comand.
-func (bk *Stack) NewParameters(cb func(*inspect.ParamInfo) error) (err error) {
+func (bk *Stack) NewParameters(cb func(*Stack, *inspect.CommandInfo, *inspect.ParamInfo) error) (err error) {
 	cmd, oldParam := bk.cmd, bk.param
 	for _, p := range cmd.Parameters {
 		bk.param = &p
-		if e := cb(bk.param); e != nil {
+		if e := cb(bk, cmd, bk.param); e != nil {
 			err = e
 			break
 		}

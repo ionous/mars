@@ -32,9 +32,9 @@ type CoreInterfaces struct {
 
 type CoreCommands struct {
 	// all.go
-	*AllTrue
+	*AllTrue `mars:"( [All must be true.] )"`
 	// any.go
-	*AnyTrue
+	*AnyTrue `mars:"( [All can be true.] )"`
 	*Buffer
 	// boolEval.go
 	*IsNum

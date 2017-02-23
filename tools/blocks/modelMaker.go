@@ -81,11 +81,11 @@ func (m *ModelMaker) ProcessCmd(cmd *inspect.CommandInfo, stack *Stack) (err err
 			tags = append(tags, tag)
 		}
 	}
-	if len(tags) == 0 {
-		err = m.innerBuild(stack)
-	} else {
+	if len(tags) > 0 {
 		tag := strings.Join(tags, " ")
 		err = stack.NewBlock(tag, m.innerBuild)
+	} else {
+		err = m.innerBuild(stack)
 	}
 	return
 }

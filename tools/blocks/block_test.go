@@ -22,7 +22,19 @@ var _ = log.Println
 var _ = export.Export
 var _ = json.Indent
 
-//
+func Marshal(src interface{}) (ret string, err error) {
+	b := new(bytes.Buffer)
+	enc := json.NewEncoder(b)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", " ")
+	if e := enc.Encode(src); e != nil {
+		err = e
+	} else {
+		ret = b.String()
+	}
+	return
+}
+
 func PhraseText(what interface{}, pack ...*mars.Package) (ret string, err error) {
 	pack = append([]*mars.Package{std.Std()}, pack...)
 	if types, e := inspect.NewTypes(pack...); e != nil {
@@ -30,15 +42,15 @@ func PhraseText(what interface{}, pack ...*mars.Package) (ret string, err error)
 	} else if db, e := NewDBMaker("test", types).Compute(what); e != nil {
 		err = e
 	} else {
-		// prettyBytes, _ := json.MarshalIndent(db, "", " ")
-		// log.Println("db", string(prettyBytes))
+		//text, _ := Marshal(db)
+		//log.Println("db", text)
 
 		m := NewStoryModel(db, types)
 		if block, _, e := m.BuildRootCmd("test"); e != nil {
 			err = e
 		} else {
-			prettyBytes, _ := json.MarshalIndent(*block, "", " ")
-			log.Println("blocks", string(prettyBytes))
+			text, _ := Marshal(*block)
+			log.Println("blocks", text)
 
 			var buf bytes.Buffer
 			if e := block.Render(&buf); e != nil {
