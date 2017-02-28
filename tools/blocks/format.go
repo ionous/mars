@@ -2,6 +2,7 @@ package blocks
 
 import (
 	"github.com/ionous/mars/tools/inspect"
+	"github.com/ionous/sashimi/util/errutil"
 	"regexp"
 	"strings"
 )
@@ -52,6 +53,17 @@ func Tokenize(p *inspect.ParamInfo) (pre, post, token string) {
 	}
 	if len(token) == 0 {
 		token = MakeToken(PascalSpaces(p.Name))
+	}
+	return
+}
+
+func FormatString(data interface{}) (ret string, err error) {
+	if data == nil {
+		ret = "<blank>"
+	} else if s, ok := data.(string); ok {
+		ret = s
+	} else {
+		err = errutil.New("not a string")
 	}
 	return
 }

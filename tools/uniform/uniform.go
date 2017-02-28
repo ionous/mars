@@ -56,7 +56,7 @@ func (uc UniformCommand) NewValue(p *inspect.ParamInfo, v interface{}) (err erro
 	return
 }
 
-func (uc UniformCommand) NewArray(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Elements, error) {
+func (uc UniformCommand) NewArray(p *inspect.ParamInfo, cmdType *inspect.CommandInfo, _ int) (inspect.Elements, error) {
 	return UniformArray{uc.dataPtr, p.Name}, nil
 }
 

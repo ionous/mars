@@ -1,6 +1,9 @@
 package inspect
 
-import "strings"
+import (
+	r "reflect"
+	"strings"
+)
 
 type ParamInfo struct {
 	Name   string  `json:"name"`
@@ -19,6 +22,16 @@ type CommandInfo struct {
 }
 
 type Types map[string]*CommandInfo
+
+func (t Types) TypeOf(data interface{}) (ret *CommandInfo, okay bool) {
+	if data != nil {
+		name := r.TypeOf(data).Name()
+		if f, ok := t[name]; ok {
+			ret, okay = f, true
+		}
+	}
+	return
+}
 
 func (cmd *CommandInfo) FindParam(name string) (ret ParamInfo, okay bool) {
 	for _, p := range cmd.Parameters {

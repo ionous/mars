@@ -4,6 +4,7 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/sbuf"
 	r "reflect"
+	"strconv"
 	"strings"
 )
 
@@ -15,38 +16,26 @@ func Inspect(types Types) *Walker {
 	return &Walker{types}
 }
 
-func (w *Walker) Visit(c Arguments, value interface{}) (err error) {
+func (w *Walker) Visit(path Path, c Arguments, value interface{}) (err error) {
 	v := r.ValueOf(value)
 	name := v.Type().Name()
 	if cmdType, ok := w.types[name]; !ok {
 		err = errutil.New("type not found", sbuf.Q(name))
 	} else {
-		err = w.visitArgs(c, cmdType, v)
+		err = w.visitArgs(path, c, cmdType, v)
 	}
 	return
 }
 
-func (w *Walker) visitArgs(c Arguments, cmdType *CommandInfo, cmdData r.Value) (err error) {
+func (w *Walker) visitArgs(path Path, c Arguments, cmdType *CommandInfo, cmdData r.Value) (err error) {
 	for _, p := range cmdType.Parameters {
 		if fieldVal := cmdData.FieldByName(p.Name); !fieldVal.IsValid() {
 			err = errutil.New("field not found", sbuf.Q(p.Name))
 			break
-		} else if e := w.visitArg(c, &p, fieldVal); e != nil {
-			err = errutil.New("error converting", cmdType.Name+"."+p.Name, "because", e)
-			break
-		}
-	}
-	return
-}
-
-func (w *Walker) visitArray(c Arguments, p *ParamInfo, baseType *CommandInfo, v r.Value) (err error) {
-	if a, e := c.NewArray(p, baseType); e != nil {
-		err = e
-	} else if cnt := v.Len(); cnt > 0 {
-		for i := 0; i < cnt; i++ {
-			elVal := v.Index(i)
-			if e := w.visitCmd(a, p, baseType, elVal); e != nil {
-				err = e
+		} else {
+			kid := path.ChildPath(p.Name)
+			if e := w.visitArg(kid, c, &p, fieldVal); e != nil {
+				err = errutil.New("error converting", kid, "because", e)
 				break
 			}
 		}
@@ -54,31 +43,30 @@ func (w *Walker) visitArray(c Arguments, p *ParamInfo, baseType *CommandInfo, v 
 	return
 }
 
-func (w *Walker) visitCmd(cw Elements, p *ParamInfo, baseType *CommandInfo, v r.Value) (err error) {
-	switch k := v.Kind(); k {
-	case r.Struct:
-		if cmdType, e := w.commandType(v); e != nil {
-			err = e
-		} else if !implements(baseType, cmdType) {
-			err = errutil.New("expected implementor of", baseType.Name, "got", cmdType.Name, *cmdType.Implements)
-		} else {
-			if elWalker, e := cw.NewCommand(p, cmdType); e != nil {
+func (w *Walker) visitArray(path Path, c Arguments, baseType *CommandInfo, v r.Value) (err error) {
+	cnt := v.Len()
+	if a, e := c.NewArray(path, baseType, cnt); e != nil {
+		err = e
+	} else {
+		for i := 0; i < cnt; i++ {
+			elVal := v.Index(i)
+			if cmdType, e := w.commandType(baseType, elVal); e != nil {
 				err = e
+				break
 			} else {
-				err = w.visitArgs(elWalker, cmdType, v)
+				kid := path.ChildPath(strconv.Itoa(i))
+				if elWalker, e := a.NewElement(kid, cmdType); e != nil {
+					err = e
+				} else {
+					err = w.visitArgs(kid, elWalker, cmdType, v)
+				}
 			}
 		}
-	case r.Ptr, r.Interface:
-		if !v.IsNil() {
-			err = w.visitCmd(cw, p, baseType, v.Elem())
-		}
-	default:
-		err = errutil.New("arg not supported", sbuf.Q(k))
 	}
 	return
 }
 
-func (w *Walker) visitArg(c Arguments, p *ParamInfo, v r.Value) (err error) {
+func (w *Walker) visitArg(kid Path, c Arguments, p *ParamInfo, v r.Value) (err error) {
 	k := v.Kind()
 	uses, style := p.Usage(true)
 	isArray, wantArray := (r.Slice == k), style["array"] == "true"
@@ -86,15 +74,21 @@ func (w *Walker) visitArg(c Arguments, p *ParamInfo, v r.Value) (err error) {
 	if isArray != wantArray {
 		err = errutil.New("array mismatch")
 	} else {
-		// commands are uppercase, primitives lowercase.
+		// commands start uppercase, primitives lowercase.
 		if strings.ToUpper(uses[:1]) == uses[:1] {
-			if cmdType, ok := w.types[uses]; !ok {
-				err = errutil.New("type not found", cmdType.Name)
+			if baseType, ok := w.types[uses]; !ok {
+				err = errutil.New("type not found", uses)
 			} else {
 				if !isArray {
-					err = w.visitCmd(c, p, cmdType, v)
+					if cmdType, e := w.commandType(baseType, v); e != nil {
+						err = e
+					} else if elWalker, e := c.NewCommand(kid, baseType, cmdType); e != nil {
+						err = e
+					} else {
+						w.visitArgs(kid, elWalker, cmdType, v)
+					}
 				} else {
-					err = w.visitArray(c, p, cmdType, v)
+					err = w.visitArray(kid, c, baseType, v)
 				}
 			}
 		} else {
@@ -102,13 +96,13 @@ func (w *Walker) visitArg(c Arguments, p *ParamInfo, v r.Value) (err error) {
 				if prim, e := convertPrim(uses, v); e != nil {
 					err = e
 				} else {
-					err = c.NewValue(p, prim)
+					err = c.NewValue(kid, prim)
 				}
 			} else {
 				if prim, e := convertArray(uses, v); e != nil {
 					err = e
 				} else if len(prim) > 0 {
-					err = c.NewValue(p, prim)
+					err = c.NewValue(kid, prim)
 				}
 			}
 		}
@@ -129,13 +123,23 @@ func implements(base, cmd *CommandInfo) (okay bool) {
 	return
 }
 
-func (w *Walker) commandType(v r.Value) (ret *CommandInfo, err error) {
-	t := v.Type()
-	name := t.Name()
-	if cmd, ok := w.types[name]; !ok {
-		err = errutil.New("type not found", name)
-	} else {
-		ret = cmd
+func (w *Walker) commandType(baseType *CommandInfo, v r.Value) (ret *CommandInfo, err error) {
+	switch k := v.Kind(); k {
+	case r.Struct:
+		name := v.Type().Name()
+		if cmdType, ok := w.types[name]; !ok {
+			err = errutil.New("type not found", name)
+		} else if !implements(baseType, cmdType) {
+			err = errutil.New("expected implementor of", baseType.Name, "got", cmdType.Name, *cmdType.Implements)
+		} else {
+			ret = cmdType
+		}
+	case r.Ptr, r.Interface:
+		if !v.IsNil() {
+			ret, err = w.commandType(baseType, v.Elem())
+		}
+	default:
+		err = errutil.New("arg not supported", sbuf.Q(k))
 	}
 	return
 }

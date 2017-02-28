@@ -9,12 +9,13 @@ import (
 )
 
 type DBMaker struct {
-	root  string
+	root  inspect.Path
 	types inspect.Types
 }
 
 func NewDBMaker(root string, types inspect.Types) *DBMaker {
-	return &DBMaker{root: root, types: types}
+	path := inspect.NewPath(root)
+	return &DBMaker{root: path, types: types}
 }
 
 func (ue DBMaker) Compute(data interface{}) (ret ScriptDB, err error) {
@@ -24,12 +25,11 @@ func (ue DBMaker) Compute(data interface{}) (ret ScriptDB, err error) {
 	} else {
 		db := make(DB)
 
-		key := []string{ue.root}
 		impl := strings.Split(*cmdType.Implements, ",")
-		db.Add(key, &CommandData{impl[0], name})
+		db.Add(ue.root, &CommandData{impl[0], name})
 
-		c := &CommandVisitor{db, cmdType, key}
-		if e := inspect.Inspect(ue.types).Visit(c, data); e != nil {
+		c := &CommandVisitor{db, cmdType}
+		if e := inspect.Inspect(ue.types).Visit(ue.root, c, data); e != nil {
 			err = e
 		} else {
 			ret = db
@@ -39,9 +39,8 @@ func (ue DBMaker) Compute(data interface{}) (ret ScriptDB, err error) {
 }
 
 type Visitor struct {
-	db       DB
-	baseType *inspect.CommandInfo
-	key      []string
+	db            DB
+	containerType *inspect.CommandInfo
 }
 
 type CommandVisitor Visitor
@@ -51,38 +50,41 @@ type ArrayVisitor struct {
 	data *ArrayData
 }
 
-func (uc *CommandVisitor) NewCommand(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Arguments, error) {
-	key := append(uc.key, p.Name)
-	uc.db.Add(key, &CommandData{uc.baseType.Name, cmdType.Name})
-	return &CommandVisitor{uc.db, cmdType, key}, nil
+func (uc *CommandVisitor) NewCommand(path inspect.Path, baseType, cmdType *inspect.CommandInfo) (inspect.Arguments, error) {
+	if cmdType != nil {
+		uc.db.Add(path, &CommandData{baseType.Name, cmdType.Name})
+	}
+	return &CommandVisitor{uc.db, cmdType}, nil
 }
 
-func (uc *CommandVisitor) NewValue(p *inspect.ParamInfo, v interface{}) (err error) {
-	if v != nil {
+func (uc *CommandVisitor) NewValue(path inspect.Path, v interface{}) (err error) {
+	if p, ok := uc.containerType.FindParam(path.Last()); !ok {
+		err = errutil.New("couldnt find parameter for", path)
+	} else if v != nil {
 		uses, _ := p.Usage(false)
-		key := append(uc.key, p.Name)
-		uc.db.Add(key, &PrimData{uses, v})
+		uc.db.Add(path, &PrimData{uses, v})
 	}
 	return
 }
 
-func (uc *CommandVisitor) NewArray(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Elements, error) {
-	key := append(uc.key, p.Name)
-	return &ArrayVisitor{Visitor{uc.db, cmdType, key}, nil}, nil
+func (uc *CommandVisitor) NewArray(path inspect.Path, baseType *inspect.CommandInfo, _ int) (inspect.Elements, error) {
+	return &ArrayVisitor{Visitor{uc.db, baseType}, nil}, nil
 }
 
-func (ua *ArrayVisitor) NewCommand(p *inspect.ParamInfo, cmdType *inspect.CommandInfo) (inspect.Arguments, error) {
+func (ua *ArrayVisitor) NewElement(path inspect.Path, cmdType *inspect.CommandInfo) (inspect.Arguments, error) {
 	if ua.data == nil {
-		ua.data = &ArrayData{cmdType.Name, nil, 1}
-		ua.db.Add(ua.key, ua.data)
+		ua.data = &ArrayData{ua.containerType.Name, nil, 1}
+		ua.db.Add(path, ua.data)
 	}
 
-	kid := strconv.FormatInt(int64(ua.data.Next), 10)
+	kid := path.Last()
+	if i, e := strconv.Atoi(kid); e == nil {
+		if ua.data.Next <= i {
+			ua.data.Next = i + 1
+		}
+	}
 	ua.data.Array = append(ua.data.Array, kid)
-	ua.data.Next++
+	ua.db.Add(path, &CommandData{ua.containerType.Name, cmdType.Name})
 
-	key := append(ua.key, kid)
-	ua.db.Add(key, &CommandData{ua.baseType.Name, cmdType.Name})
-
-	return &CommandVisitor{ua.db, cmdType, key}, nil
+	return &CommandVisitor{ua.db, cmdType}, nil
 }
