@@ -172,7 +172,7 @@ func TestIs(t *testing.T) {
 	}
 }
 
-func xTestJoinAll(t *testing.T) {
+func TestJoinAll(t *testing.T) {
 	assert := assert.New(t)
 	what := core.All(g.The("fish").Is("hungry"), g.The("fish food").Is("found"))
 	if text, e := RunEnglishRules(t, what, core.Core()); assert.NoError(e) {

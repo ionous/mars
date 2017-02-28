@@ -2,13 +2,16 @@
 // later entries overrde earlier one ( test from bottom to top )
 package blocks
 
-//
-// match tests:
-// cmd match, param match,
-// el and el+1 matches for arrays
+// additional match tests:
 // parent cmd, any parent.
 // possibly there might be some sort of any parent is tag x type thing.
-// next is last, next is end.
-// we wont always have the answers, so we have to keep all that we need.
 
-// step n, if you want create a walker for the script db; nil values for empty datl. but really, consider channels for the hist side -- or an adapter -- so that you can implement a javascript sourcl.
+// step n: if you want create a walker for the script db; nil values for empty datl. but really, consider channels for the hist side -- or an adapter -- so that you can implement a javascript source.
+
+// step z: change match functions into commands.
+
+// ad you might want to add classes: st-token, st-pre, st-post; st-cmd, st-cmd-pre, st-cmd-post; st-prim; st-root
+
+// you may want a "quote filter" -- is that a rule that doesnt stop?
+
+// skips for ParamTypeBlob

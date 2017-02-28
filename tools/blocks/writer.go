@@ -22,7 +22,7 @@ func NewWordWriter(out io.Writer) *WordWriter {
 func (wm *WordWriter) WriteWord(s string) {
 	if wm.space {
 		i := strings.IndexFunc(s, func(r rune) bool {
-			limitedPunct := r != '[' && r != ']' && unicode.IsPunct(r)
+			limitedPunct := r != '[' && r != ']' && r != ')' && r != ')' && unicode.IsPunct(r)
 			return limitedPunct
 		})
 		if i != 0 {
