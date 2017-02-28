@@ -15,7 +15,7 @@ type WordWriter struct {
 	space bool
 }
 
-func NewWordWriter(out io.Writer) Words {
+func NewWordWriter(out io.Writer) *WordWriter {
 	return &WordWriter{out, false}
 }
 
@@ -25,7 +25,7 @@ func (wm *WordWriter) WriteWord(s string) {
 			limitedPunct := r != '[' && r != ']' && unicode.IsPunct(r)
 			return limitedPunct
 		})
-		if i < 0 {
+		if i != 0 {
 			io.WriteString(wm.out, " ")
 		}
 	}

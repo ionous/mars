@@ -8,7 +8,8 @@ import (
 type NodeType int
 
 const (
-	CommandNode NodeType = iota
+	UnknownNode NodeType = iota
+	CommandNode
 	ArrayNode
 	ValueNode
 )
@@ -24,9 +25,9 @@ type DocNode struct {
 	// FIX: check into Type; maybe we dont need it anymore.
 
 	Type     NodeType             `json:",omitempty"`
-	BaseType *inspect.CommandInfo `json:"-"`
-	Command  *inspect.CommandInfo `json:"-"`
-	Param    *inspect.ParamInfo   `json:"-"`
+	BaseType *inspect.CommandInfo `json:",omitempty"`
+	Command  *inspect.CommandInfo `json:",omitempty"`
+	Param    *inspect.ParamInfo   `json:",omitempty"`
 	Data     interface{}          `json:",omitempty"` // or... text?
 }
 

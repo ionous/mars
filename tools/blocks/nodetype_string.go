@@ -4,9 +4,9 @@ package blocks
 
 import "fmt"
 
-const _NodeType_name = "CommandNodeArrayNodeValueNode"
+const _NodeType_name = "UnknownNodeCommandNodeArrayNodeValueNode"
 
-var _NodeType_index = [...]uint8{0, 11, 20, 29}
+var _NodeType_index = [...]uint8{0, 11, 22, 31, 40}
 
 func (i NodeType) String() string {
 	if i < 0 || i >= NodeType(len(_NodeType_index)-1) {

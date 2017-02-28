@@ -5,16 +5,21 @@ import (
 )
 
 type DocumentCursor struct {
-	doc  Document
-	curr *DocNode
+	doc        Document
+	root, curr *DocNode
 }
 
 func NewDocument() *DocumentCursor {
-	return &DocumentCursor{doc: make(Document)}
+	root := &DocNode{}
+	return &DocumentCursor{make(Document), root, root}
 }
 
 func (dc *DocumentCursor) Document() Document {
 	return dc.doc
+}
+
+func (dc *DocumentCursor) Root() *DocNode {
+	return dc.root
 }
 
 func (dc *DocumentCursor) Top() *DocNode {

@@ -5,8 +5,8 @@ type ApplyWhen int
 
 const (
 	ApplyBefore ApplyWhen = iota
-	ApplyAfter
 	ApplyOn
+	ApplyAfter
 )
 
 type MatchSource struct {
@@ -23,8 +23,17 @@ type RuleFinder interface {
 }
 
 type Rule struct {
+	desc    string
 	matches []Matcher
 	what    FilterNode
+}
+
+func (c Rule) String() string {
+	return c.desc
+}
+
+func (c Rule) MarshalText() ([]byte, error) {
+	return []byte(c.String()), nil
 }
 
 type FilterNode func(*DocNode) (string, error)

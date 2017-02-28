@@ -14,17 +14,17 @@ func PascalSpaces(name string) string {
 	}))
 }
 
-func SlashPath(path, child string) (ret string) {
-	return path + "/" + child
-}
+// func SlashPath(path, child string) (ret string) {
+// 	return path + "/" + child
+// }
 
-func LastPath(path string) (ret string) {
-	parts := strings.Split(path, "/")
-	if len(parts) > 0 {
-		ret = parts[len(parts)-1]
-	}
-	return
-}
+// func LastPath(path string) (ret string) {
+// 	parts := strings.Split(path, "/")
+// 	if len(parts) > 0 {
+// 		ret = parts[len(parts)-1]
+// 	}
+// 	return
+// }
 
 func MakeToken(name string) string {
 	return "[" + name + "]"
@@ -67,3 +67,18 @@ func FormatString(data interface{}) (ret string, err error) {
 	}
 	return
 }
+
+// func Format(data interface{}) (ret string, err error) {
+// 	// array of these???
+// 	switch val := data.(type) {
+// 	case string:
+// 		ret = val
+// 	case float64:
+// 		ret = strconv.FormatFloat(val, 'g', -1, 64)
+// 	case bool:
+// 		ret = strconv.FormatBool(val)
+// 	default:
+// 		err = errutil.New("couldnt format data", data)
+// 	}
+// 	return
+// }

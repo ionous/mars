@@ -5,7 +5,7 @@ import (
 )
 
 type TypeRules struct {
-	rules  Rules
+	Rules  Rules
 	parsed map[string]bool
 }
 
@@ -15,42 +15,55 @@ func (tr *TypeRules) FindBestRule(src MatchSource) (ret *Rule, okay bool) {
 	if cmd := src.Command; cmd != nil {
 		tr.addCommand(cmd)
 	}
-	if r, ok := tr.rules.FindBestRule(src); ok {
+	if r, ok := tr.Rules.FindBestRule(src); ok {
 		ret, okay = r, true
 	}
 	return
 }
 
-// if we dont have this rule, add it.
+// if we dont have a rule for this command, then parse its "mars" tags to create some.
 func (tr *TypeRules) addCommand(cmd *inspect.CommandInfo) {
 	if !tr.parsed[cmd.Name] {
 		tr.parsed[cmd.Name] = true
-		if p := cmd.Phrase; p != nil {
-			tr.addPhrase(cmd.Name, *p)
-		}
-		//
-		for _, param := range cmd.Parameters {
-			if p := param.Phrase; p != nil {
+
+		// if there are no parameters, then we simply want to print the name
+		if cnt := len(cmd.Parameters); cnt == 0 {
+			tr.addSingleton(cmd.Name, cmd.Phrase)
+		} else {
+			tr.addPhrase(cmd.Name, cmd.Phrase)
+			for _, param := range cmd.Parameters {
 				// FIX: the rules are just going to split these again.
-				tr.addPhrase(cmd.Name+"."+param.Name, *p)
+				tr.addPhrase(cmd.Name+"."+param.Name, param.Phrase)
 			}
 		}
 	}
 }
 
-func (tr *TypeRules) addPhrase(target string, p string) {
-	// FIX: remove deref
-	pre, post, token := TokenizePhrase(p)
+func (tr *TypeRules) addSingleton(target string, p *string) {
+	var text string
+	if p != nil {
+		text = *p
+	} else {
+		text = PascalSpaces(target)
+	}
+	tr.Rules = append(tr.Rules, Prepend(target, text))
+}
+
+func (tr *TypeRules) addPhrase(target string, p *string) {
+	var pre, post, token string
+	if p != nil {
+		pre, post, token = TokenizePhrase(*p)
+	}
 	if len(token) == 0 {
 		token = MakeToken(PascalSpaces(target))
 	}
 	if len(pre) > 0 {
-		tr.rules = append(tr.rules, Prepend(target, pre))
+		tr.Rules = append(tr.Rules, Prepend(target, pre))
 	}
 	if len(token) > 0 {
-		tr.rules = append(tr.rules, Token(target, token))
+		tr.Rules = append(tr.Rules, Token(target, token))
 	}
 	if len(post) > 0 {
-		tr.rules = append(tr.rules, Append(target, post))
+		tr.Rules = append(tr.Rules, Append(target, post))
 	}
 }

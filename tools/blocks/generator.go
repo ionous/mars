@@ -1,37 +1,50 @@
 package blocks
 
-// Generator: implements DocStack;
-// runs rules immediately upon push/pop
-type Generator struct {
-	Writer Words
-	Rules  RuleFinder
-	*DocumentCursor
-}
+import (
+	"github.com/ionous/mars/tools/inspect"
+	"github.com/ionous/sashimi/util/errutil"
+)
 
-func (g *Generator) Push(n *DocNode) (err error) {
-	if e := g.DocumentCursor.Push(n); e != nil {
-		err = e
-	} else if e := g.runRules(n, ApplyBefore); e != nil {
-		err = e
-	} else {
-		err = g.runRules(n, ApplyOn)
-	}
-	return
-}
-
-func (g *Generator) Pop() (ret *DocNode, err error) {
-	if n, e := g.DocumentCursor.Pop(); e != nil {
-		err = e
-	} else if e := g.runRules(n, ApplyAfter); e != nil {
-		err = e
-	}
-	return
-}
-
-func (g *Generator) runRules(n *DocNode, when ApplyWhen) (err error) {
-	if r, ok := g.Rules.FindBestRule(MatchSource{n, when}); ok {
-		if e := r.Write(g.Writer, n); e != nil {
+func Render(words Words, node *DocNode, rules RuleFinder) (err error) {
+	for _, n := range node.Children {
+		if e := runRules(words, n, rules, ApplyBefore); e != nil {
 			err = e
+			break
+		} else if e := runRules(words, n, rules, ApplyOn); e != nil {
+			err = e
+			break
+		} else if e := Render(words, n, rules); e != nil {
+			err = e
+			break
+		} else if e := runRules(words, n, rules, ApplyAfter); e != nil {
+			break
+		}
+	}
+	return
+}
+
+func runRules(words Words, n *DocNode, rules RuleFinder, when ApplyWhen) (err error) {
+	if r, ok := rules.FindBestRule(MatchSource{n, when}); ok {
+		if e := r.Write(words, n); e != nil {
+			err = e
+		}
+	}
+	return
+}
+
+func BuildDoc(doc DocStack, types inspect.Types, data interface{}) (err error) {
+	if cmd, ok := types.TypeOf(data); !ok {
+		err = errutil.New("type not found", data)
+	} else {
+		var path inspect.Path
+		if r, e := NewRenderer(doc, path, cmd); e != nil {
+			err = e
+		} else if e := inspect.Inspect(types).VisitPath(path, r, data); e != nil {
+			err = e
+		} else {
+			// the visitor leaves us at the innermost last child,
+			// we need to finish all terminal edges.
+			err = PopStack(doc)
 		}
 	}
 	return

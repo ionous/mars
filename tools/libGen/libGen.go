@@ -10,23 +10,11 @@ import (
 	"github.com/ionous/mars/std"
 	"github.com/ionous/mars/tools/uniform"
 	"github.com/ionous/sashimi/util/errutil"
+	"github.com/ionous/sashimi/util/recode"
 	"log"
 	"os"
 	"path"
 )
-
-func Marshal(src interface{}) (ret string, err error) {
-	b := new(bytes.Buffer)
-	enc := json.NewEncoder(b)
-	enc.SetEscapeHTML(false)
-	enc.SetIndent("", " ")
-	if e := enc.Encode(src); e != nil {
-		err = e
-	} else {
-		ret = b.String()
-	}
-	return
-}
 
 func write(fileName, m string) {
 	log.Println("writing to", fileName)
@@ -61,7 +49,7 @@ func writeExports(fileName string) (err error) {
 	if types, e := ctx.AddTypes(export.Export()); e != nil {
 		err = errutil.New("types error", e)
 	} else {
-		if m, e := Marshal(types); e != nil {
+		if m, e := recode.JsonMarshal(types); e != nil {
 			err = errutil.New("marshal error:", e)
 		} else {
 			if fileName == "" {
@@ -86,7 +74,7 @@ func writeMars(fileName string) (err error) {
 		enc := uniform.NewUniformEncoder(ctx.Types)
 		if data, e := enc.Compute(bundle); e != nil {
 			err = errutil.New("compute error:", e)
-		} else if m, e := Marshal(data); e != nil {
+		} else if m, e := recode.JsonMarshal(data); e != nil {
 			err = errutil.New("marshal error:", e)
 		} else {
 			if fileName == "" {

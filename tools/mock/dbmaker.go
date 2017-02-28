@@ -29,7 +29,7 @@ func (ue DBMaker) Compute(data interface{}) (ret ScriptDB, err error) {
 		db.Add(ue.root, &CommandData{impl[0], name})
 
 		c := &CommandVisitor{db, cmdType}
-		if e := inspect.Inspect(ue.types).Visit(ue.root, c, data); e != nil {
+		if e := inspect.Inspect(ue.types).VisitPath(ue.root, c, data); e != nil {
 			err = e
 		} else {
 			ret = db

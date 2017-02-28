@@ -1,7 +1,7 @@
 package blocks
 
 import (
-	// "github.com/ionous/mars/tools/inspect"
+	// "log"
 	"strings"
 )
 
@@ -9,8 +9,9 @@ func ParamMatch(src MatchSource, name string) (okay bool) {
 	return src.Param != nil && src.Param.Name == name
 }
 
+// container command match; but not array containers
 func ContainerMatch(src MatchSource, name string) (okay bool) {
-	return src.Parent != nil && src.Parent.Command.Name == name
+	return src.Parent != nil && src.Parent.Command != nil && src.Parent.Command.Name == name
 }
 
 func CommandMatch(src MatchSource, name string) (okay bool) {
@@ -18,17 +19,8 @@ func CommandMatch(src MatchSource, name string) (okay bool) {
 }
 
 func (src MatchSource) IsEmpty() (okay bool) {
-	// switch src.Type {
-	// case CommandNode:
-	// 	okay = src.Command == nil
-	// case ArrayNode:
-	// 	okay = cap(src.Children) == 0
-	// case ValueNode:
-	// 	okay = src.Data == nil
-	// }
 	// FIX: im not convinced about cap,
-	// we could do child by internal index
-	// and length here, and elsewhere?
+	// we could do child by internal index, len here, and elsewhere?
 	return cap(src.Children) == 0 && src.Data == nil
 }
 
@@ -50,7 +42,9 @@ func AddText(when ApplyWhen, target, text string) *Rule {
 				CommandMatch(src, typeName)
 		}
 	}
-	return TextRule(text, MatcherFunc(m))
+	// ironic, isnt it?
+	desc := target + " " + when.String() + " add text " + text
+	return TextRule(desc, text, MatcherFunc(m))
 }
 
 func Prepend(target, text string) *Rule {
@@ -61,26 +55,26 @@ func Append(target, text string) *Rule {
 	return AddText(ApplyAfter, target, text)
 }
 
-func TextRule(text string, m ...Matcher) *Rule {
-	return &Rule{m, func(n *DocNode) (string, error) {
+func TextRule(desc, text string, m ...Matcher) *Rule {
+	return &Rule{desc, m, func(n *DocNode) (string, error) {
 		return text, nil
 	}}
 }
 
 type FormatNode func(data interface{}) (string, error)
 
-func WriteType(name string, fn FormatNode) *Rule {
+func FormatType(name string, fn FormatNode) *Rule {
 	var m MatcherFunc = func(src MatchSource) bool {
 		// FIX: we could store type, etc. expanded into the DocNode.
-		return src.ApplyWhen == ApplyOn && src.Parent != nil && src.Param.Type() == name
+		return src.ApplyWhen == ApplyOn && src.Param != nil && src.Param.Type() == name
 	}
-	return &Rule{[]Matcher{m},
+	desc := "write type " + name
+	return &Rule{desc, []Matcher{m},
 		func(n *DocNode) (string, error) {
 			return fn(n.Data)
 		}}
 }
 
-// IM NOT GETTING A MATCH FOR THE DIRECTIVE ITSELF
 func Token(target, text string) *Rule {
 	// FIX: possibly type scoping?
 	var typeName, fieldName string
@@ -99,7 +93,8 @@ func Token(target, text string) *Rule {
 			ParamMatch(src, fieldName) &&
 			src.IsEmpty()
 	}
-	return TextRule(text, MatcherFunc(m))
+	desc := target + " token " + text
+	return TextRule(desc, text, MatcherFunc(m))
 }
 
 type MatcherFunc func(MatchSource) bool

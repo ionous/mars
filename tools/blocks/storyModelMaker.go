@@ -1,42 +1,27 @@
 package blocks
 
-import (
-	"github.com/ionous/mars/tools/inspect"
-)
+// m.Blocks.CreateOn("Directive", "dl-group")
+// m.Blocks.CreateOn("Execute", "dl-line")
+// m.Params.AddFilter("InLocation.Location", QuoteFilter)
+// m.Params.AddFilter("ScriptSubject.Subject", QuoteFilter)
+// m.Params.AddFilter("Text.Value", QuoteFilter)
+// m.Params.AddFilter("Chapter.Name", BlockEndFilter)
 
-// return values? its basically for build cmd i think
-// does add process really need command info? why?
+// m.Params.AddProcess("Execute?array=true", func(_ *inspect.ParamInfo, stack *Stack) error {
+// 	return stack.NewBlock("dl-scope", m.BuildArray)
+// })
 
-func NewStoryModel(db ScriptDB, types inspect.Types) *ModelMaker {
-	m := NewModelMaker(db, types)
-
-	m.Blocks.CreateOn("Directive", "dl-group")
-	m.Blocks.CreateOn("Execute", "dl-line")
-	m.Params.AddFilter("InLocation.Location", QuoteFilter)
-	m.Params.AddFilter("ScriptSubject.Subject", QuoteFilter)
-	m.Params.AddFilter("Text.Value", QuoteFilter)
-	m.Params.AddFilter("Chapter.Name", BlockEndFilter)
-
-	m.Params.AddProcess("Execute?array=true", func(_ *inspect.ParamInfo, stack *Stack) error {
-		return stack.NewBlock("dl-scope", m.BuildArray)
-	})
-
-	m.Params.AddProcess("AllTrue.Test", func(p *inspect.ParamInfo, stack *Stack) error {
-		return stack.NewInlineBlock(p.Name, func(stack *Stack) error {
-			return m.BuildElements(stack, func(cmd *inspect.CommandInfo, array *ArrayData, i int) (err error) {
-				if e := m.BuildCmd(cmd, stack); e != nil {
-					err = e
-				} else {
-					stack.LastChild.Sep = CommaSep{false}
-				}
-				return
-			})
-		})
-
-	})
-
-	return m
-}
+// m.Params.AddProcess("AllTrue.Test", func(p *inspect.ParamInfo, stack *Stack) error {
+// 	return stack.NewInlineBlock(p.Name, func(stack *Stack) error {
+// 		return m.BuildElements(stack, func(cmd *inspect.CommandInfo, array *ArrayData, i int) (err error) {
+// 			if e := m.BuildCmd(cmd, stack); e != nil {
+// 				err = e
+// 			} else {
+// 				stack.LastChild.Sep = CommaSep{false}
+// 			}
+// 			return
+// 		})
+// 	})
 
 // m.Params.AddProcess("NounDirective.Fragments", func(_ *inspect.ParamInfo, stack *Stack) error {
 // 	return m.BuildElements(stack, func(cmd *inspect.CommandInfo, array *ArrayData, i int) (err error) {
