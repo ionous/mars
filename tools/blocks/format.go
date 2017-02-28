@@ -82,3 +82,7 @@ func FormatString(data interface{}) (ret string, err error) {
 // 	}
 // 	return
 // }
+
+//func Tag(tags ...string) string {
+//	return strings.Join(tags, " ")
+//}

@@ -97,7 +97,6 @@ func RunEnglishRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret
 			// text, _ = recode.JsonMarshal(doc.Root())
 			// t.Log(text)
 		}
-
 	}
 	return
 }
@@ -162,9 +161,9 @@ func TestUnderstanding(t *testing.T) {
 	}
 }
 
-// // FIX: evetually these snippets should become part of their test suite
-// // and we run the matcher externally, generically.
-// // because ideally, our tests would be near to where they are declared.
+// FIX: evetually these snippets should become part of their test suite
+// and we run the matcher externally, generically.
+// because ideally, our tests would be near to where they are declared.
 func TestIs(t *testing.T) {
 	what := g.The("fish").Is("hungry")
 	assert := assert.New(t)

@@ -14,6 +14,10 @@ type MatchSource struct {
 	ApplyWhen
 }
 
+// func NewRule(desc string, fn func(*DocNode) (string, error), ms ...Matcher) *Rule {
+// 	return &Rule{desc, ms, fn}
+// }
+
 type Matcher interface {
 	Matches(MatchSource) bool
 }

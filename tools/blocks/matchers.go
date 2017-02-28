@@ -18,6 +18,25 @@ func CommandMatch(src MatchSource, name string) (okay bool) {
 	return src.Command != nil && src.Command.Name == name
 }
 
+func IsElement(src MatchSource) (okay bool) {
+	return src.Parent != nil && src.Parent.Command == nil
+}
+func IsMinusN(src MatchSource, sub int) (okay bool) {
+	if src.Parent != nil {
+		if cnt := src.Parent.NumChildren(); cnt > sub {
+			test := src.Parent.Children[cnt-sub-1]
+			okay = test == src.DocNode
+		}
+	}
+	return
+}
+func IsNextLast(src MatchSource) bool {
+	return IsMinusN(src, 1)
+}
+func IsThisLast(src MatchSource) bool {
+	return IsMinusN(src, 0)
+}
+
 func (src MatchSource) IsEmpty() (okay bool) {
 	// FIX: im not convinced about cap,
 	// we could do child by internal index, len here, and elsewhere?
