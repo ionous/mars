@@ -5,28 +5,28 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-func NewRenderer(stack DocStack, path inspect.Path, c *inspect.CommandInfo) (ret *ArgumentsReceiver, err error) {
+func NewRenderer(curse *Cursor, path inspect.Path, c *inspect.CommandInfo) (ret *ArgumentsReceiver, err error) {
 	next := NewCommandNode(path, c, c, nil)
-	if e := stack.Push(next); e != nil {
+	if e := curse.Push(next); e != nil {
 		err = e
 	} else {
-		ret = &ArgumentsReceiver{c, Renderer{stack, nil}}
+		ret = &ArgumentsReceiver{c, Renderer{curse, nil}}
 	}
 	return
 }
 
 type Renderer struct {
-	stack DocStack
+	curse *Cursor
 	fini  func() error
 }
 
 func (l *Renderer) dec() (err error) {
-	if n := l.stack.Top(); n == nil {
-		err = errutil.New("stack empty")
+	if n := l.curse.Top(); n == nil {
+		err = errutil.New("curse empty")
 	} else {
 		pos, cnt := n.NumChildren(), n.MaxChildren()
 		if pos == cnt {
-			if _, e := l.stack.Pop(); e != nil {
+			if _, e := l.curse.Pop(); e != nil {
 				err = e
 			} else if l.fini != nil {
 				err = l.fini()
@@ -63,11 +63,11 @@ func (l *ArgumentsReceiver) NewCommand(path inspect.Path, b, c *inspect.CommandI
 		err = e
 	} else {
 		next := NewCommandNode(path, b, c, p)
-		if e := l.stack.Push(next); e != nil {
+		if e := l.curse.Push(next); e != nil {
 			err = e
 		} else {
 			// after arguments is done, we are done with this command.
-			ret = &ArgumentsReceiver{c, Renderer{l.stack, func() error {
+			ret = &ArgumentsReceiver{c, Renderer{l.curse, func() error {
 				return l.dec()
 			}}}
 		}
@@ -80,11 +80,11 @@ func (l *ArgumentsReceiver) NewArray(path inspect.Path, b *inspect.CommandInfo, 
 		err = e
 	} else {
 		next := NewArrayNode(path, b, p, cnt)
-		if e := l.stack.Push(next); e != nil {
+		if e := l.curse.Push(next); e != nil {
 			err = e
 		} else {
 			// when elements is done, we can finish
-			ret = &ElementsReceiver{b, Renderer{l.stack, func() error {
+			ret = &ElementsReceiver{b, Renderer{l.curse, func() error {
 				return l.dec()
 			}}}
 		}
@@ -106,7 +106,7 @@ func (l *ArgumentsReceiver) NewValue(path inspect.Path, d interface{}) (err erro
 		err = e
 	} else {
 		next := NewValueNode(path, p, d)
-		if e := l.stack.Push(next); e != nil {
+		if e := l.curse.Push(next); e != nil {
 			err = e
 		} else {
 			err = l.dec()
@@ -118,10 +118,10 @@ func (l *ArgumentsReceiver) NewValue(path inspect.Path, d interface{}) (err erro
 // ElementReceiver NewCommand, adds an element to the array.
 func (l *ElementsReceiver) NewElement(path inspect.Path, c *inspect.CommandInfo) (ret inspect.Arguments, err error) {
 	next := NewCommandNode(path, l.b, c, nil)
-	if e := l.stack.Push(next); e != nil {
+	if e := l.curse.Push(next); e != nil {
 		err = e
 	} else {
-		ret = &ArgumentsReceiver{c, Renderer{l.stack, func() error {
+		ret = &ArgumentsReceiver{c, Renderer{l.curse, func() error {
 			return l.dec()
 		}}}
 	}

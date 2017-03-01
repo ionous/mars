@@ -32,7 +32,7 @@ func runRules(words Words, n *DocNode, rules RuleFinder, when ApplyWhen) (err er
 	return
 }
 
-func BuildDoc(doc DocStack, types inspect.Types, data interface{}) (err error) {
+func BuildDoc(doc *Cursor, types inspect.Types, data interface{}) (err error) {
 	if cmd, ok := types.TypeOf(data); !ok {
 		err = errutil.New("type not found", data)
 	} else {
@@ -44,7 +44,7 @@ func BuildDoc(doc DocStack, types inspect.Types, data interface{}) (err error) {
 		} else {
 			// the visitor leaves us at the innermost last child,
 			// we need to finish all terminal edges.
-			err = PopStack(doc)
+			err = doc.Flush()
 		}
 	}
 	return

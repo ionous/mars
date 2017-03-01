@@ -4,38 +4,48 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-type DocumentCursor struct {
+type Cursor struct {
 	doc        Document
 	root, curr *DocNode
 }
 
-func NewDocument() *DocumentCursor {
+func NewDocument() *Cursor {
 	root := &DocNode{}
-	return &DocumentCursor{make(Document), root, root}
+	return &Cursor{make(Document), root, root}
 }
 
-func (dc *DocumentCursor) Document() Document {
+func (dc *Cursor) Document() Document {
 	return dc.doc
 }
 
-func (dc *DocumentCursor) Root() *DocNode {
+func (dc *Cursor) Root() *DocNode {
 	return dc.root
 }
 
-func (dc *DocumentCursor) Top() *DocNode {
+func (dc *Cursor) Top() *DocNode {
 	return dc.curr
 }
 
-func (dc *DocumentCursor) Push(n *DocNode) error {
+func (dc *Cursor) Push(n *DocNode) error {
 	dc.curr = dc.doc.AddElement(dc.curr, n)
 	return nil
 }
 
-func (dc *DocumentCursor) Pop() (ret *DocNode, err error) {
+func (dc *Cursor) Pop() (ret *DocNode, err error) {
 	if n := dc.curr; n == nil {
 		err = errutil.New("stack underflow", n.Path)
 	} else {
 		ret, dc.curr = n, n.Parent
+	}
+	return
+}
+
+func (dc *Cursor) Flush() (err error) {
+	for dc.Top() != nil {
+		if _, e := dc.Pop(); e != nil {
+			err = e
+			break
+		}
 	}
 	return
 }
