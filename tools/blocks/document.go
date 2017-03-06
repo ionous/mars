@@ -4,27 +4,11 @@ import (
 	"github.com/ionous/mars/tools/inspect"
 )
 
-//go:generate stringer -type=NodeType
-type NodeType int
-
-const (
-	UnknownNode NodeType = iota
-	CommandNode
-	ArrayNode
-	ValueNode
-)
-
-func (c NodeType) MarshalText() ([]byte, error) {
-	return []byte(c.String()), nil
-}
-
+//
 type DocNode struct {
-	Parent   *DocNode     `json:"-"`
-	Children []*DocNode   `json:",omitempty"`
-	Path     inspect.Path `json:",omitempty"`
-	// FIX: check into Type; maybe we dont need it anymore.
-
-	Type     NodeType             `json:",omitempty"`
+	Parent   *DocNode             `json:"-"`
+	Children []*DocNode           `json:",omitempty"`
+	Path     inspect.Path         `json:",omitempty"`
 	BaseType *inspect.CommandInfo `json:",omitempty"`
 	Command  *inspect.CommandInfo `json:",omitempty"`
 	Param    *inspect.ParamInfo   `json:",omitempty"`

@@ -5,22 +5,40 @@ import (
 	"github.com/ionous/sashimi/util/errutil"
 )
 
-func NewRenderer(curse *Cursor, path inspect.Path, c *inspect.CommandInfo) (ret *ArgumentsReceiver, err error) {
-	next := NewCommandNode(path, c, c, nil)
-	if e := curse.Push(next); e != nil {
-		err = e
+func BuildDoc(doc *Cursor, types inspect.Types, data interface{}) (err error) {
+	if cmd, ok := types.TypeOf(data); !ok {
+		err = errutil.New("type not found", data)
 	} else {
-		ret = &ArgumentsReceiver{c, Renderer{curse, nil}}
+		var path inspect.Path
+		if r, e := NewDocBuilder(doc, path, cmd); e != nil {
+			err = e
+		} else if e := inspect.Inspect(types).VisitPath(path, r, data); e != nil {
+			err = e
+		} else {
+			// the visitor leaves us at the innermost last child,
+			// we need to finish all terminal edges.
+			err = doc.Flush()
+		}
 	}
 	return
 }
 
-type Renderer struct {
+func NewDocBuilder(curse *Cursor, path inspect.Path, c *inspect.CommandInfo) (ret *ArgumentsReceiver, err error) {
+	next := NewCommandNode(path, c, c, nil)
+	if e := curse.Push(next); e != nil {
+		err = e
+	} else {
+		ret = &ArgumentsReceiver{c, DocBuilder{curse, nil}}
+	}
+	return
+}
+
+type DocBuilder struct {
 	curse *Cursor
 	fini  func() error
 }
 
-func (l *Renderer) dec() (err error) {
+func (l *DocBuilder) dec() (err error) {
 	if n := l.curse.Top(); n == nil {
 		err = errutil.New("curse empty")
 	} else {
@@ -38,24 +56,24 @@ func (l *Renderer) dec() (err error) {
 
 type ArgumentsReceiver struct {
 	c *inspect.CommandInfo
-	Renderer
+	DocBuilder
 }
 type ElementsReceiver struct {
 	b *inspect.CommandInfo
-	Renderer
+	DocBuilder
 }
 
 func NewCommandNode(path inspect.Path, b, c *inspect.CommandInfo, p *inspect.ParamInfo) *DocNode {
 	cnt := len(c.Parameters)
-	return &DocNode{Type: CommandNode, Path: path, BaseType: b, Command: c, Param: p, Children: make([]*DocNode, 0, cnt)}
+	return &DocNode{Path: path, BaseType: b, Command: c, Param: p, Children: make([]*DocNode, 0, cnt)}
 }
 
 func NewArrayNode(path inspect.Path, b *inspect.CommandInfo, p *inspect.ParamInfo, cnt int) *DocNode {
-	return &DocNode{Type: ArrayNode, Path: path, BaseType: b, Param: p, Children: make([]*DocNode, 0, cnt)}
+	return &DocNode{Path: path, BaseType: b, Param: p, Children: make([]*DocNode, 0, cnt)}
 }
 
 func NewValueNode(path inspect.Path, p *inspect.ParamInfo, d interface{}) *DocNode {
-	return &DocNode{Type: ValueNode, Path: path, Param: p, Data: d}
+	return &DocNode{Path: path, Param: p, Data: d}
 }
 
 func (l *ArgumentsReceiver) NewCommand(path inspect.Path, b, c *inspect.CommandInfo) (ret inspect.Arguments, err error) {
@@ -67,7 +85,7 @@ func (l *ArgumentsReceiver) NewCommand(path inspect.Path, b, c *inspect.CommandI
 			err = e
 		} else {
 			// after arguments is done, we are done with this command.
-			ret = &ArgumentsReceiver{c, Renderer{l.curse, func() error {
+			ret = &ArgumentsReceiver{c, DocBuilder{l.curse, func() error {
 				return l.dec()
 			}}}
 		}
@@ -84,7 +102,7 @@ func (l *ArgumentsReceiver) NewArray(path inspect.Path, b *inspect.CommandInfo, 
 			err = e
 		} else {
 			// when elements is done, we can finish
-			ret = &ElementsReceiver{b, Renderer{l.curse, func() error {
+			ret = &ElementsReceiver{b, DocBuilder{l.curse, func() error {
 				return l.dec()
 			}}}
 		}
@@ -121,7 +139,7 @@ func (l *ElementsReceiver) NewElement(path inspect.Path, c *inspect.CommandInfo)
 	if e := l.curse.Push(next); e != nil {
 		err = e
 	} else {
-		ret = &ArgumentsReceiver{c, Renderer{l.curse, func() error {
+		ret = &ArgumentsReceiver{c, DocBuilder{l.curse, func() error {
 			return l.dec()
 		}}}
 	}

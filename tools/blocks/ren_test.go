@@ -22,7 +22,7 @@ func TestEmptyRen(t *testing.T) {
 		noun := The("")
 		if cmd, ok := types.TypeOf(noun); assert.True(ok) {
 			cursor, path := NewDocument(), inspect.NewPath("root")
-			if r, e := NewRenderer(cursor, path, cmd); assert.NoError(e) {
+			if r, e := NewDocBuilder(cursor, path, cmd); assert.NoError(e) {
 				if e := inspect.Inspect(types).VisitPath(path, r, noun); assert.NoError(e) {
 					doc := cursor.Document()
 					assert.Len(doc, 3, "root and 2 children")
@@ -35,7 +35,7 @@ func TestEmptyRen(t *testing.T) {
 				cursor, path := NewDocument(), inspect.NewPath("root")
 
 				// FIX? somethign seems wrnong when weneed to pass the path and noun multiple times.
-				if r, e := NewRenderer(cursor, path, cmd); assert.NoError(e) {
+				if r, e := NewDocBuilder(cursor, path, cmd); assert.NoError(e) {
 					if e := inspect.Inspect(types).VisitPath(path, r, noun); assert.NoError(e) {
 						doc := cursor.Document()
 						assert.Len(doc, 4, "root and 3 children")
@@ -46,7 +46,7 @@ func TestEmptyRen(t *testing.T) {
 	}
 }
 
-func RunManualRules(what interface{}, rules Rules) (ret string, err error) {
+func RunManualRules(t *testing.T, what interface{}, rules Rules) (ret string, err error) {
 	if types, e := inspect.NewTypes(std.Std()); e != nil {
 		err = e
 	} else {
@@ -55,8 +55,8 @@ func RunManualRules(what interface{}, rules Rules) (ret string, err error) {
 			err = e
 		} else {
 			var buf bytes.Buffer
-			words := NewWordWriter(&buf)
-			if e := Render(words, doc.Root(), rules); e != nil {
+			r := NewRenderer(&buf)
+			if e := r.Render(doc.Root(), WatchTerms{t, rules}); e != nil {
 				err = e
 			} else {
 				ret = buf.String()
@@ -64,16 +64,6 @@ func RunManualRules(what interface{}, rules Rules) (ret string, err error) {
 		}
 	}
 	return
-}
-
-type WordWatcher struct {
-	t     *testing.T
-	words *WordWriter
-}
-
-func (ww WordWatcher) WriteWord(s string) {
-	ww.t.Logf("write word: '%s'", s)
-	ww.words.WriteWord(s)
 }
 
 func RunEnglishRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret string, err error) {
@@ -86,12 +76,13 @@ func RunEnglishRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret
 			err = e
 		} else {
 			var buf bytes.Buffer
-			words, en := NewWordWriter(&buf), NewEnglishRules(types)
-			if e := Render(words, doc.Root(), en); e != nil {
+			r, en := NewRenderer(&buf), NewEnglishRules(types)
+			if e := r.Render(doc.Root(), WatchTerms{t, en}); e != nil {
 				err = e
 			} else {
 				ret = buf.String()
 			}
+			// print after to get final ruless
 			text, _ := recode.JsonMarshal(en)
 			t.Log(text)
 			// text, _ = recode.JsonMarshal(doc.Root())
@@ -101,18 +92,53 @@ func RunEnglishRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret
 	return
 }
 
+func FormatString(data interface{}) (ret string) {
+	if data == nil {
+		ret = "<blank>"
+	} else if s, ok := data.(string); ok {
+		ret = s
+	} else {
+		ret = "<NaS>"
+	}
+	return
+}
+
+type WatchTerms struct {
+	t   *testing.T
+	src GenerateTerms
+}
+
+func (w WatchTerms) GenerateTerms(n *DocNode) TermSet {
+	ts := w.src.GenerateTerms(n)
+	w.t.Log(n.Path, "generated", len(ts), "terms:", ts.Terms())
+	for k, old := range ts {
+		k, old := k, old // pin these to generate unique variables
+		ts[k] = func(data interface{}) string {
+			res := old(data)
+			w.t.Log(n.Path, k, "generated", "`"+res+"`")
+			return res
+		}
+	}
+	return ts
+}
+
 func TestManualSubject(t *testing.T) {
 	what := The("cabinet")
 	assert := assert.New(t)
 	rules := Rules{
 		// thinking a scoped "maker" for things?
-		FormatType("string", FormatString),
+		TypeRule("string", FormatString),
 		Prepend("NounDirective", "The"),
 		Token("NounDirective.Target", "[subject]"),
 		Token("NounDirective.Fragments", "[phrases]"),
-		Append("NounDirective", "."),
+		// Append("NounDirective", "."),
+		TextRule(SepTerm, ".", IsTarget("NounDirective")),
 	}
-	if text, e := RunManualRules(what, rules); assert.NoError(e) {
+
+	text, _ := recode.JsonMarshal(rules)
+	t.Log(text)
+
+	if text, e := RunManualRules(t, what, rules); assert.NoError(e) {
 		assert.Equal("The cabinet [phrases].", text)
 	}
 }
@@ -124,16 +150,6 @@ func TestSubject(t *testing.T) {
 	assert := assert.New(t)
 	if text, e := RunEnglishRules(t, what); assert.NoError(e) {
 		assert.Equal("The cabinet [phrases].", text)
-	}
-}
-
-// generates a ScriptRef statement
-// ( statements are used in callbacks. )
-func TestScriptRef(t *testing.T) {
-	what := g.The("fish") //.Is("hungry")
-	assert := assert.New(t)
-	if text, e := RunEnglishRules(t, what); assert.NoError(e) {
-		assert.Equal("our fish", text)
 	}
 }
 
@@ -161,6 +177,16 @@ func TestUnderstanding(t *testing.T) {
 	}
 }
 
+// generates a ScriptRef statement
+// ( statements are used in callbacks. )
+func TestScriptRef(t *testing.T) {
+	what := g.The("fish")
+	assert := assert.New(t)
+	if text, e := RunEnglishRules(t, what); assert.NoError(e) {
+		assert.Equal("our fish", text)
+	}
+}
+
 // FIX: evetually these snippets should become part of their test suite
 // and we run the matcher externally, generically.
 // because ideally, our tests would be near to where they are declared.
@@ -177,5 +203,30 @@ func TestJoinAll(t *testing.T) {
 	what := core.All(g.The("fish").Is("hungry"), g.The("fish food").Is("found"))
 	if text, e := RunEnglishRules(t, what, core.Core()); assert.NoError(e) {
 		assert.Equal("( is our fish hungry, and is our fish food found )", text)
+	}
+}
+
+// FIX? might want to check called in other spots, add rules for prepending "is called" in those cases, and keeping the comma sep.
+func TestStoryHeader(t *testing.T) {
+	assert := assert.New(t)
+	what := The("story",
+		Called("A Day for Fresh Sushi"),
+		HasText("author", core.T("Emily Short")),
+		HasText("headline", core.T("Your basic surreal gay fish romance")),
+		Is("scored"),
+	)
+	if text, e := RunEnglishRules(t, what, core.Core()); assert.NoError(e) {
+		assert.Equal("The story called 'A Day for Fresh Sushi' has author Emily Short, has headline 'Your basic surreal gay fish romance', and is scored.", text)
+	}
+}
+
+func xTestSimpleBlock(t *testing.T) {
+	assert := assert.New(t)
+	what := The("player", When("jumping").Always(
+		g.Say(`"Er," says the fish. "Does that, like, EVER help??"`),
+		g.StopHere(),
+	))
+	if text, e := RunEnglishRules(t, what, core.Core()); assert.NoError(e) {
+		assert.Equal(" ", text)
 	}
 }

@@ -2,10 +2,13 @@ package blocks
 
 import (
 	"github.com/ionous/mars/tools/inspect"
-	"github.com/ionous/sashimi/util/errutil"
 	"regexp"
 	"strings"
 )
+
+func Spaces(s ...string) string {
+	return strings.Join(s, " ")
+}
 
 func PascalSpaces(name string) string {
 	re := regexp.MustCompile("([A-Z])")
@@ -13,18 +16,6 @@ func PascalSpaces(name string) string {
 		return " " + strings.ToLower(s)
 	}))
 }
-
-// func SlashPath(path, child string) (ret string) {
-// 	return path + "/" + child
-// }
-
-// func LastPath(path string) (ret string) {
-// 	parts := strings.Split(path, "/")
-// 	if len(parts) > 0 {
-// 		ret = parts[len(parts)-1]
-// 	}
-// 	return
-// }
 
 func MakeToken(name string) string {
 	return "[" + name + "]"
@@ -57,30 +48,6 @@ func Tokenize(p *inspect.ParamInfo) (pre, post, token string) {
 	return
 }
 
-func FormatString(data interface{}) (ret string, err error) {
-	if data == nil {
-		ret = "<blank>"
-	} else if s, ok := data.(string); ok {
-		ret = s
-	} else {
-		err = errutil.New("not a string")
-	}
-	return
-}
-
-// func Format(data interface{}) (ret string, err error) {
-// 	// array of these???
-// 	switch val := data.(type) {
-// 	case string:
-// 		ret = val
-// 	case float64:
-// 		ret = strconv.FormatFloat(val, 'g', -1, 64)
-// 	case bool:
-// 		ret = strconv.FormatBool(val)
-// 	default:
-// 		err = errutil.New("couldnt format data", data)
-// 	}
-// 	return
 // }
 
 //func Tag(tags ...string) string {

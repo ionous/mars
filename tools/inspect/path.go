@@ -10,8 +10,13 @@ func NewPath(p string) Path {
 	return strings.Split(p, "/")
 }
 
-func (p Path) String() string {
-	return strings.Join(p, "/")
+func (p Path) String() (ret string) {
+	if len(p) > 0 {
+		ret = strings.Join(p, "/")
+	} else {
+		ret = "(empty)"
+	}
+	return
 }
 
 func (p Path) ChildPath(s string) Path {

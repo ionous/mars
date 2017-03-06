@@ -2,6 +2,8 @@ package blocks
 
 import (
 	"github.com/ionous/mars/tools/inspect"
+	"strings"
+	"unicode"
 )
 
 type TypeRules struct {
@@ -9,23 +11,19 @@ type TypeRules struct {
 	parsed map[string]bool
 }
 
-func (tr *TypeRules) FindBestRule(src MatchSource) (ret *Rule, okay bool) {
+func (tr *TypeRules) GenerateTerms(src *DocNode) (ret TermSet) {
 	// first make sure the rules for this command are parsed
 	// we can rely on the stack to ensure the container rules are already parsed.
 	if cmd := src.Command; cmd != nil {
 		tr.addCommand(cmd)
 	}
-	if r, ok := tr.Rules.FindBestRule(src); ok {
-		ret, okay = r, true
-	}
-	return
+	return tr.Rules.GenerateTerms(src)
 }
 
 // if we dont have a rule for this command, then parse its "mars" tags to create some.
 func (tr *TypeRules) addCommand(cmd *inspect.CommandInfo) {
 	if !tr.parsed[cmd.Name] {
 		tr.parsed[cmd.Name] = true
-
 		// if there are no parameters, then we simply want to print the name
 		if cnt := len(cmd.Parameters); cnt == 0 {
 			tr.addSingleton(cmd.Name, cmd.Phrase)
@@ -46,7 +44,7 @@ func (tr *TypeRules) addSingleton(target string, p *string) {
 	} else {
 		text = PascalSpaces(target)
 	}
-	tr.Rules = append(tr.Rules, Prepend(target, text))
+	tr.Rules = append(tr.Rules, TextRule(ContentTerm, text, IsTarget(target)))
 }
 
 func (tr *TypeRules) addPhrase(target string, p *string) {
@@ -54,16 +52,36 @@ func (tr *TypeRules) addPhrase(target string, p *string) {
 	if p != nil {
 		pre, post, token = TokenizePhrase(*p)
 	}
+
 	if len(token) == 0 {
 		token = MakeToken(PascalSpaces(target))
 	}
+	r := Token(target, token)
+	tr.Rules = append(tr.Rules, r)
+
+	terms := make(TermSet)
 	if len(pre) > 0 {
-		tr.Rules = append(tr.Rules, Prepend(target, pre))
+		terms[PreTerm] = FixedText(pre)
 	}
-	if len(token) > 0 {
-		tr.Rules = append(tr.Rules, Token(target, token))
+	if s := post; len(s) > 0 {
+		last := strings.LastIndexFunc(s, func(r rune) bool {
+			// treat closing parens as text so we get spaces before them.
+			return r == ')' || !unicode.IsPunct(r)
+		})
+
+		post, sep := s[0:last+1], s[last+1:len(s)]
+		if len(post) > 0 {
+			terms[PostTerm] = FixedText(post)
+		}
+		if len(sep) > 0 {
+			terms[SepTerm] = FixedText(sep)
+		}
 	}
-	if len(post) > 0 {
-		tr.Rules = append(tr.Rules, Append(target, post))
+
+	if len(terms) > 0 {
+		r := &Rule{
+			Spaces("mars", target, "pre", "`"+pre+"`", "post", "`"+post+"`"),
+			IsTarget(target), terms}
+		tr.Rules = append(tr.Rules, r)
 	}
 }
