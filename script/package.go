@@ -59,5 +59,5 @@ type ScriptCommands struct {
 	*internal.ScriptSingular
 	*internal.ScriptSubject
 	*internal.TextValue
-	*internal.WhenEvent
+	*internal.WhenEvent `mars:"when"`
 }

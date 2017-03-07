@@ -1,7 +1,6 @@
 package blocks
 
 import (
-	"github.com/ionous/mars/tools/inspect"
 	"strconv"
 	"strings"
 )
@@ -158,7 +157,11 @@ func (m IsParamType) String() string {
 
 func (m IsParamType) Matches(src *DocNode) (okay bool) {
 	// FIX: we could store param type, etc. expanded into the DocNode.
-	return src.Param != nil && src.Param.Type() == m.Name
+	if src.Param != nil {
+		u := src.Param.Usage()
+		okay = u.Uses() == m.Name
+	}
+	return
 }
 
 //
@@ -172,8 +175,8 @@ func (m IsArrayOf) String() string {
 
 func (m IsArrayOf) Matches(src *DocNode) (okay bool) {
 	if src.Param != nil {
-		u := src.Param.ParamUsage()
-		okay = u.Uses() == m.Name && u.Category() == inspect.ParamTypeArray
+		u := src.Param.Usage()
+		okay = u.Uses() == m.Name && u.IsCommand() && u.IsArray()
 	}
 	return
 }

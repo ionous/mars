@@ -25,9 +25,9 @@ func (s *Separator) separate(chars string) {
 	s.chars = chars
 }
 
-func (s *Separator) flushSep() {
+func (s *Separator) flushSep() (ret int) {
 	if len(s.chars) > 0 {
-		io.WriteString(s.w, s.chars)
+		ret, _ = io.WriteString(s.w, s.chars)
 	}
 	s.chars = " "
 	return

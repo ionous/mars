@@ -1,8 +1,11 @@
 package blocks
 
 import (
+	"fmt"
 	"github.com/ionous/mars/tools/inspect"
+	r "reflect"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -50,8 +53,32 @@ func Tokenize(p *inspect.ParamInfo) (pre, post, token string) {
 	return
 }
 
-// }
+func DataItemOrItem(data interface{}) (ret string) {
+	v := r.ValueOf(data)
+	if v.Kind() != r.Array && v.Kind() != r.Slice {
+		ret = fmt.Sprint("unexpected data", v.Kind(), data)
+	} else if cnt := v.Len(); cnt > 0 {
+		strs := make([]string, cnt)
+		for i := 0; i < cnt; i++ {
+			el := v.Index(i)
+			strs[i] = DataToString(el.Interface())
+		}
+		ret = strings.Join(strs, " or ")
+	}
+	return ret
+}
 
-//func Tag(tags ...string) string {
-//	return strings.Join(tags, " ")
-//}
+func DataToString(data interface{}) (ret string) {
+	// FIX: arrays of these???
+	switch val := data.(type) {
+	case string:
+		ret = val
+	case float64:
+		ret = strconv.FormatFloat(val, 'g', -1, 64)
+	case bool:
+		ret = strconv.FormatBool(val)
+	default:
+		ret = fmt.Sprint(val)
+	}
+	return
+}

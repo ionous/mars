@@ -61,7 +61,8 @@ func (uc *CommandVisitor) NewValue(path inspect.Path, v interface{}) (err error)
 	if p, ok := uc.containerType.FindParam(path.Last()); !ok {
 		err = errutil.New("couldnt find parameter for", path)
 	} else if v != nil {
-		uses, _ := p.Usage(false)
+		u := p.Usage()
+		uses := u.Uses()
 		uc.db.Add(path, &PrimData{uses, v})
 	}
 	return

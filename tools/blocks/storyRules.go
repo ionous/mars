@@ -1,9 +1,7 @@
 package blocks
 
 import (
-	"fmt"
 	"github.com/ionous/mars/tools/inspect"
-	"strconv"
 )
 
 type StoryRules struct {
@@ -25,9 +23,24 @@ func NewStoryRules(types inspect.Types) *StoryRules {
 				// override previous separators when using "called something".
 				TermTextWhen(SepTerm, " ", IsElement{}, IsCommand{"ScriptSubject"}),
 				TermTextWhen(QuotesTerm, "false", IsParent{IsPropertyValue{"TextValue", "author"}}),
-				TermTextWhen(ScopeTerm, "true", IsArrayOf{"Execute"}),
+				// TermTextWhen(ScopeTerm, "true", IsArrayOf{"Execute"}),
+				// &Rule{"exec-block",
+				// 	IsArrayOf{"Execute"},
+				// 	TermSet{
+				// 		ScopeTerm: TermText("true"),
+				// 		// SepTerm:   TermText(NewLineString)},
+				// },
 				//
-				TermTextWhen(SepTerm, NewLineString, IsElement{}, IsCommandOf{"Execute"}),
+				ListFormatter("HandleEvent.Events", DataItemOrItem),
+				//
+				&Rule{"exec-item",
+					IsCommandOf{"Execute"},
+					TermSet{
+						TransformTerm: TermText("capitalize"),
+						// ScopeTerm:     TermText(NewLineString)},
+						ScopeTerm: TermText("true")},
+				},
+				TermTextWhen(SepTerm, ".", IsParent{IsArrayOf{"Execute"}}, IsThisLast{}),
 			},
 			parsed: make(map[string]bool),
 		},
@@ -49,17 +62,9 @@ func ValueFormatter() *Rule {
 	}
 }
 
-func DataToString(data interface{}) (ret string) {
-	// FIX: arrays of these???
-	switch val := data.(type) {
-	case string:
-		ret = val
-	case float64:
-		ret = strconv.FormatFloat(val, 'g', -1, 64)
-	case bool:
-		ret = strconv.FormatBool(val)
-	default:
-		ret = fmt.Sprint(val)
+func ListFormatter(target string, c TermFilter) *Rule {
+	return &Rule{"value",
+		IsTarget(target),
+		TermSet{ContentTerm: TermFunction(c)},
 	}
-	return
 }

@@ -45,34 +45,34 @@ func TestParamTypes(t *testing.T) {
 	if types, e := inspect.NewTypes(std.Std()); assert.NoError(e) {
 		if cmd, ok := types["NounDirective"]; assert.True(ok) {
 			if p, ok := cmd.FindParam("Target"); assert.True(ok) {
-				r := p.Categorize()
-				assert.Equal(inspect.ParamTypePrim, r, r.String())
+				u := p.Usage()
+				assert.True(u.IsPrim(), u)
 			}
 			if p, ok := cmd.FindParam("Fragments"); assert.True(ok) {
-				r := p.Categorize()
-				assert.Equal(inspect.ParamTypeArray, r, r.String())
+				u := p.Usage()
+				assert.True(u.IsArray(), u)
 			}
 		}
 		if cmd, ok := types["ScriptRef"]; assert.True(ok) {
 			if p, ok := cmd.FindParam("Obj"); assert.True(ok) {
-				r := p.Categorize()
-				assert.Equal(inspect.ParamTypeCommand, r, r.String())
+				u := p.Usage()
+				assert.True(u.IsCommand(), u)
 			}
 		}
 	}
 	if types, e := inspect.NewTypes(export.Export()); assert.NoError(e) {
 		if cmd, ok := types["Library"]; assert.True(ok) {
 			if p, ok := cmd.FindParam("Types"); assert.True(ok) {
-				r := p.Categorize()
-				assert.Equal(inspect.ParamTypeBlob, r, r.String())
+				u := p.Usage()
+				assert.True(u.IsBlob(), u)
 			}
 		}
 	}
 	if types, e := inspect.NewTypes(script.Package()); assert.NoError(e) {
 		if cmd, ok := types["ParserDirective"]; assert.True(ok) {
 			if p, ok := cmd.FindParam("Input"); assert.True(ok) {
-				r := p.Categorize()
-				assert.Equal(inspect.ParamTypeArray, r, r.String())
+				u := p.Usage()
+				assert.True(u.IsArray(), u)
 			}
 		}
 	}

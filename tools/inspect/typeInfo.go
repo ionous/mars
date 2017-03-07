@@ -54,11 +54,6 @@ func (cmd *CommandInfo) Types() (ret []string) {
 	return
 }
 
-func (p *ParamInfo) Type() string {
-	t, _ := p.Usage(false)
-	return t
-}
-
 type ParamUsage struct {
 	parts []string
 	attr  map[string]string
@@ -82,18 +77,9 @@ func (u *ParamUsage) Attrs() (ret map[string]string) {
 	return u.attr
 }
 
-func (p *ParamInfo) ParamUsage() ParamUsage {
+func (p *ParamInfo) Usage() ParamUsage {
 	parts := strings.Split(p.Uses, "?")
 	return ParamUsage{parts: parts}
-}
-
-func (p *ParamInfo) Usage(parse bool) (uses string, attr map[string]string) {
-	x := p.ParamUsage()
-	uses = x.Uses()
-	if parse {
-		attr = x.Attrs()
-	}
-	return
 }
 
 //go:generate stringer -type=ParamType
@@ -102,24 +88,32 @@ type ParamType int
 const (
 	ParamTypeUnknown ParamType = iota
 	ParamTypeCommand
-	ParamTypeArray
 	ParamTypePrim
 	ParamTypeBlob
 )
 
-func (p *ParamInfo) Categorize() ParamType {
-	x := p.ParamUsage()
-	return x.Category()
+func (u *ParamUsage) IsArray() bool {
+	attr := u.Attrs()
+	return attr["array"] == "true"
+}
+
+func (u *ParamUsage) IsPrim() bool {
+	return u.Category() == ParamTypePrim
+}
+
+func (u *ParamUsage) IsCommand() bool {
+	return u.Category() == ParamTypeCommand
+}
+
+func (u *ParamUsage) IsBlob() bool {
+	return u.Category() == ParamTypeBlob
 }
 
 func (u *ParamUsage) Category() (ret ParamType) {
-	uses, attr := u.Uses(), u.Attrs()
-	if uses == "blob" {
+	if uses := u.Uses(); uses == "blob" {
 		ret = ParamTypeBlob
 	} else if strings.ToUpper(uses[:1]) != uses[:1] {
 		ret = ParamTypePrim
-	} else if attr["array"] == "true" {
-		ret = ParamTypeArray
 	} else {
 		ret = ParamTypeCommand
 	}

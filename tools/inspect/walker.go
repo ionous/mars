@@ -92,14 +92,15 @@ func (w *Walker) visitEl(kid Path, a Elements, baseType *CommandInfo, pv *r.Valu
 
 func (w *Walker) visitArg(kid Path, c Arguments, p *ParamInfo, pv *r.Value) (err error) {
 	k := pv.Kind()
-	uses, style := p.Usage(true)
-	isArray, wantArray := (r.Slice == k), style["array"] == "true"
+	u := p.Usage()
+	isArray, wantArray := (r.Slice == k), u.IsArray()
 
 	if isArray != wantArray {
 		err = errutil.New("array mismatch")
 	} else {
+		uses := u.Uses()
 		// commands start uppercase, primitives lowercase.
-		if strings.ToUpper(uses[:1]) == uses[:1] {
+		if u.IsCommand() {
 			if baseType, ok := w.types[uses]; !ok {
 				err = errutil.New("type not found", uses)
 			} else {

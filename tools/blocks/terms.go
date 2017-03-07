@@ -10,6 +10,7 @@ const (
 	PostTerm
 	SepTerm
 	ScopeTerm
+	TransformTerm
 	NumTerms
 )
 
@@ -81,15 +82,3 @@ func (ts TermSet) Produce(data interface{}) (ret Productions, err error) {
 	}
 	return
 }
-
-// func (ts TermSet) ProduceDefaults(data interface{}, defaults Productions) (ret Productions, err error) {
-// 	ret = make(Productions)
-// 	for k := Term(0); k < NumTerms; k++ {
-// 		if v, ok := ts.Filter(k, data); ok {
-// 			ret[k] = v
-// 		} else {
-// 			ret[k] = defaults[k]
-// 		}
-// 	}
-// 	return
-// }

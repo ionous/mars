@@ -20,8 +20,10 @@ func (r *Scope) changeIndent(okay bool) {
 	}
 }
 
-func (r *Scope) writeIndent() {
-	if len(r.depth) > 0 {
+func (r *Scope) writeIndent() (ret int) {
+	if cnt := len(r.depth); cnt > 0 {
 		r.w.Write(r.depth)
+		ret = cnt
 	}
+	return
 }

@@ -274,10 +274,10 @@ func TestStoryHeader(t *testing.T) {
 	}
 }
 
-func xTestSimpleBlock(t *testing.T) {
+func TestSimpleBlock(t *testing.T) {
 	assert := assert.New(t)
 	what := The("player",
-		When("jumping").Always(
+		When("jumping").Or("clapping").Always(
 			g.Say(`"Er," says the fish. "Does that, like, EVER help??"`),
 			g.StopHere(),
 		),

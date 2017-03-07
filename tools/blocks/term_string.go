@@ -4,9 +4,9 @@ package blocks
 
 import "fmt"
 
-const _Term_name = "PreTermQuotesTermContentTermPostTermSepTermScopeTermNumTerms"
+const _Term_name = "PreTermQuotesTermContentTermPostTermSepTermScopeTermTransformTermNumTerms"
 
-var _Term_index = [...]uint8{0, 7, 17, 28, 36, 43, 52, 60}
+var _Term_index = [...]uint8{0, 7, 17, 28, 36, 43, 52, 65, 73}
 
 func (i Term) String() string {
 	if i < 0 || i >= Term(len(_Term_index)-1) {
