@@ -1,24 +1,18 @@
 package blocks
 
 import (
-	"bytes"
 	"github.com/ionous/mars"
 	"github.com/ionous/mars/core"
-	// "github.com/ionous/mars/export"
 	. "github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/g"
 	"github.com/ionous/mars/std"
 	"github.com/ionous/mars/tools/inspect"
-	// "github.com/ionous/sashimi/util/errutil"
 	"github.com/ionous/sashimi/util/recode"
 	"github.com/stretchr/testify/assert"
-	"strings"
-	// "io"
 	"testing"
-	// "text/tabwriter"
 )
 
-func TestEmptyRen(t *testing.T) {
+func TestDocBuilder(t *testing.T) {
 	assert := assert.New(t)
 	if types, e := inspect.NewTypes(std.Std()); assert.NoError(e) {
 		noun := The("")
@@ -48,42 +42,6 @@ func TestEmptyRen(t *testing.T) {
 	}
 }
 
-type WatchBytes struct {
-	t       *testing.T
-	buf     bytes.Buffer
-	lines   []string
-	pending string
-}
-
-func (w *WatchBytes) String() string {
-	return w.buf.String()
-}
-
-func (w *WatchBytes) Lines() []string {
-	l := w.lines
-	if w.pending != "" {
-		l = append(l, w.pending)
-	}
-	return l
-}
-
-func (w *WatchBytes) Write(p []byte) (int, error) {
-	s := string(p)
-	s = strings.Trim(s, "-")
-	if len(s) > 0 {
-		if s == NewLineString {
-			s = "NewLine!"
-			w.lines, w.pending = append(w.lines, w.pending), ""
-		} else if s == "|" {
-			s = strings.Repeat("Tab!", len(s))
-		} else {
-			w.pending += s
-		}
-		w.t.Log("wrote:", "'"+s+"'")
-	}
-	return w.buf.Write(p)
-}
-
 func RunManualRules(t *testing.T, what interface{}, rules Rules) (ret string, err error) {
 	if types, e := inspect.NewTypes(std.Std()); e != nil {
 		err = e
@@ -92,7 +50,7 @@ func RunManualRules(t *testing.T, what interface{}, rules Rules) (ret string, er
 		if e := BuildDoc(doc, types, what); e != nil {
 			err = e
 		} else {
-			buf := WatchBytes{t: t}
+			buf := WatchWriter{t: t}
 			r := NewRenderer(&buf)
 			if e := r.Render(doc.Root(), WatchTerms{t, rules}); e != nil {
 				err = e
@@ -104,7 +62,7 @@ func RunManualRules(t *testing.T, what interface{}, rules Rules) (ret string, er
 	return
 }
 
-func RunStoryRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret string, err error) {
+func RunStoryRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret *WatchWriter, err error) {
 	pack = append([]*mars.Package{std.Std()}, pack...)
 	if types, e := inspect.NewTypes(pack...); e != nil {
 		err = e
@@ -113,12 +71,12 @@ func RunStoryRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret s
 		if e := BuildDoc(doc, types, what); e != nil {
 			err = e
 		} else {
-			buf := WatchBytes{t: t}
+			buf := WatchWriter{t: t}
 			r, en := NewRenderer(&buf), NewStoryRules(types)
 			if e := r.Render(doc.Root(), WatchTerms{t, en}); e != nil {
 				err = e
 			} else {
-				ret = buf.String()
+				ret = &buf
 			}
 			// print after to get final ruless
 			// text, _ := recode.JsonMarshal(en)
@@ -129,42 +87,6 @@ func RunStoryRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret s
 	}
 	return
 }
-
-func FormatString(data interface{}) (ret string) {
-	if data == nil {
-		ret = "<blank>"
-	} else if s, ok := data.(string); ok {
-		ret = s
-	} else {
-		ret = "<NaS>"
-	}
-	return
-}
-
-type WatchTerms struct {
-	t   *testing.T
-	src GenerateTerms
-}
-
-func (w WatchTerms) GenerateTerms(n *DocNode) TermSet {
-	ts := w.src.GenerateTerms(n)
-	w.t.Log(n.Path, "generated", len(ts), "terms:")
-	for k, old := range ts {
-		k, old := k, old // pin these to generate unique variables
-		fn := func(data interface{}) string {
-			res := old.Filter(data)
-			log := res
-			if log == NewLineString {
-				log = "NewLine!"
-			}
-			w.t.Log(" ", "`"+log+"`", "from", k.String(), old.Src.String())
-			return res
-		}
-		ts[k] = TermResult{old.Src, fn}
-	}
-	return ts
-}
-
 func TestManualSubject(t *testing.T) {
 	what := The("cabinet")
 	assert := assert.New(t)
@@ -177,6 +99,16 @@ func TestManualSubject(t *testing.T) {
 			IsParamType{name},
 			TermSet{ContentTerm: TermFunction(fn)},
 		}
+	}
+	FormatString := func(data interface{}) (ret string) {
+		if data == nil {
+			ret = "<blank>"
+		} else if s, ok := data.(string); ok {
+			ret = s
+		} else {
+			ret = "<NaS>"
+		}
+		return
 	}
 
 	rules := Rules{
@@ -202,32 +134,32 @@ func TestManualSubject(t *testing.T) {
 func TestSubject(t *testing.T) {
 	what := The("cabinet")
 	assert := assert.New(t)
-	if text, e := RunStoryRules(t, what); assert.NoError(e) {
-		assert.Equal("The cabinet [phrases].", text)
+	if out, e := RunStoryRules(t, what); assert.NoError(e) {
+		assert.Equal("The cabinet [phrases].", out.String())
 	}
 }
 
 func TestExists(t *testing.T) {
 	what := The("cabinet", Exists())
 	assert := assert.New(t)
-	if text, e := RunStoryRules(t, what); assert.NoError(e) {
-		assert.Equal("The cabinet exists.", text)
+	if out, e := RunStoryRules(t, what); assert.NoError(e) {
+		assert.Equal("The cabinet exists.", out.String())
 	}
 }
 
 func TestKnownAs(t *testing.T) {
 	what := The("cabinet", IsKnownAs("the armoire"))
 	assert := assert.New(t)
-	if text, e := RunStoryRules(t, what); assert.NoError(e) {
-		assert.Equal("The cabinet is known as the armoire.", text)
+	if out, e := RunStoryRules(t, what); assert.NoError(e) {
+		assert.Equal("The cabinet is known as the armoire.", out.String())
 	}
 }
 
 func TestUnderstanding(t *testing.T) {
 	what := Understand("feed {{something}}").As("feeding it")
 	assert := assert.New(t)
-	if text, e := RunStoryRules(t, what); assert.NoError(e) {
-		assert.Equal(`Understand feed {{something}} as feeding it.`, text)
+	if out, e := RunStoryRules(t, what); assert.NoError(e) {
+		assert.Equal(`Understand feed {{something}} as feeding it.`, out.String())
 	}
 }
 
@@ -236,8 +168,8 @@ func TestUnderstanding(t *testing.T) {
 func TestScriptRef(t *testing.T) {
 	what := g.The("fish")
 	assert := assert.New(t)
-	if text, e := RunStoryRules(t, what); assert.NoError(e) {
-		assert.Equal("our fish", text)
+	if out, e := RunStoryRules(t, what); assert.NoError(e) {
+		assert.Equal("our fish", out.String())
 	}
 }
 
@@ -247,16 +179,16 @@ func TestScriptRef(t *testing.T) {
 func TestIs(t *testing.T) {
 	what := g.The("fish").Is("hungry")
 	assert := assert.New(t)
-	if text, e := RunStoryRules(t, what); assert.NoError(e) {
-		assert.Equal("is our fish hungry", text)
+	if out, e := RunStoryRules(t, what); assert.NoError(e) {
+		assert.Equal("is our fish hungry", out.String())
 	}
 }
 
 func TestJoinAll(t *testing.T) {
 	assert := assert.New(t)
 	what := core.All(g.The("fish").Is("hungry"), g.The("fish food").Is("found"))
-	if text, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
-		assert.Equal("( is our fish hungry, and is our fish food found )", text)
+	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
+		assert.Equal("( is our fish hungry, and is our fish food found )", out.String())
 	}
 }
 
@@ -269,8 +201,8 @@ func TestStoryHeader(t *testing.T) {
 		HasText("headline", core.T("Your basic surreal gay fish romance")),
 		Is("scored"),
 	)
-	if text, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
-		assert.Equal(`The story called "A Day for Fresh Sushi" has author Emily Short, has headline "Your basic surreal gay fish romance", and is scored.`, text)
+	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
+		assert.Equal(`The story called "A Day for Fresh Sushi" has author Emily Short, has headline "Your basic surreal gay fish romance", and is scored.`, out.String())
 	}
 }
 
@@ -281,11 +213,11 @@ func TestSimpleBlock(t *testing.T) {
 			g.Say(`"Er," says the fish. "Does that, like, EVER help??"`),
 			g.StopHere(),
 		),
-		HasText("what", core.T("testing")),
-		HasText("what", core.T("booping")),
 	)
-	if text, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
-		t.Fatal("\n" + text)
-		// assert.Equal(" ", text)
+	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
+		assert.Equal(Lines(
+			`The player when jumping or clapping always:`,
+			`-Say ""Er," says the fish. "Does that, like, EVER help??""`,
+			`-Stop now.`), out.Lines())
 	}
 }

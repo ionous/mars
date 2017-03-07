@@ -13,6 +13,10 @@ func Spaces(s ...string) string {
 	return strings.Join(s, " ")
 }
 
+func Lines(s ...string) []string {
+	return s
+}
+
 func PascalSpaces(name string) string {
 	re := regexp.MustCompile("([A-Z])")
 	return strings.TrimSpace(re.ReplaceAllStringFunc(name, func(s string) string {

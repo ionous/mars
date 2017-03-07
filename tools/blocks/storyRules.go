@@ -23,23 +23,15 @@ func NewStoryRules(types inspect.Types) *StoryRules {
 				// override previous separators when using "called something".
 				TermTextWhen(SepTerm, " ", IsElement{}, IsCommand{"ScriptSubject"}),
 				TermTextWhen(QuotesTerm, "false", IsParent{IsPropertyValue{"TextValue", "author"}}),
-				// TermTextWhen(ScopeTerm, "true", IsArrayOf{"Execute"}),
-				// &Rule{"exec-block",
-				// 	IsArrayOf{"Execute"},
-				// 	TermSet{
-				// 		ScopeTerm: TermText("true"),
-				// 		// SepTerm:   TermText(NewLineString)},
-				// },
-				//
 				ListFormatter("HandleEvent.Events", DataItemOrItem),
 				//
 				&Rule{"exec-item",
 					IsCommandOf{"Execute"},
 					TermSet{
 						TransformTerm: TermText("capitalize"),
-						// ScopeTerm:     TermText(NewLineString)},
-						ScopeTerm: TermText("true")},
+						ScopeTerm:     TermText("true")},
 				},
+				TermTextWhen(SepTerm, "", IsParent{IsArrayOf{"Execute"}}, IsElement{}),
 				TermTextWhen(SepTerm, ".", IsParent{IsArrayOf{"Execute"}}, IsThisLast{}),
 			},
 			parsed: make(map[string]bool),
