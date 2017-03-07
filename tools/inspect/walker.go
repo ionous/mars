@@ -40,6 +40,7 @@ func (w *Walker) visitArgs(path Path, c Arguments, cmdType *CommandInfo, cmdData
 			err = e
 			break
 		} else {
+			p := p // pin
 			kid := path.ChildPath(p.Name)
 			if e := w.visitArg(kid, c, &p, fieldVal); e != nil {
 				err = errutil.New("error converting", kid, "because", e)

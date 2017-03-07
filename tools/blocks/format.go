@@ -21,6 +21,8 @@ func MakeToken(name string) string {
 	return "[" + name + "]"
 }
 
+const NewLineString = string('\n')
+
 func TokenizePhrase(phrase string) (pre, post, token string) {
 	//"[Fragment]" -> "", "", "Fragment"
 	//"the [Subject] uses" -> "the", "uses", "Subject"

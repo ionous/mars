@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"github.com/ionous/mars/tools/inspect"
 	"strconv"
 	"strings"
 )
@@ -24,7 +25,7 @@ type IsParent struct {
 }
 
 func (m IsParent) String() string {
-	return Spaces("is parent", m.Parent.String())
+	return Spaces("IsParent", m.Parent.String())
 }
 
 func (m IsParent) Matches(src *DocNode) (okay bool) {
@@ -72,18 +73,18 @@ func IsTarget(target string) (ret Matcher) {
 	return
 }
 
-// IsImplementor: matches a command implementing the named type.
-type IsImplementor struct {
-	BaseType string
+// IsCommandOf: matches a command implementing the named type.
+type IsCommandOf struct {
+	Slot string
 }
 
-func (m IsImplementor) String() string {
-	return Spaces("IsImplementor", m.BaseType)
+func (m IsCommandOf) String() string {
+	return Spaces("IsCommandOf", m.Slot)
 }
 
-func (m IsImplementor) Matches(src *DocNode) bool {
+func (m IsCommandOf) Matches(src *DocNode) bool {
 	// we implement commands, and our base type is the passed name.
-	return src.Command != nil && src.BaseType != nil && src.BaseType.Name == m.BaseType
+	return src.Command != nil && src.Slot != nil && src.Slot.Name == m.Slot
 }
 
 // IsElement: matches any array element.
@@ -158,6 +159,23 @@ func (m IsParamType) String() string {
 func (m IsParamType) Matches(src *DocNode) (okay bool) {
 	// FIX: we could store param type, etc. expanded into the DocNode.
 	return src.Param != nil && src.Param.Type() == m.Name
+}
+
+//
+type IsArrayOf struct {
+	Name string
+}
+
+func (m IsArrayOf) String() string {
+	return Spaces("is array of", m.Name)
+}
+
+func (m IsArrayOf) Matches(src *DocNode) (okay bool) {
+	if src.Param != nil {
+		u := src.Param.ParamUsage()
+		okay = u.Uses() == m.Name && u.Category() == inspect.ParamTypeArray
+	}
+	return
 }
 
 // IsPropertyValue matches declarative user properties in mars

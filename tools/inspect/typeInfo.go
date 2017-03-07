@@ -33,10 +33,11 @@ func (t Types) TypeOf(data interface{}) (ret *CommandInfo, okay bool) {
 	return
 }
 
-func (cmd *CommandInfo) FindParam(name string) (ret ParamInfo, okay bool) {
+func (cmd *CommandInfo) FindParam(name string) (ret *ParamInfo, okay bool) {
 	for _, p := range cmd.Parameters {
 		if p.Name == name {
-			ret, okay = p, true
+			p := p // pin
+			ret, okay = &p, true
 			break
 		}
 	}
@@ -58,17 +59,39 @@ func (p *ParamInfo) Type() string {
 	return t
 }
 
-func (p *ParamInfo) Usage(parse bool) (uses string, attr map[string]string) {
-	parts := strings.Split(p.Uses, "?")
-	if len(parts) > 0 {
-		uses = parts[0]
-		if parse && len(parts) > 1 {
-			attr = make(map[string]string)
-			for _, q := range strings.Split(parts[1], "&") {
-				vs := strings.Split(q, "=")
-				attr[vs[0]] = vs[1]
-			}
+type ParamUsage struct {
+	parts []string
+	attr  map[string]string
+}
+
+func (u *ParamUsage) Uses() (ret string) {
+	if len(u.parts) > 0 {
+		ret = u.parts[0]
+	}
+	return
+}
+
+func (u *ParamUsage) Attrs() (ret map[string]string) {
+	if u.attr == nil && len(u.parts) > 1 {
+		u.attr = make(map[string]string)
+		for _, q := range strings.Split(u.parts[1], "&") {
+			vs := strings.Split(q, "=")
+			u.attr[vs[0]] = vs[1]
 		}
+	}
+	return u.attr
+}
+
+func (p *ParamInfo) ParamUsage() ParamUsage {
+	parts := strings.Split(p.Uses, "?")
+	return ParamUsage{parts: parts}
+}
+
+func (p *ParamInfo) Usage(parse bool) (uses string, attr map[string]string) {
+	x := p.ParamUsage()
+	uses = x.Uses()
+	if parse {
+		attr = x.Attrs()
 	}
 	return
 }
@@ -84,11 +107,13 @@ const (
 	ParamTypeBlob
 )
 
-// switch to categorization types / constants
-// change tests - and fix whatever the f bugs there are.
+func (p *ParamInfo) Categorize() ParamType {
+	x := p.ParamUsage()
+	return x.Category()
+}
 
-func (p *ParamInfo) Categorize() (ret ParamType) {
-	uses, attr := p.Usage(true)
+func (u *ParamUsage) Category() (ret ParamType) {
+	uses, attr := u.Uses(), u.Attrs()
 	if uses == "blob" {
 		ret = ParamTypeBlob
 	} else if strings.ToUpper(uses[:1]) != uses[:1] {

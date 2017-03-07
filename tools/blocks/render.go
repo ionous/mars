@@ -2,33 +2,39 @@ package blocks
 
 import (
 	"io"
-	"strings"
-	"unicode"
+	"text/tabwriter"
 )
 
 type Renderer struct {
-	w                      io.Writer
-	scopeCount, quoteCount int
-	lastSep                string
-	openQuote, closeQuote  QuoteStack
+	w             *tabwriter.Writer
+	scope         Scope
+	sep           Separator
+	openq, closeq QuoteStack
 }
 
 func NewRenderer(w io.Writer) *Renderer {
-	return &Renderer{w: w}
+	const minwidth, tabwidth, padding, padchar = 1, 0, 1, '-'
+	out := tabwriter.NewWriter(w, minwidth, tabwidth, padding, padchar, tabwriter.Debug)
+	return &Renderer{w: out,
+		scope:  Scope{w: out},
+		sep:    Separator{w: out},
+		openq:  QuoteStack{w: out},
+		closeq: QuoteStack{w: out},
+	}
 }
 
 func (r *Renderer) Render(p *DocNode, rules GenerateTerms) (err error) {
 	if e := r.render(p, rules); e != nil {
 		err = e
 	} else {
-		r.closeQuote.flush(r.w)
-		r.lastSep = strings.TrimRightFunc(r.lastSep, unicode.IsSpace)
-		r.flushSep("")
+		r.closeq.flushQuote()
+		r.sep.writeEnd()
+		err = r.w.Flush()
 	}
 	return
 }
 
-var openQuote, closeQuote = "'", "'"
+const openQuote, closeQuote = "\"", "\""
 
 func (r *Renderer) render(p *DocNode, rules GenerateTerms) (err error) {
 	for _, n := range p.Children {
@@ -39,17 +45,19 @@ func (r *Renderer) render(p *DocNode, rules GenerateTerms) (err error) {
 			break
 		} else {
 			scope, quote := v[ScopeTerm] == "true", v[QuotesTerm] == "true"
-			if scope {
-				panic("not implemented")
-				r.scope(true)
-			}
 
 			if prefix := v[PreTerm]; len(prefix) > 0 || quote {
 				r.write(prefix)
 			}
+			if scope {
+				r.sep.separate(NewLineString)
+				r.scope.changeIndent(true)
+				r.flush()
+				r.sep.chars = ""
+			}
 
 			if quote {
-				r.openQuote.push(openQuote)
+				r.openq.push(openQuote)
 			}
 
 			// trial: block children if we have content
@@ -68,64 +76,39 @@ func (r *Renderer) render(p *DocNode, rules GenerateTerms) (err error) {
 			// sep exists between things --
 			// the last sep in a chain wins.
 			if sep, ok := v[SepTerm]; ok {
-				r.lastSep = sep
+				r.sep.separate(sep)
 			}
 
 			// you could eval the sep here, and if it were terminal put it in the quotes, otherwise put it outside of the quotes -- and perhaps some other thoughtful magic.
 			if quote {
-				r.closeQuote.push(closeQuote)
+				r.closeq.push(closeQuote)
 			}
 
 			if scope {
-				r.scope(false)
+				r.scope.changeIndent(false)
+				r.sep.separate("")
+				r.flush()
 			}
 		}
 	}
 	return
 }
 
-func (r *Renderer) scope(start bool) {
-	if start {
-		r.scopeCount++
+func (r *Renderer) flush() {
+	r.closeq.flushQuote()
+	newLine := r.sep.chars == NewLineString
+	if newLine {
+		r.sep.flushSep()
+		r.scope.writeIndent()
 	} else {
-		r.scopeCount--
+		r.sep.flushSep()
 	}
-}
-
-type QuoteStack struct {
-	quotes []string
-}
-
-func (r *QuoteStack) push(s string) {
-	r.quotes = append(r.quotes, s)
-}
-
-func (r *QuoteStack) flush(w io.Writer) {
-	if cnt := len(r.quotes); cnt > 0 {
-		var q string
-		q, r.quotes = r.quotes[cnt-1], r.quotes[:cnt-1]
-		io.WriteString(w, q)
-	}
-}
-
-func (r *Renderer) flushSep(next string) {
-	// we treat spaces in sep as soft-spaces --
-	// collapsing our default separator down down down
-	if len(r.lastSep) > 0 {
-		io.WriteString(r.w, r.lastSep)
-	}
-	r.lastSep = next
+	r.openq.flushQuote()
 }
 
 func (r *Renderer) write(s string) {
 	if len(s) > 0 {
-		r.closeQuote.flush(r.w)
-		r.flushSep(" ")
-		r.openQuote.flush(r.w)
+		r.flush()
 		io.WriteString(r.w, s)
 	}
 }
-
-// var _Defaults = Productions{
-// 	SepTerm: " ",
-// }

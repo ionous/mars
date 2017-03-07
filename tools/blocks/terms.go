@@ -15,14 +15,22 @@ const (
 
 // for now, we generate string for all terms
 // bools are represented by the strings "true" and "false".
-type TermSet map[Term]TermFilter
+type TermResult struct {
+	Src    *Rule
+	Filter TermFilter
+}
+
+type TermSet map[Term]TermResult
 
 type TermFilter func(interface{}) string
 
-func FixedText(c string) TermFilter {
-	return func(interface{}) string {
+func TermText(c string) TermResult {
+	return TermFunction(func(interface{}) string {
 		return c
-	}
+	})
+}
+func TermFunction(c TermFilter) TermResult {
+	return TermResult{nil, c}
 }
 
 // Merge, things in dst take precedence.
@@ -56,8 +64,8 @@ func (ts TermSet) String() (ret string) {
 }
 
 func (ts TermSet) Filter(term Term, data interface{}) (ret string, okay bool) {
-	if fn, ok := ts[term]; ok {
-		ret, okay = fn(data), true
+	if r, ok := ts[term]; ok {
+		ret, okay = r.Filter(data), true
 	}
 	return
 }

@@ -1,7 +1,8 @@
 package blocks
 
 import (
-// "github.com/ionous/sashimi/util/errutil"
+	// "github.com/ionous/sashimi/util/errutil"
+	"strings"
 )
 
 type Matcher interface {
@@ -16,7 +17,7 @@ func (ms Matchers) String() (ret string) {
 	for i, v := range ms {
 		str[i] = v.String()
 	}
-	return Spaces(str...)
+	return strings.Join(str, " && ")
 }
 
 // Matchers implements Matcher.
@@ -44,7 +45,21 @@ type Rule struct {
 }
 
 func (c Rule) String() string {
-	return Spaces(c.desc, Spaces(c.terms.String()), c.matcher.String())
+	return Spaces(c.desc, c.matcher.String())
+}
+
+func (r *Rule) Merge(dst TermSet) TermSet {
+	for k, v := range r.terms {
+		if len(dst) == 0 {
+			dst = TermSet{k: TermResult{r, v.Filter}}
+			// dst[k]~
+		} else {
+			if _, alreadySet := dst[k]; !alreadySet {
+				dst[k] = TermResult{r, v.Filter}
+			}
+		}
+	}
+	return dst
 }
 
 // MarshalText, helper for debugging rule generation via json output.
@@ -58,7 +73,7 @@ func (rs Rules) GenerateTerms(src *DocNode) (ret TermSet) {
 	// FIX: test dst terms len for max and break early out?
 	for i, cnt := 0, len(rs); i < cnt; i++ {
 		if r := rs[cnt-i-1]; r.matcher.Matches(src) {
-			ret = Merge(ret, r.terms)
+			ret = r.Merge(ret)
 		}
 	}
 	return

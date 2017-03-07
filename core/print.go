@@ -6,15 +6,15 @@ import (
 )
 
 type PrintNum struct {
-	Num rt.NumberEval `mars:"print [num]"`
+	Num rt.NumberEval `mars:"say [num]"`
 }
 
 type PrintText struct {
-	Text rt.TextEval `mars:"print [text]"`
+	Text rt.TextEval `mars:"say [text]"`
 }
 
 type PrintObj struct {
-	Obj rt.ObjEval `mars:"print [obj]"`
+	Obj rt.ObjEval `mars:"say [obj]"`
 }
 
 type PrintLine struct {

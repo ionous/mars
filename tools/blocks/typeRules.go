@@ -37,14 +37,17 @@ func (tr *TypeRules) addCommand(cmd *inspect.CommandInfo) {
 	}
 }
 
-func (tr *TypeRules) addSingleton(target string, p *string) {
+func (tr *TypeRules) addSingleton(
+	target string,
+	p *string,
+) {
 	var text string
 	if p != nil {
 		text = *p
 	} else {
 		text = PascalSpaces(target)
 	}
-	tr.Rules = append(tr.Rules, TextRule(ContentTerm, text, IsTarget(target)))
+	tr.Rules = append(tr.Rules, TermTextWhen(ContentTerm, text, IsTarget(target)))
 }
 
 func (tr *TypeRules) addPhrase(target string, p *string) {
@@ -56,12 +59,12 @@ func (tr *TypeRules) addPhrase(target string, p *string) {
 	if len(token) == 0 {
 		token = MakeToken(PascalSpaces(target))
 	}
-	r := Token(target, token)
+	r := Token("mars", target, token)
 	tr.Rules = append(tr.Rules, r)
 
 	terms := make(TermSet)
 	if len(pre) > 0 {
-		terms[PreTerm] = FixedText(pre)
+		terms[PreTerm] = TermText(pre)
 	}
 	if s := post; len(s) > 0 {
 		last := strings.LastIndexFunc(s, func(r rune) bool {
@@ -71,16 +74,16 @@ func (tr *TypeRules) addPhrase(target string, p *string) {
 
 		post, sep := s[0:last+1], s[last+1:len(s)]
 		if len(post) > 0 {
-			terms[PostTerm] = FixedText(post)
+			terms[PostTerm] = TermText(post)
 		}
 		if len(sep) > 0 {
-			terms[SepTerm] = FixedText(sep)
+			terms[SepTerm] = TermText(sep)
 		}
 	}
 
 	if len(terms) > 0 {
 		r := &Rule{
-			Spaces("mars", target, "pre", "`"+pre+"`", "post", "`"+post+"`"),
+			"mars",
 			IsTarget(target), terms}
 		tr.Rules = append(tr.Rules, r)
 	}

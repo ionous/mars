@@ -9,7 +9,7 @@ func BuildDoc(doc *Cursor, types inspect.Types, data interface{}) (err error) {
 	if cmd, ok := types.TypeOf(data); !ok {
 		err = errutil.New("type not found", data)
 	} else {
-		var path inspect.Path
+		path := inspect.NewPath("root")
 		if r, e := NewDocBuilder(doc, path, cmd); e != nil {
 			err = e
 		} else if e := inspect.Inspect(types).VisitPath(path, r, data); e != nil {
@@ -27,6 +27,8 @@ func NewDocBuilder(curse *Cursor, path inspect.Path, c *inspect.CommandInfo) (re
 	next := NewCommandNode(path, c, c, nil)
 	if e := curse.Push(next); e != nil {
 		err = e
+	} else if next.MaxChildren() == 0 {
+		_, err = curse.Pop()
 	} else {
 		ret = &ArgumentsReceiver{c, DocBuilder{curse, nil}}
 	}
@@ -65,11 +67,11 @@ type ElementsReceiver struct {
 
 func NewCommandNode(path inspect.Path, b, c *inspect.CommandInfo, p *inspect.ParamInfo) *DocNode {
 	cnt := len(c.Parameters)
-	return &DocNode{Path: path, BaseType: b, Command: c, Param: p, Children: make([]*DocNode, 0, cnt)}
+	return &DocNode{Path: path, Slot: b, Command: c, Param: p, Children: make([]*DocNode, 0, cnt)}
 }
 
 func NewArrayNode(path inspect.Path, b *inspect.CommandInfo, p *inspect.ParamInfo, cnt int) *DocNode {
-	return &DocNode{Path: path, BaseType: b, Param: p, Children: make([]*DocNode, 0, cnt)}
+	return &DocNode{Path: path, Slot: b, Param: p, Children: make([]*DocNode, 0, cnt)}
 }
 
 func NewValueNode(path inspect.Path, p *inspect.ParamInfo, d interface{}) *DocNode {
@@ -83,6 +85,8 @@ func (l *ArgumentsReceiver) NewCommand(path inspect.Path, b, c *inspect.CommandI
 		next := NewCommandNode(path, b, c, p)
 		if e := l.curse.Push(next); e != nil {
 			err = e
+		} else if next.MaxChildren() == 0 {
+			err = l.dec()
 		} else {
 			// after arguments is done, we are done with this command.
 			ret = &ArgumentsReceiver{c, DocBuilder{l.curse, func() error {
@@ -100,6 +104,8 @@ func (l *ArgumentsReceiver) NewArray(path inspect.Path, b *inspect.CommandInfo, 
 		next := NewArrayNode(path, b, p, cnt)
 		if e := l.curse.Push(next); e != nil {
 			err = e
+		} else if next.MaxChildren() == 0 {
+			err = l.dec()
 		} else {
 			// when elements is done, we can finish
 			ret = &ElementsReceiver{b, DocBuilder{l.curse, func() error {
@@ -114,7 +120,7 @@ func (l *ArgumentsReceiver) findParam(path inspect.Path) (ret *inspect.ParamInfo
 	if p, ok := l.c.FindParam(path.Last()); !ok {
 		err = errutil.New("couldn't find parameter in", path)
 	} else {
-		ret = &p
+		ret = p
 	}
 	return
 }
@@ -138,6 +144,8 @@ func (l *ElementsReceiver) NewElement(path inspect.Path, c *inspect.CommandInfo)
 	next := NewCommandNode(path, l.b, c, nil)
 	if e := l.curse.Push(next); e != nil {
 		err = e
+	} else if next.MaxChildren() == 0 {
+		err = l.dec()
 	} else {
 		ret = &ArgumentsReceiver{c, DocBuilder{l.curse, func() error {
 			return l.dec()
