@@ -98,9 +98,8 @@ func (w *Walker) visitArg(kid Path, c Arguments, p *ParamInfo, pv *r.Value) (err
 	if isArray != wantArray {
 		err = errutil.New("array mismatch")
 	} else {
-		uses := u.Uses()
 		// commands start uppercase, primitives lowercase.
-		if u.IsCommand() {
+		if uses := u.Uses(); u.IsCommand() {
 			if baseType, ok := w.types[uses]; !ok {
 				err = errutil.New("type not found", uses)
 			} else {
@@ -120,7 +119,7 @@ func (w *Walker) visitArg(kid Path, c Arguments, p *ParamInfo, pv *r.Value) (err
 			} else {
 				if prim, e := convertArray(uses, *pv); e != nil {
 					err = e
-				} else if len(prim) > 0 {
+				} else {
 					err = c.NewValue(kid, prim)
 				}
 			}
@@ -200,14 +199,20 @@ func convertPrim(uses string, val r.Value) (ret interface{}, err error) {
 	return
 }
 
-// change to a slice of raw interface values
-func convertArray(uses string, v r.Value) (ret []interface{}, err error) {
-	for i := 0; i < v.Len(); i++ {
-		if prim, e := convertPrim(uses, v.Index(i)); e != nil {
-			err = errutil.New("error converting array of", uses, "at", i, "because", e)
-			break
-		} else {
-			ret = append(ret, prim)
+// change to an object containing a slice of raw interface values
+func convertArray(uses string, v r.Value) (ret interface{}, err error) {
+	if cnt := v.Len(); cnt > 0 {
+		var ar []interface{}
+		for i := 0; i < cnt; i++ {
+			if prim, e := convertPrim(uses, v.Index(i)); e != nil {
+				err = errutil.New("error converting array of", uses, "at", i, "because", e)
+				break
+			} else {
+				ar = append(ar, prim)
+			}
+		}
+		if err == nil {
+			ret = ar
 		}
 	}
 	return

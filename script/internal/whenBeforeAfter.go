@@ -18,8 +18,8 @@ type WhenEvent struct{}
 
 type HandleEvent struct {
 	Run    EventTiming  `mars:"[handle event]"`
-	Events []string     `mars:"[events]"`
-	Calls  []rt.Execute `mars:"always:"`
+	Events []string     `mars:"[event name(s)]"`
+	Calls  []rt.Execute `mars:"always: [run actions]."`
 }
 
 func (_ BeforeEvent) GetOptions() S.ListenOptions {
@@ -39,8 +39,12 @@ type EventPartial struct {
 }
 
 func NewEvent(evt string, t EventTiming) EventPartial {
-	events := []string{evt}
-	return EventPartial{&HandleEvent{t, events, nil}}
+	h := &HandleEvent{Run: t}
+	// for testing, allow empty event strings:
+	if evt != "" {
+		h.Events = []string{evt}
+	}
+	return EventPartial{h}
 }
 
 func (p EventPartial) Or(event string) EventPartial {
@@ -49,7 +53,10 @@ func (p EventPartial) Or(event string) EventPartial {
 }
 
 func (p EventPartial) Always(cb rt.Execute, cbs ...rt.Execute) Fragment {
-	p.data.Calls = JoinCallbacks(cb, cbs)
+	// for testing, allow empty blocks:
+	if cb != nil {
+		p.data.Calls = JoinCallbacks(cb, cbs)
+	}
 	return p.data
 }
 

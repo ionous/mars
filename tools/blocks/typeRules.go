@@ -8,61 +8,71 @@ import (
 
 type TypeRules struct {
 	Rules  Rules
-	parsed map[string]bool
+	parsed map[string]Rules
 }
 
 func (tr *TypeRules) GenerateTerms(src *DocNode) (ret TermSet) {
 	// first make sure the rules for this command are parsed
 	// we can rely on the stack to ensure the container rules are already parsed.
 	if cmd := src.Command; cmd != nil {
-		tr.addCommand(cmd)
+		if _, ok := tr.parsed[cmd.Name]; !ok {
+			rules := genCmd(cmd)
+			tr.parsed[cmd.Name] = rules
+			tr.Rules = append(tr.Rules, rules...)
+		}
 	}
 	return tr.Rules.GenerateTerms(src)
 }
 
 // if we dont have a rule for this command, then parse its "mars" tags to create some.
-func (tr *TypeRules) addCommand(cmd *inspect.CommandInfo) {
-	if !tr.parsed[cmd.Name] {
-		tr.parsed[cmd.Name] = true
-		// if there are no parameters, then we simply want to print the name
-		if cnt := len(cmd.Parameters); cnt == 0 {
-			tr.addSingleton(cmd.Name, cmd.Phrase)
-		} else {
-			tr.addPhrase(cmd.Name, cmd.Phrase)
-			for _, param := range cmd.Parameters {
-				// FIX: the rules are just going to split these again.
-				tr.addPhrase(cmd.Name+"."+param.Name, param.Phrase)
+func genCmd(cmd *inspect.CommandInfo) (ret Rules) {
+	// if there are no parameters, then we simply want to print the name
+	if cnt := len(cmd.Parameters); cnt == 0 {
+		ret = append(ret, genSingleton(cmd.Name, cmd.Phrase))
+	} else {
+		if cmd.Phrase != nil {
+			if terms := genPhrase(*cmd.Phrase); len(terms) > 0 {
+				ret = append(ret, &Rule{"mars", IsCommand{cmd.Name}, terms})
+			}
+		}
+		for _, p := range cmd.Parameters {
+			ret = append(ret, genToken(cmd.Name, p.Name, p.Phrase))
+			if p.Phrase != nil {
+				if terms := genPhrase(*p.Phrase); len(terms) > 0 {
+					ret = append(ret, &Rule{"mars", IsCommandField(cmd.Name, p.Name), terms})
+				}
 			}
 		}
 	}
+	return
 }
 
-func (tr *TypeRules) addSingleton(
-	target string,
-	p *string,
-) {
+func genSingleton(cmd string, p *string) *Rule {
 	var text string
 	if p != nil {
 		text = *p
 	} else {
-		text = PascalSpaces(target)
+		text = PascalSpaces(cmd)
 	}
-	tr.Rules = append(tr.Rules, TermTextWhen(ContentTerm, text, IsTarget(target)))
+	return TermTextWhen(ContentTerm, text, IsCommand{cmd})
 }
 
-func (tr *TypeRules) addPhrase(target string, p *string) {
-	var pre, post, token string
+// makes a token when empty
+func genToken(cmd, field string, p *string) *Rule {
+	var token string
 	if p != nil {
-		pre, post, token = TokenizePhrase(*p)
+		_, _, token = TokenizePhrase(*p)
 	}
-
 	if len(token) == 0 {
-		token = MakeToken(PascalSpaces(target))
+		token = MakeToken(PascalSpaces(field))
 	}
-	r := Token("mars", target, token)
-	tr.Rules = append(tr.Rules, r)
+	return TermTextWhen(ContentTerm, token, IsCommandField(cmd, field), IsEmpty{})
+}
 
+// makes a token when empty
+func genPhrase(p string) TermSet {
 	terms := make(TermSet)
+	pre, post, _ := TokenizePhrase(p)
 	if len(pre) > 0 {
 		terms[PreTerm] = TermText(pre)
 	}
@@ -80,11 +90,5 @@ func (tr *TypeRules) addPhrase(target string, p *string) {
 			terms[SepTerm] = TermText(sep)
 		}
 	}
-
-	if len(terms) > 0 {
-		r := &Rule{
-			"mars",
-			IsTarget(target), terms}
-		tr.Rules = append(tr.Rules, r)
-	}
+	return terms
 }

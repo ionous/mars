@@ -137,12 +137,12 @@ func IsNextLast() Matcher {
 type IsEmpty struct{}
 
 func (_ IsEmpty) String() string {
+	// FIX: im not convinced about cap,
+	// we could do child by internal index, len here, and elsewhere?
 	return "IsEmpty"
 }
 
-func (_ IsEmpty) Matches(src *DocNode) (okay bool) {
-	// FIX: im not convinced about cap,
-	// we could do child by internal index, len here, and elsewhere?
+func (_ IsEmpty) Matches(src *DocNode) bool {
 	return cap(src.Children) == 0 && src.Data == nil
 }
 

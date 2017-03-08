@@ -7,12 +7,12 @@ import (
 )
 
 type WatchTerms struct {
-	t   *testing.T
-	src GenerateTerms
+	t     *testing.T
+	rules GenerateTerms
 }
 
 func (w WatchTerms) GenerateTerms(n *DocNode) TermSet {
-	ts := w.src.GenerateTerms(n)
+	ts := w.rules.GenerateTerms(n)
 	w.t.Log(n.Path, "generated", len(ts), "terms:")
 	for k, old := range ts {
 		k, old := k, old // pin these to generate unique variables
@@ -32,6 +32,7 @@ func (w WatchTerms) GenerateTerms(n *DocNode) TermSet {
 
 type WatchWriter struct {
 	t       *testing.T
+	doc     Document
 	buf     bytes.Buffer
 	lines   []string
 	pending string

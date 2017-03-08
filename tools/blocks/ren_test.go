@@ -71,18 +71,14 @@ func RunStoryRules(t *testing.T, what interface{}, pack ...*mars.Package) (ret *
 		if e := BuildDoc(doc, types, what); e != nil {
 			err = e
 		} else {
-			buf := WatchWriter{t: t}
-			r, en := NewRenderer(&buf), NewStoryRules(types)
-			if e := r.Render(doc.Root(), WatchTerms{t, en}); e != nil {
+			rules := NewStoryRules(types)
+			w := WatchWriter{t: t, doc: doc.Document()}
+			r := NewRenderer(&w)
+			if e := r.Render(doc.Root(), WatchTerms{t, rules}); e != nil {
 				err = e
 			} else {
-				ret = &buf
+				ret = &w
 			}
-			// print after to get final ruless
-			// text, _ := recode.JsonMarshal(en)
-			// t.Log(text)
-			// text, _ := recode.JsonMarshal(doc.Root())
-			// t.Log(text)
 		}
 	}
 	return
@@ -115,8 +111,8 @@ func TestManualSubject(t *testing.T) {
 		// thinking a scoped "maker" for things?
 		TypeRule("string", FormatString),
 		Prepend("NounDirective", "The"),
-		Token("man", "NounDirective.Target", "[subject]"),
-		Token("man", "NounDirective.Fragments", "[phrases]"),
+		NewTokenRule("man", "NounDirective.Target", "[subject]"),
+		NewTokenRule("man", "NounDirective.Fragments", "[phrases]"),
 		// Append("NounDirective", "."),
 		TermTextWhen(SepTerm, ".", IsTarget("NounDirective")),
 	}
@@ -215,9 +211,22 @@ func TestSimpleBlock(t *testing.T) {
 		),
 	)
 	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
+		t.Log(out.String())
 		assert.Equal(Lines(
 			`The player when jumping or clapping always:`,
 			`-Say ""Er," says the fish. "Does that, like, EVER help??""`,
 			`-Stop now.`), out.Lines())
+	}
+}
+
+func TestEmptyBlock(t *testing.T) {
+	assert := assert.New(t)
+	what := The("player", When("").Always(nil))
+	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
+		// data := out.doc["root/Fragments/0"]
+		// t.Log(recode.JsonMarshal(data))
+		assert.Equal(Lines(
+			"The player when [event name(s)] always:",
+			"-[run actions]."), out.Lines())
 	}
 }

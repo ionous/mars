@@ -66,7 +66,10 @@ type ElementsReceiver struct {
 }
 
 func NewCommandNode(path inspect.Path, b, c *inspect.CommandInfo, p *inspect.ParamInfo) *DocNode {
-	cnt := len(c.Parameters)
+	var cnt int
+	if c != nil {
+		cnt = len(c.Parameters)
+	}
 	return &DocNode{Path: path, Slot: b, Command: c, Param: p, Children: make([]*DocNode, 0, cnt)}
 }
 

@@ -29,12 +29,18 @@ func NewStoryRules(types inspect.Types) *StoryRules {
 					IsCommandOf{"Execute"},
 					TermSet{
 						TransformTerm: TermText("capitalize"),
-						ScopeTerm:     TermText("true")},
+						ScopeTerm:     TermText("true"),
+					},
 				},
+				// each item generates a block, but: when our array is empty, we also want the placeholder content to generate a block: this isnt the most satisfying:
+				// maybe each direct child of a scope should wind up on a new line automatically:
+				// then, we simply introduce a scope on the array of execute.
+				TermTextWhen(ScopeTerm, "true", IsArrayOf{"Execute"}, IsEmpty{}),
+				// the default sep would be comma, and comma-and:
 				TermTextWhen(SepTerm, "", IsParent{IsArrayOf{"Execute"}}, IsElement{}),
 				TermTextWhen(SepTerm, ".", IsParent{IsArrayOf{"Execute"}}, IsThisLast{}),
 			},
-			parsed: make(map[string]bool),
+			parsed: make(map[string]Rules),
 		},
 	}
 }
@@ -56,7 +62,7 @@ func ValueFormatter() *Rule {
 
 func ListFormatter(target string, c TermFilter) *Rule {
 	return &Rule{"value",
-		IsTarget(target),
+		Matchers{IsTarget(target), IsNot{IsEmpty{}}},
 		TermSet{ContentTerm: TermFunction(c)},
 	}
 }

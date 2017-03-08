@@ -6,7 +6,7 @@ func TermTextWhen(when Term, text string, matchers ...Matcher) *Rule {
 }
 
 // Token, produces the passed text if the passed target is empty.
-func Token(desc, target, text string) *Rule {
+func NewTokenRule(desc, target, text string) *Rule {
 	m := Matchers{
 		IsTarget(target),
 		IsEmpty{},

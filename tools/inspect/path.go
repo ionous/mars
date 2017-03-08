@@ -33,11 +33,21 @@ func PathCompare(a, b Path) (ret int) {
 }
 
 func (p Path) ChildPath(s string) Path {
-	return append(p, s)
+	// if you append to a slice, and it does not grow
+	// the value returned by append doesnt change.
+	// not sure why they dont allocate a new slice --
+	// im sure its for efficency reasons, but it feel unexpected:
+	// string addition always retuns a new string --
+	// you dont magically alter the item on the right side of the expression.
+	cnt := len(p)
+	c := make([]string, cnt, cnt+1)
+	copy(c, p)
+	return append(c, s)
 }
 
 func (p Path) ParentPath() Path {
-	return p[:len(p)-1]
+	cnt := len(p)
+	return p[:cnt-1]
 }
 
 func (p Path) Last() string {
