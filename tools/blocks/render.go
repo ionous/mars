@@ -5,6 +5,7 @@ import (
 	"io"
 	// "strings"
 	"text/tabwriter"
+	"unicode"
 )
 
 type Renderer struct {
@@ -56,7 +57,11 @@ func (r *Renderer) render(p *DocNode, rules GenerateTerms) (err error) {
 				r.transform = lang.Capitalize
 			}
 
-			if prefix := v[PreTerm]; len(prefix) > 0 || quote {
+			if prefix := v[PrefixTerm]; len(prefix) > 0 || quote {
+				// hack for leading colons
+				if len(prefix) == 1 && unicode.IsPunct(rune(prefix[0])) {
+					r.spaces = false
+				}
 				r.writeWord(prefix)
 			}
 
@@ -81,7 +86,7 @@ func (r *Renderer) render(p *DocNode, rules GenerateTerms) (err error) {
 					break
 				}
 			}
-			if postfix := v[PostTerm]; len(postfix) > 0 {
+			if postfix := v[PostfixTerm]; len(postfix) > 0 {
 				r.writeWord(postfix)
 			}
 

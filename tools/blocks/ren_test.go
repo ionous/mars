@@ -6,6 +6,7 @@ import (
 	. "github.com/ionous/mars/script"
 	"github.com/ionous/mars/script/g"
 	"github.com/ionous/mars/std"
+	. "github.com/ionous/mars/std/script"
 	"github.com/ionous/mars/tools/inspect"
 	"github.com/ionous/sashimi/util/recode"
 	"github.com/stretchr/testify/assert"
@@ -88,7 +89,7 @@ func TestManualSubject(t *testing.T) {
 	assert := assert.New(t)
 	// Prepend, create a rule which produces prefix text for the target.
 	Prepend := func(target, text string) *Rule {
-		return TermTextWhen(PreTerm, text, IsTarget(target))
+		return TermTextWhen(PrefixTerm, text, IsTarget(target))
 	}
 	TypeRule := func(name string, fn TermFilter) *Rule {
 		return &Rule{"manual type",
@@ -176,7 +177,7 @@ func TestIs(t *testing.T) {
 	what := g.The("fish").Is("hungry")
 	assert := assert.New(t)
 	if out, e := RunStoryRules(t, what); assert.NoError(e) {
-		assert.Equal("is our fish hungry", out.String())
+		assert.Equal("our fish is hungry", out.String())
 	}
 }
 
@@ -184,7 +185,7 @@ func TestJoinAll(t *testing.T) {
 	assert := assert.New(t)
 	what := core.All(g.The("fish").Is("hungry"), g.The("fish food").Is("found"))
 	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
-		assert.Equal("( is our fish hungry, and is our fish food found )", out.String())
+		assert.Equal("( our fish is hungry, and our fish food is found )", out.String())
 	}
 }
 
@@ -213,7 +214,7 @@ func TestSimpleBlock(t *testing.T) {
 	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
 		t.Log(out.String())
 		assert.Equal(Lines(
-			`The player when jumping or clapping always:`,
+			`The player when jumping or clapping:`,
 			`-Say ""Er," says the fish. "Does that, like, EVER help??""`,
 			`-Stop now.`), out.Lines())
 	}
@@ -226,7 +227,38 @@ func TestEmptyBlock(t *testing.T) {
 		// data := out.doc["root/Fragments/0"]
 		// t.Log(recode.JsonMarshal(data))
 		assert.Equal(Lines(
-			"The player when [event name(s)] always:",
+			"The player when [event name(s)]:",
 			"-[run actions]."), out.Lines())
+	}
+}
+
+func TestContains(t *testing.T) {
+	assert := assert.New(t)
+	what := The("cabinet",
+		Contains("some paints"),
+		Contains("some cloths"))
+	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
+		assert.Equal("The cabinet contains some paints, and contains some cloths.", out.String())
+	}
+}
+
+func TestBranchElide(t *testing.T) {
+	assert := assert.New(t)
+	what := The("cabinet",
+		When("reporting now open").Always(
+			core.Choose{
+				If: g.The("fish food").Is("found"),
+				True: g.Go(
+					g.Say(`"There ya go," says the fish. "The girl is getting WARMER."`),
+					g.StopHere(),
+				),
+			}))
+	if out, e := RunStoryRules(t, what, core.Core()); assert.NoError(e) {
+		assert.Equal(Lines(
+			`The cabinet when reporting now open:`,
+			`-If our fish food is found:`,
+			`--Say ""There ya go," says the fish. "The girl is getting WARMER.""`,
+			`--Stop now.`,
+		), out.Lines())
 	}
 }

@@ -31,7 +31,7 @@ func Supports(nouns ...string) SupportsContents {
 }
 
 type SupportsContents struct {
-	Contents []string `mars:";nouns"`
+	Contents []string `mars:"supports;nouns"`
 }
 
 func (l SupportsContents) GenFragment(src *S.Statements, top Topic) error {
@@ -44,7 +44,7 @@ func Contains(nouns ...string) ContainsContents {
 }
 
 type ContainsContents struct {
-	Contents []string `mars:";nouns"`
+	Contents []string `mars:"contains;nouns"`
 }
 
 func (l ContainsContents) GenFragment(src *S.Statements, top Topic) error {
@@ -57,7 +57,7 @@ func Possesses(nouns ...string) PossessesInventory {
 }
 
 type PossessesInventory struct {
-	Inventory []string `mars:";nouns"`
+	Inventory []string `mars:"has;nouns"`
 }
 
 func (l PossessesInventory) GenFragment(src *S.Statements, top Topic) error {
@@ -70,7 +70,7 @@ func Wears(nouns ...string) WearsClothing {
 }
 
 type WearsClothing struct {
-	Clothing []string `mars:";nouns"`
+	Clothing []string `mars:"wears;nouns"`
 }
 
 func (l WearsClothing) GenFragment(src *S.Statements, top Topic) error {

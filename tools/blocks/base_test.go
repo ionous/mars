@@ -15,6 +15,14 @@ func TestStrings(t *testing.T) {
 	assert.Equal("fragment", PascalSpaces("Fragment"))
 	assert.Equal("fragment fragment", PascalSpaces("FragmentFragment"))
 }
+func TestFormat(t *testing.T) {
+	assert := assert.New(t)
+	assert.Equal(DataToString(true), "true")
+	list := []interface{}{true, "blue", 5.0}
+	assert.Equal(DataToString(list), "true, blue, 5")
+	assert.Equal(DataItemAndItem(list), "true and blue and 5")
+	assert.Equal(DataItemOrItem(list), "true or blue or 5")
+}
 
 func TestTokenize(t *testing.T) {
 	assert := assert.New(t)

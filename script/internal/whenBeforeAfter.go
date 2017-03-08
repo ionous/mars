@@ -19,7 +19,7 @@ type WhenEvent struct{}
 type HandleEvent struct {
 	Run    EventTiming  `mars:"[handle event]"`
 	Events []string     `mars:"[event name(s)]"`
-	Calls  []rt.Execute `mars:"always: [run actions]."`
+	Calls  []rt.Execute `mars:": [run actions]."`
 }
 
 func (_ BeforeEvent) GetOptions() S.ListenOptions {

@@ -18,29 +18,44 @@ func NewStoryRules(types inspect.Types) *StoryRules {
 				// note: exludes the last element for one element lists.
 				TermTextWhen(SepTerm, ", ", IsElement{}, IsNot{IsThisLast{}}),
 				TermTextWhen(SepTerm, ", and ", IsElement{}, IsNextLast()),
-				TermTextWhen(QuotesTerm, "true", IsCommandField("Text", "Value")),
-				TermTextWhen(QuotesTerm, "true", IsCommandField("ScriptSubject", "Subject")),
-				// override previous separators when using "called something".
-				TermTextWhen(SepTerm, " ", IsElement{}, IsCommand{"ScriptSubject"}),
-				TermTextWhen(QuotesTerm, "false", IsParent{IsPropertyValue{"TextValue", "author"}}),
-				ListFormatter("HandleEvent.Events", DataItemOrItem),
-				//
-				&Rule{"exec-item",
-					IsCommandOf{"Execute"},
-					TermSet{
-						TransformTerm: TermText("capitalize"),
-						ScopeTerm:     TermText("true"),
-					},
-				},
-				// each item generates a block, but: when our array is empty, we also want the placeholder content to generate a block: this isnt the most satisfying:
-				// maybe each direct child of a scope should wind up on a new line automatically:
-				// then, we simply introduce a scope on the array of execute.
-				TermTextWhen(ScopeTerm, "true", IsArrayOf{"Execute"}, IsEmpty{}),
-				// the default sep would be comma, and comma-and:
-				TermTextWhen(SepTerm, "", IsParent{IsArrayOf{"Execute"}}, IsElement{}),
-				TermTextWhen(SepTerm, ".", IsParent{IsArrayOf{"Execute"}}, IsThisLast{}),
 			},
 			parsed: make(map[string]Rules),
+		},
+		UserRules: Rules{
+			TermTextWhen(QuotesTerm, "true", IsCommandField("Text", "Value")),
+			TermTextWhen(QuotesTerm, "true", IsCommandField("ScriptSubject", "Subject")),
+			// override previous separators when using "called something".
+			TermTextWhen(SepTerm, " ", IsElement{}, IsCommand{"ScriptSubject"}),
+			TermTextWhen(QuotesTerm, "false", IsParent{IsPropertyValue{"TextValue", "author"}}),
+			ListFormatter("HandleEvent.Events", DataItemOrItem),
+			ListFormatter("ContainsContents.Contents", DataItemAndItem),
+			//
+			&Rule{"exec-item",
+				IsCommandOf{"Execute"},
+				TermSet{
+					TransformTerm: TermText("capitalize"),
+					ScopeTerm:     TermText("true"),
+				},
+			},
+			// each item generates a block, but: when our array is empty, we also want the placeholder content to generate a block: this isnt the most satisfying:
+			// maybe each direct child of a scope should wind up on a new line automatically:
+			// then, we simply introduce a scope on the array of execute.
+			TermTextWhen(ScopeTerm, "true", IsArrayOf{"Execute"}, IsEmpty{}),
+			// the default sep would be comma, and comma-and:
+			TermTextWhen(SepTerm, "", IsParent{IsArrayOf{"Execute"}}, IsElement{}),
+			TermTextWhen(SepTerm, ".", IsParent{IsArrayOf{"Execute"}}, IsThisLast{}),
+			// generate a block for choose.false when empty to hide the empty children
+			// TermTextWhen(ContentTerm, "xxxxx", IsTarget("Choose.False"), IsEmpty{}),
+			&Rule{"elide false",
+				Matchers{IsTarget("Choose.False"), IsEmpty{}},
+				TermSet{
+					// FIX: might want display false instead of this.
+					PrefixTerm:  TermText(""),
+					ContentTerm: TermText(""),
+					PostfixTerm: TermText(""),
+					ScopeTerm:   TermText("false"),
+				},
+			},
 		},
 	}
 }

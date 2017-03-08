@@ -1,7 +1,6 @@
 package blocks
 
 import (
-	"fmt"
 	"github.com/ionous/mars/tools/inspect"
 	r "reflect"
 	"regexp"
@@ -57,32 +56,51 @@ func Tokenize(p *inspect.ParamInfo) (pre, post, token string) {
 	return
 }
 
-func DataItemOrItem(data interface{}) (ret string) {
-	v := r.ValueOf(data)
-	if v.Kind() != r.Array && v.Kind() != r.Slice {
-		ret = fmt.Sprint("unexpected data", v.Kind(), data)
-	} else if cnt := v.Len(); cnt > 0 {
-		strs := make([]string, cnt)
-		for i := 0; i < cnt; i++ {
-			el := v.Index(i)
-			strs[i] = DataToString(el.Interface())
-		}
-		ret = strings.Join(strs, " or ")
-	}
-	return ret
+// DataItemOrItem, join a list with "or".
+func DataItemOrItem(data interface{}) string {
+	return JoinList(r.ValueOf(data), " or ")
 }
 
+func DataItemAndItem(data interface{}) string {
+	return JoinList(r.ValueOf(data), " and ")
+}
+
+func JoinList(list r.Value, sep string) (ret string) {
+	if k := list.Kind(); k != r.Slice {
+		ret = Spaces("<unexpected", k.String(), "items>")
+	} else if cnt := list.Len(); cnt == 0 {
+		ret = "<empty>"
+	} else {
+		strs := make([]string, cnt)
+		for i := 0; i < cnt; i++ {
+			v := list.Index(i)
+			strs[i] = DataToString(v.Interface())
+		}
+		ret = strings.Join(strs, sep)
+	}
+	return
+}
+
+// DataToString, format script values in a simple way.
 func DataToString(data interface{}) (ret string) {
-	// FIX: arrays of these???
-	switch val := data.(type) {
-	case string:
-		ret = val
-	case float64:
-		ret = strconv.FormatFloat(val, 'g', -1, 64)
-	case bool:
-		ret = strconv.FormatBool(val)
-	default:
-		ret = fmt.Sprint(val)
+	if data == nil {
+		ret = "<blank>"
+	} else {
+		v := r.ValueOf(data)
+		switch k := v.Kind(); k {
+		case r.String:
+			ret = v.String()
+		case r.Float64:
+			val := v.Float()
+			ret = strconv.FormatFloat(val, 'g', -1, 64)
+		case r.Bool:
+			val := v.Bool()
+			ret = strconv.FormatBool(val)
+		case r.Slice:
+			ret = JoinList(v, ", ")
+		default:
+			ret = Spaces("<unknown", k.String(), "data>")
+		}
 	}
 	return
 }

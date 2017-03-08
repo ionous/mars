@@ -37,6 +37,7 @@ func genCmd(cmd *inspect.CommandInfo) (ret Rules) {
 		}
 		for _, p := range cmd.Parameters {
 			ret = append(ret, genToken(cmd.Name, p.Name, p.Phrase))
+			// note: unless there is an explict phrase, we dont include the field name for when the field has data.
 			if p.Phrase != nil {
 				if terms := genPhrase(*p.Phrase); len(terms) > 0 {
 					ret = append(ret, &Rule{"mars", IsCommandField(cmd.Name, p.Name), terms})
@@ -74,7 +75,7 @@ func genPhrase(p string) TermSet {
 	terms := make(TermSet)
 	pre, post, _ := TokenizePhrase(p)
 	if len(pre) > 0 {
-		terms[PreTerm] = TermText(pre)
+		terms[PrefixTerm] = TermText(pre)
 	}
 	if s := post; len(s) > 0 {
 		last := strings.LastIndexFunc(s, func(r rune) bool {
@@ -84,7 +85,7 @@ func genPhrase(p string) TermSet {
 
 		post, sep := s[0:last+1], s[last+1:len(s)]
 		if len(post) > 0 {
-			terms[PostTerm] = TermText(post)
+			terms[PostfixTerm] = TermText(post)
 		}
 		if len(sep) > 0 {
 			terms[SepTerm] = TermText(sep)

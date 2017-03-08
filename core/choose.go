@@ -3,9 +3,9 @@ package core
 import "github.com/ionous/mars/rt"
 
 type Choose struct {
-	If    rt.BoolEval   `mars:"test if"`
-	True  rt.Statements `mars:"true: "`
-	False rt.Statements `mars:"false: "`
+	If    rt.BoolEval   `mars:"if"`
+	True  rt.Statements `mars:":"`
+	False rt.Statements `mars:"otherwise:"`
 }
 
 type ChooseNum struct {

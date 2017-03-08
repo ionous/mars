@@ -4,10 +4,10 @@ package blocks
 type Term int
 
 const (
-	PreTerm Term = iota
+	PrefixTerm Term = iota
 	QuotesTerm
 	ContentTerm
-	PostTerm
+	PostfixTerm
 	SepTerm
 	ScopeTerm
 	TransformTerm
